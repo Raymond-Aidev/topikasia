@@ -40,17 +40,20 @@ export async function examLogin(req: Request, res: Response, next: NextFunction)
         where: { id: examinee.id },
         data: {
           loginFailCount: { increment: 1 },
-          // 실패 횟수 초과 시 잠금 (현재 값 + 1 >= MAX)
-          ...(examinee.loginFailCount + 1 >= MAX_LOGIN_FAIL && {
-            status: 'LOCKED',
-          }),
         },
+        select: { loginFailCount: true, status: true, id: true },
       });
 
-      const remaining = MAX_LOGIN_FAIL - updated.loginFailCount;
-      if (remaining <= 0) {
+      // 실패 횟수 초과 시 잠금 (increment 결과 기준으로 판단)
+      if (updated.loginFailCount >= MAX_LOGIN_FAIL) {
+        await prisma.examinee.update({
+          where: { id: updated.id },
+          data: { status: 'LOCKED' },
+        });
         throw new AppError(423, '로그인 실패 횟수 초과로 계정이 잠겼습니다. 감독관에게 문의하세요');
       }
+
+      const remaining = MAX_LOGIN_FAIL - updated.loginFailCount;
       throw new AppError(401, `아이디 또는 비밀번호가 올바르지 않습니다 (${remaining}회 남음)`);
     }
 
