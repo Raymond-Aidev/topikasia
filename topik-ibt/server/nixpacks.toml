@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20", "openssl"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npx prisma generate", "npm run build"]
+cmds = ["npx prisma generate --config prisma.config.ts", "npm run build"]
 
 [start]
-cmd = "npx prisma migrate deploy && node dist/server.js"
+cmd = "npx prisma migrate deploy --config prisma.config.ts && node dist/server.js"
