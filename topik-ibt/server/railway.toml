@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "npx prisma generate --config prisma.config.ts && npm run build"
 
 [deploy]
-startCommand = "npx prisma db push --config prisma.config.ts --skip-generate && node dist/server.js"
+startCommand = "npx prisma db push --config prisma.config.ts && node dist/server.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
