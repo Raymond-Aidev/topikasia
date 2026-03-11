@@ -7,7 +7,7 @@ import ExamHeader from '../../shared/components/ExamHeader';
 import ExamineeCard from '../../shared/components/ExamineeCard';
 import CountdownOverlay from '../../shared/components/CountdownOverlay';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const WS_URL = import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const SECTION_LABEL: Record<string, string> = {
   LISTENING: '듣기',
@@ -100,7 +100,7 @@ export default function WaitingRoomScreen() {
 
   useEffect(() => {
     const token = localStorage.getItem('examToken');
-    const socket = io(`${API_URL}/exam`, {
+    const socket = io(`${WS_URL}/exam`, {
       auth: { token },
       transports: ['websocket', 'polling'],
     });
