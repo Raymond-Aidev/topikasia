@@ -19,7 +19,7 @@ const envSchema = z.object({
   QUESTION_BANK_API_KEY: z.string().default('mock-key'),
   EXAM_COUNTDOWN_SECONDS: z.coerce.number().default(10),
   EXAM_LATE_GRACE_SECONDS: z.coerce.number().default(0),
-  FRONTEND_URL: z.string().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().default('https://www.topikasia.com'),
 });
 
 const parsed = envSchema.safeParse(process.env);
