@@ -16,4 +16,6 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./
 COPY --from=builder /app/package*.json ./
 EXPOSE 3000
-CMD ["sh", "-c", "echo \"DB_URL starts with: $(echo $DATABASE_URL | cut -c1-20)...\" && echo \"All env vars with DB: $(env | grep -i database)\" && npx prisma db push --config prisma.config.ts --url \"$DATABASE_URL\" && node dist/server.js"]
+COPY --from=builder /app/start.sh ./
+RUN chmod +x start.sh
+CMD ["sh", "./start.sh"]
