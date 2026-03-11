@@ -41,8 +41,8 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ─── 프로덕션 정적 파일 서빙 ─────────────────────────────────
-if (process.env.NODE_ENV === 'production' && process.env.SERVE_CLIENT === 'true') {
-  const clientDist = path.join(__dirname, '../../client/dist');
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, 'public');
   app.use(express.static(clientDist));
 }
 
@@ -55,8 +55,8 @@ app.use('/api/questions', questionRouter);
 app.use('/api/registration', registrationRouter);
 
 // ─── SPA 폴백 (API 라우트 이후) ──────────────────────────────
-if (process.env.NODE_ENV === 'production' && process.env.SERVE_CLIENT === 'true') {
-  const clientDist = path.join(__dirname, '../../client/dist');
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, 'public');
   app.get('*', (_req, res) => {
     res.sendFile(path.join(clientDist, 'index.html'));
   });
