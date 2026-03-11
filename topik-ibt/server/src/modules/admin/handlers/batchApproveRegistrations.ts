@@ -31,7 +31,7 @@ export async function batchApproveRegistrations(req: Request, res: Response, nex
       success: true,
       message: `${results.length}건의 접수가 승인되었습니다.`,
       data: {
-        approved: results.map(r => ({
+        approved: results.map((r: any) => ({
           registrationId: r.registrationId,
           examineeId: r.examineeId,
           loginId: r.loginId,

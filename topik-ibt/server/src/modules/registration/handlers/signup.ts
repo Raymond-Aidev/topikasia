@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { prisma } from '../../../config/database';
 import { AppError } from '../../../shared/types';
+import { sendVerificationEmail } from '../../../shared/utils/email';
 
 const SALT_ROUNDS = 12;
 const VERIFY_CODE_EXPIRY_MINUTES = 3;
@@ -45,9 +46,7 @@ export async function signup(req: Request, res: Response, next: NextFunction): P
 
     const created = user[0];
 
-    // TODO: 실 배포 시 이메일 발송 로직 추가
-    // await sendVerificationEmail(body.email, verifyCode);
-    console.log(`[Registration] Verify code for ${body.email}: ${verifyCode}`);
+    await sendVerificationEmail(body.email, verifyCode);
 
     res.status(201).json({
       success: true,

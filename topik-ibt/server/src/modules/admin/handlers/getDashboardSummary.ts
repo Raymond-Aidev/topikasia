@@ -40,7 +40,7 @@ export async function getDashboardSummary(_req: Request, res: Response, next: Ne
 
     // 시험세트별 세션 상태 통계
     const examSetStats = await Promise.all(
-      examSets.map(async (es) => {
+      examSets.map(async (es: any) => {
         const [completed, inProgress, notStarted] = await prisma.$transaction([
           prisma.examSession.count({
             where: { examSetId: es.id, status: 'COMPLETED' },

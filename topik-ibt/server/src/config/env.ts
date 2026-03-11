@@ -20,6 +20,11 @@ const envSchema = z.object({
   EXAM_COUNTDOWN_SECONDS: z.coerce.number().default(10),
   EXAM_LATE_GRACE_SECONDS: z.coerce.number().default(0),
   FRONTEND_URL: z.string().default('https://www.topikasia.com'),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().default('noreply@topikasia.com'),
 });
 
 const parsed = envSchema.safeParse(process.env);

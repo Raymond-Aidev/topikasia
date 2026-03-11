@@ -85,11 +85,11 @@ export async function exportExamSessions(req: Request, res: Response, next: Next
       const answers = session.answers || [];
 
       const getSubmittedAt = (section: string) => {
-        const answer = answers.find((a) => a.section === section && a.submittedAt);
+        const answer = answers.find((a: any) => a.section === section && a.submittedAt);
         return answer?.submittedAt ? formatDate(answer.submittedAt) : '';
       };
 
-      const hasAutoSubmitted = answers.some((a) => a.isAutoSubmitted);
+      const hasAutoSubmitted = answers.some((a: any) => a.isAutoSubmitted);
 
       sheet.addRow({
         registrationNumber: session.examinee.registrationNumber,

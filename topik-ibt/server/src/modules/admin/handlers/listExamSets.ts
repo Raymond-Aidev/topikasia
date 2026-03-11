@@ -28,7 +28,7 @@ export async function listExamSets(req: Request, res: Response, next: NextFuncti
 
     res.json({
       success: true,
-      data: examSets.map((es) => ({
+      data: examSets.map((es: any) => ({
         ...es,
         assignedCount: es._count.assignedExaminees,
         _count: undefined,
@@ -64,7 +64,7 @@ export async function listAssignableExamSets(req: Request, res: Response, next: 
 
     res.json({
       success: true,
-      data: examSets.map((es) => ({
+      data: examSets.map((es: any) => ({
         ...es,
         assignedCount: es._count.assignedExaminees,
         _count: undefined,
