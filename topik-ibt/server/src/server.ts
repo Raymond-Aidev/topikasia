@@ -9,8 +9,14 @@ const server = http.createServer(app);
 // WebSocket 초기화
 const io = initWebSocket(server);
 
-// 자동 제출 job (60초 간격)
-const autoSubmitInterval = setInterval(autoSubmitExpiredSections, 60_000);
+// 자동 제출 job (60초 간격) - DB 에러 시에도 서버 유지
+const autoSubmitInterval = setInterval(async () => {
+  try {
+    await autoSubmitExpiredSections();
+  } catch (err) {
+    console.error('[AutoSubmit] job 에러:', err);
+  }
+}, 60_000);
 
 server.listen(env.PORT, () => {
   console.log(`[Server] ${env.NODE_ENV} 모드로 포트 ${env.PORT}에서 실행중`);
