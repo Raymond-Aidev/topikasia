@@ -1,4 +1,4 @@
-# Stage 1: Build Client
+# TOPIK IBT - Combined Client + Server Build
 FROM node:20-alpine AS client-builder
 WORKDIR /app/client
 COPY client/package*.json ./
