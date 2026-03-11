@@ -1,0 +1,191 @@
+import { useNavigate } from 'react-router-dom';
+import RegistrationHeader from '../components/RegistrationHeader';
+import { useRegistrationStore } from '../store/registrationStore';
+import { downloadTicket } from '../api/registrationApi';
+
+const styles = {
+  page: {
+    minHeight: '100vh',
+    backgroundColor: '#F5F5F5',
+    fontFamily: 'sans-serif',
+    paddingTop: 56,
+  },
+  content: {
+    maxWidth: 560,
+    margin: '0 auto',
+    padding: '60px 24px',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: '48px 40px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+    textAlign: 'center' as const,
+  },
+  checkIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: '50%',
+    backgroundColor: '#E8F5E9',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 24px',
+    fontSize: 36,
+    color: '#4CAF50',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 800 as const,
+    color: '#212121',
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#616161',
+    marginBottom: 32,
+    lineHeight: 1.5,
+  },
+  infoTable: {
+    width: '100%',
+    borderCollapse: 'collapse' as const,
+    marginBottom: 32,
+    textAlign: 'left' as const,
+  },
+  infoLabel: {
+    padding: '10px 16px',
+    fontSize: 14,
+    fontWeight: 600 as const,
+    color: '#757575',
+    width: 120,
+  },
+  infoValue: {
+    padding: '10px 16px',
+    fontSize: 15,
+    color: '#212121',
+    fontWeight: 500 as const,
+  },
+  btnRow: {
+    display: 'flex',
+    gap: 16,
+    justifyContent: 'center',
+  },
+  downloadBtn: {
+    padding: '14px 32px',
+    fontSize: 15,
+    fontWeight: 700 as const,
+    color: '#FFFFFF',
+    backgroundColor: '#4CAF50',
+    border: 'none',
+    borderRadius: 8,
+    cursor: 'pointer',
+  },
+  mypageBtn: {
+    padding: '14px 32px',
+    fontSize: 15,
+    fontWeight: 600 as const,
+    color: '#1565C0',
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #1565C0',
+    borderRadius: 8,
+    cursor: 'pointer',
+  },
+};
+
+export default function RegistrationCompletePage() {
+  const navigate = useNavigate();
+  const { currentRegistration, selectedSchedule, resetForm } = useRegistrationStore();
+
+  const handleDownloadTicket = async () => {
+    if (!currentRegistration) return;
+    try {
+      const blob = await downloadTicket(currentRegistration.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `수험표_${currentRegistration.registrationNumber}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('수험표 다운로드에 실패했습니다.');
+    }
+  };
+
+  const handleMyPage = () => {
+    resetForm();
+    navigate('/registration/mypage');
+  };
+
+  return (
+    <div style={styles.page}>
+      <RegistrationHeader showTimer={false} />
+
+      <div style={styles.content}>
+        <div style={styles.card}>
+          <div style={styles.checkIcon}>&#10003;</div>
+          <div style={styles.title}>접수가 완료되었습니다</div>
+          <div style={styles.subtitle}>
+            시험 접수가 정상적으로 처리되었습니다.
+            <br />
+            아래 접수 정보를 확인하세요.
+          </div>
+
+          <table style={styles.infoTable}>
+            <tbody>
+              <tr>
+                <td style={styles.infoLabel}>접수번호</td>
+                <td style={styles.infoValue}>
+                  {currentRegistration?.registrationNumber || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={styles.infoLabel}>시험</td>
+                <td style={styles.infoValue}>
+                  {selectedSchedule
+                    ? `${selectedSchedule.examName} (${selectedSchedule.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'})`
+                    : '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={styles.infoLabel}>시험일</td>
+                <td style={styles.infoValue}>{selectedSchedule?.examDate || '-'}</td>
+              </tr>
+              <tr>
+                <td style={styles.infoLabel}>시험장</td>
+                <td style={styles.infoValue}>
+                  {currentRegistration?.venue?.name || '-'}
+                </td>
+              </tr>
+              <tr>
+                <td style={styles.infoLabel}>상태</td>
+                <td style={styles.infoValue}>
+                  <span
+                    style={{
+                      padding: '4px 12px',
+                      borderRadius: 12,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#fff',
+                      backgroundColor: '#4CAF50',
+                    }}
+                  >
+                    접수완료
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style={styles.btnRow}>
+            <button style={styles.downloadBtn} onClick={handleDownloadTicket}>
+              수험표 다운로드
+            </button>
+            <button style={styles.mypageBtn} onClick={handleMyPage}>
+              마이페이지
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

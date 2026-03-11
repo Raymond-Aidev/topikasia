@@ -1,0 +1,68 @@
+import { Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcrypt';
+import { z } from 'zod';
+import { prisma } from '../../../config/database';
+import { AppError } from '../../../shared/types';
+
+const SALT_ROUNDS = 12;
+const VERIFY_CODE_EXPIRY_MINUTES = 3;
+
+const signupSchema = z.object({
+  email: z.string().email('유효한 이메일을 입력해주세요'),
+  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
+  name: z.string().min(1, '이름을 입력해주세요'),
+  phone: z.string().optional(),
+});
+
+/**
+ * POST /api/registration/signup
+ * 접수자 회원가입
+ */
+export async function signup(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const body = signupSchema.parse(req.body);
+
+    const passwordHash = await bcrypt.hash(body.password, SALT_ROUNDS);
+
+    // 6자리 숫자 인증코드 생성
+    const verifyCode = String(Math.floor(100000 + Math.random() * 900000));
+    const verifyExpiry = new Date(Date.now() + VERIFY_CODE_EXPIRY_MINUTES * 60 * 1000);
+
+    let user;
+    try {
+      user = await prisma.$queryRaw`
+        INSERT INTO "RegistrationUser" ("id", "email", "passwordHash", "name", "phone", "isVerified", "verifyCode", "verifyExpiry", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid()::text, ${body.email}, ${passwordHash}, ${body.name}, ${body.phone || null}, false, ${verifyCode}, ${verifyExpiry}, NOW(), NOW())
+        RETURNING "id", "email"
+      ` as any[];
+    } catch (err: any) {
+      // P2002 또는 unique_violation (23505)
+      if (err.code === 'P2002' || err.code === '23505') {
+        throw new AppError(409, '이미 가입된 이메일입니다');
+      }
+      throw err;
+    }
+
+    const created = user[0];
+
+    // TODO: 실 배포 시 이메일 발송 로직 추가
+    // await sendVerificationEmail(body.email, verifyCode);
+    console.log(`[Registration] Verify code for ${body.email}: ${verifyCode}`);
+
+    res.status(201).json({
+      success: true,
+      message: '회원가입 완료. 이메일로 전송된 인증코드를 입력해주세요.',
+      data: {
+        userId: created.id,
+        email: created.email,
+      },
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      const message = err.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      next(new AppError(400, `입력값 검증 실패: ${message}`));
+    } else {
+      next(err);
+    }
+  }
+}

@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── 어드민 계정 ──────────────────────────────────────────────
+model AdminUser {
+  id           String    @id @default(cuid())
+  loginId      String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  createdExaminees Examinee[]
+  uploadedExamSets ExamSet[]
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  PROCTOR
+  QUESTION_AUTHOR
+}
+
+// ─── 응시자 ───────────────────────────────────────────────────
+model Examinee {
+  id                 String         @id @default(cuid())
+  loginId            String         @unique
+  passwordHash       String
+  name               String
+  registrationNumber String         @unique
+  seatNumber         Int?
+  photoUrl           String?
+  institutionName    String?
+  examRoomName       String?
+  status             ExamineeStatus @default(ACTIVE)
+  loginFailCount     Int            @default(0)
+  assignedExamSetId  String?
+
+  assignedExamSet ExamSet?      @relation(fields: [assignedExamSetId], references: [id], onDelete: SetNull)
+  createdBy       AdminUser     @relation(fields: [createdById], references: [id])
+  createdById     String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  examSessions ExamSession[]
+}
+
+enum ExamineeStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+}
+
+// ─── 시험세트 ─────────────────────────────────────────────────
+model ExamSet {
+  id               String        @id @default(cuid())
+  examSetNumber    String        @unique
+  name             String
+  examType         ExamType
+  description      String?
+  status           ExamSetStatus @default(DRAFT)
+  sectionsJson     Json
+  snapshotJson     Json?
+  scheduledStartAt DateTime?
+  uploadedAt       DateTime?
+  uploadedBy       AdminUser?    @relation(fields: [uploadedById], references: [id])
+  uploadedById     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  assignedExaminees Examinee[]
+  examSessions      ExamSession[]
+}
+
+enum ExamType {
+  TOPIK_I
+  TOPIK_II
+}
+
+enum ExamSetStatus {
+  DRAFT
+  UPLOADED
+  ACTIVE
+  ARCHIVED
+}
+
+// ─── 응시 세션 ────────────────────────────────────────────────
+model ExamSession {
+  id                  String        @id @default(cuid())
+  examineeId          String
+  examSetId           String
+  status              SessionStatus @default(IN_PROGRESS)
+  sectionProgressJson Json
+  startedAt           DateTime      @default(now())
+  completedAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  examinee Examinee    @relation(fields: [examineeId], references: [id], onDelete: Cascade)
+  examSet  ExamSet     @relation(fields: [examSetId], references: [id])
+  answers  Answer[]
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+// ─── 답안 ─────────────────────────────────────────────────────
+model Answer {
+  id              String      @id @default(cuid())
+  sessionId       String
+  questionBankId  String
+  section         String
+  questionIndex   Int
+  answerJson      Json
+  savedAt         DateTime    @default(now())
+  submittedAt     DateTime?
+  isAutoSubmitted Boolean     @default(false)
+
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionBankId])
+}
+
+// ─── 감사 로그 ────────────────────────────────────────────────
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  targetType String
+  targetId   String
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([targetType, targetId])
+  @@index([action, createdAt])
+}
