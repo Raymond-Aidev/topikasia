@@ -8,6 +8,8 @@ import ExamNavigation from '../../shared/components/ExamNavigation';
 import NetworkStatusBanner from '../../shared/components/NetworkStatusBanner';
 import MCQQuestion from '../components/MCQQuestion';
 import DropdownQuestion from '../components/DropdownQuestion';
+import OrderingQuestion from '../components/OrderingQuestion';
+import InsertPositionQuestion from '../components/InsertPositionQuestion';
 import AllQuestionsPopup from '../components/AllQuestionsPopup';
 import { useAutoSave } from '../hooks/useAutoSave';
 
@@ -125,8 +127,33 @@ const MOCK_READING_QUESTIONS: Question[] = [
       { id: 4, text: '가끔 먹으면' },
     ],
   },
-  // TODO: Phase 2 - ORDERING type questions
-  // TODO: Phase 2 - INSERT_POSITION type questions
+  // ─── ORDERING type questions ───
+  {
+    questionId: 'R8',
+    bankId: 'B3',
+    section: 'READING',
+    questionType: 'ORDERING',
+    questionNumber: 8,
+    instruction: '다음 문장을 순서에 맞게 배열하십시오.',
+    passageText: '주어진 문장들을 읽고 자연스러운 글이 되도록 순서를 정하세요.',
+    sentenceCards: [
+      { id: 'o1', text: '그래서 우산을 가지고 나갔습니다.' },
+      { id: 'o2', text: '오늘 아침에 날씨 예보를 봤습니다.' },
+      { id: 'o3', text: '예보에서 오후에 비가 온다고 했습니다.' },
+      { id: 'o4', text: '다행히 비가 올 때 우산이 있어서 젖지 않았습니다.' },
+    ],
+  },
+  // ─── INSERT_POSITION type questions ───
+  {
+    questionId: 'R9',
+    bankId: 'B3',
+    section: 'READING',
+    questionType: 'INSERT_POSITION',
+    questionNumber: 9,
+    instruction: '다음 문장이 들어가기에 가장 알맞은 곳을 고르십시오.',
+    sentenceToInsert: '그러나 모든 사람이 같은 의견을 가지고 있는 것은 아닙니다.',
+    passageText: '최근 재택근무가 늘어나고 있습니다. [INSERT] 많은 직장인들이 재택근무를 선호합니다. [INSERT] 출퇴근 시간을 절약할 수 있고 자유로운 환경에서 일할 수 있기 때문입니다. [INSERT] 일부 사람들은 사무실에서 동료와 함께 일하는 것이 더 효율적이라고 생각합니다.',
+  },
 ];
 
 // ─── Styles ─────────────────────────────────────────────────────
@@ -235,8 +262,22 @@ export default function ReadingScreen() {
             onAnswer={handleAnswer}
           />
         );
-      // TODO: Phase 2 - ORDERING
-      // TODO: Phase 2 - INSERT_POSITION
+      case 'ORDERING':
+        return (
+          <OrderingQuestion
+            question={question}
+            answer={answers[question.questionId]}
+            onAnswer={handleAnswer}
+          />
+        );
+      case 'INSERT_POSITION':
+        return (
+          <InsertPositionQuestion
+            question={question}
+            answer={answers[question.questionId]}
+            onAnswer={handleAnswer}
+          />
+        );
       default:
         return <div>지원하지 않는 문제 유형입니다.</div>;
     }
