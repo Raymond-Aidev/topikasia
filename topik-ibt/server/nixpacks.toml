@@ -8,4 +8,4 @@ cmds = ["npm ci"]
 cmds = ["npx prisma generate --config prisma.config.ts", "npm run build"]
 
 [start]
-cmd = "npx prisma db push --config prisma.config.ts && node dist/server.js"
+cmd = "npx prisma db push --config prisma.config.ts --url \"$DATABASE_URL\" && node dist/server.js"
