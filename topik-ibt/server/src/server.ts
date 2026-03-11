@@ -1,9 +1,3 @@
-// === 최초 디버깅: 모든 import 전에 환경변수 확인 ===
-console.log('[DEBUG] DATABASE_URL length:', process.env.DATABASE_URL?.length ?? 'undefined');
-console.log('[DEBUG] DATABASE_URL first 30:', process.env.DATABASE_URL?.substring(0, 30) ?? 'EMPTY');
-console.log('[DEBUG] NODE_ENV:', process.env.NODE_ENV);
-console.log('[DEBUG] All DB vars:', Object.keys(process.env).filter(k => /database|postgres|pg/i.test(k)));
-
 import http from 'http';
 import app from './app';
 import { env } from './config/env';
