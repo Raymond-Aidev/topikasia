@@ -28,6 +28,7 @@ const envSchema = z.object({
   LLM_API_KEY: z.string().optional(),
   LLM_PROVIDER: z.enum(['openai', 'anthropic']).default('openai'),
   LLM_MODEL: z.string().optional(),
+  ADMIN_2FA_CODE: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

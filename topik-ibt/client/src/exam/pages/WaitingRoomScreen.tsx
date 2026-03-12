@@ -97,6 +97,31 @@ export default function WaitingRoomScreen() {
 
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
+  const [manualStarting, setManualStarting] = useState(false);
+
+  // SYNC-08: scheduledStartAt가 없으면 수동 시작 가능
+  const isManualStart = assignedExamSet != null && !assignedExamSet.scheduledStartAt;
+
+  const handleManualStart = async () => {
+    if (manualStarting) return;
+    setManualStarting(true);
+    try {
+      const res = await examApi.post('/exam/sessions', {
+        examSetId: assignedExamSet?.examSetId,
+      });
+      setSession(res.data.sessionId);
+      setCurrentSection('LISTENING');
+      setExamPhase('IN_PROGRESS');
+      setCountdownSeconds(null);
+      navigate('/exam/section-waiting');
+    } catch (err: any) {
+      if (err?.response?.status === 403 && err?.response?.data?.code === 'EXAM_ALREADY_STARTED') {
+        setExamBlocked(true);
+        navigate('/exam-blocked');
+      }
+      setManualStarting(false);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('examToken');
@@ -189,10 +214,35 @@ export default function WaitingRoomScreen() {
             </tbody>
           </table>
 
-          <div style={styles.status}>
-            <span style={styles.dot} />
-            {connected ? '서버 연결됨 — 시험 시작을 기다리고 있습니다...' : '서버에 연결 중...'}
-          </div>
+          {isManualStart ? (
+            <div style={{ marginTop: 24, textAlign: 'center' }}>
+              <div style={{
+                padding: 16, backgroundColor: '#fff', borderRadius: 8,
+                boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 16,
+                fontSize: 14, color: '#616161',
+              }}>
+                감독관 수동 시작 모드입니다. 준비가 되면 아래 버튼을 눌러 시험을 시작하세요.
+              </div>
+              <button
+                onClick={handleManualStart}
+                disabled={manualStarting}
+                style={{
+                  padding: '14px 48px', borderRadius: 8, border: 'none',
+                  backgroundColor: manualStarting ? '#93C5FD' : '#1565C0',
+                  color: '#fff', fontSize: 17, fontWeight: 700,
+                  cursor: manualStarting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 8px rgba(21,101,192,0.3)',
+                }}
+              >
+                {manualStarting ? '시작하는 중...' : '시험 시작'}
+              </button>
+            </div>
+          ) : (
+            <div style={styles.status}>
+              <span style={styles.dot} />
+              {connected ? '서버 연결됨 — 시험 시작을 기다리고 있습니다...' : '서버에 연결 중...'}
+            </div>
+          )}
         </div>
       </div>
     </>

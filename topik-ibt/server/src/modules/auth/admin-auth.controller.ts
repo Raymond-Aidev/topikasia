@@ -3,6 +3,7 @@ import { prisma } from '../../config/database';
 import { comparePassword } from '../../shared/utils/password';
 import { signAdminToken } from '../../shared/utils/jwt';
 import { AppError } from '../../shared/types';
+import { env } from '../../config/env';
 
 /**
  * POST /api/admin-auth/login
@@ -10,7 +11,7 @@ import { AppError } from '../../shared/types';
  */
 export async function adminLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { loginId, password } = req.body;
+    const { loginId, password, twoFactorCode } = req.body;
 
     const admin = await prisma.adminUser.findUnique({
       where: { loginId },
@@ -27,6 +28,13 @@ export async function adminLogin(req: Request, res: Response, next: NextFunction
     const isValid = await comparePassword(password, admin.passwordHash);
     if (!isValid) {
       throw new AppError(401, '아이디 또는 비밀번호가 올바르지 않습니다');
+    }
+
+    // 2FA 검증 (ADMIN_2FA_CODE가 설정된 경우에만)
+    if (env.ADMIN_2FA_CODE) {
+      if (!twoFactorCode || twoFactorCode !== env.ADMIN_2FA_CODE) {
+        throw new AppError(401, '2단계 인증 코드가 올바르지 않습니다');
+      }
     }
 
     const token = signAdminToken({

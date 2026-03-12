@@ -28,6 +28,9 @@ import { listScores } from './handlers/listScores';
 import { getScoreDetail } from './handlers/getScoreDetail';
 import { manualGrade } from './handlers/manualGrade';
 import { publishScores } from './handlers/publishScores';
+import { getLlmSettings, testLlmExplanation } from './handlers/getLlmSettings';
+import { getQuestionTypes } from './handlers/getQuestionTypes';
+import { updateQuestionTypes } from './handlers/updateQuestionTypes';
 
 const router = Router();
 
@@ -212,6 +215,32 @@ router.patch(
   '/scores/:id/manual-grade',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   manualGrade,
+);
+
+// ─── LLM 설정 ─────────────────────────────────────────────
+router.get(
+  '/llm-settings',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  getLlmSettings,
+);
+
+router.post(
+  '/llm-settings/test',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  testLlmExplanation,
+);
+
+// ─── 문제 유형 설정 ──────────────────────────────────────────
+router.get(
+  '/question-types',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  getQuestionTypes,
+);
+
+router.put(
+  '/question-types',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  updateQuestionTypes,
 );
 
 export default router;

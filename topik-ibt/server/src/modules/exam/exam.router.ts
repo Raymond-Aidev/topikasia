@@ -10,6 +10,7 @@ import { saveAnswers } from './handlers/saveAnswers';
 import { submitSection } from './handlers/submitSection';
 import { completeSession } from './handlers/completeSession';
 import { getMyScore } from './handlers/getMyScore';
+import { sendScoreEmail } from './handlers/sendScoreEmail';
 
 const router = Router();
 
@@ -64,5 +65,16 @@ router.post('/sessions/:sessionId/complete', completeSession);
 
 // 성적 조회
 router.get('/score', getMyScore);
+
+// 성적표 이메일 발송
+const sendScoreEmailSchema = z.object({
+  email: z.string().email('유효한 이메일 주소를 입력해주세요'),
+});
+
+router.post(
+  '/score/email',
+  validate({ body: sendScoreEmailSchema }),
+  sendScoreEmail,
+);
 
 export default router;

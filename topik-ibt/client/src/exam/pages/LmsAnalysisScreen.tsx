@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface TypeStats {
   total: number;
@@ -100,31 +101,29 @@ export default function LmsAnalysisScreen() {
           </div>
         </div>
 
-        {/* Type breakdown bars */}
+        {/* Type breakdown chart */}
         <div style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 20 }}>유형별 정답률</div>
-          {entries.length === 0 && (
+          {entries.length === 0 ? (
             <div style={{ fontSize: 14, color: '#9ca3af', textAlign: 'center', padding: 20 }}>분석할 데이터가 없습니다</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={entries.length * 50 + 20}>
+              <BarChart
+                data={entries.map(([type, stats]) => ({ name: type, accuracy: stats.accuracy, correct: stats.correct, total: stats.total }))}
+                layout="vertical"
+                margin={{ top: 0, right: 40, left: 0, bottom: 0 }}
+              >
+                <XAxis type="number" domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} fontSize={12} />
+                <YAxis type="category" dataKey="name" width={120} fontSize={13} tick={{ fill: '#374151', fontWeight: 600 }} />
+                <Tooltip formatter={(value: number, _name: string, props: any) => [`${value}% (${props.payload.correct}/${props.payload.total})`, '정답률']} />
+                <Bar dataKey="accuracy" barSize={20} radius={[0, 4, 4, 0]} label={{ position: 'right', formatter: (v: number) => `${v}%`, fontSize: 12, fill: '#374151' }}>
+                  {entries.map(([type, stats]) => (
+                    <Cell key={type} fill={getAccuracyColor(stats.accuracy)} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           )}
-          {entries.map(([type, stats]) => (
-            <div key={type} style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>{type}</div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>
-                  {stats.correct}/{stats.total} ({stats.accuracy}%)
-                </div>
-              </div>
-              <div style={{ width: '100%', height: 12, backgroundColor: '#f3f4f6', borderRadius: 6, overflow: 'hidden' }}>
-                <div style={{
-                  width: `${stats.accuracy}%`,
-                  height: '100%',
-                  backgroundColor: getAccuracyColor(stats.accuracy),
-                  borderRadius: 6,
-                  transition: 'width 0.5s ease',
-                }} />
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>

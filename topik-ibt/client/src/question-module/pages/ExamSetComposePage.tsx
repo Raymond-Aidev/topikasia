@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useImportedQuestionsStore } from '../store/importedQuestionsStore';
 import type { QuestionBankItem } from '../api/questionBankApi';
-import { createExamSet, updateExamSet, getExamSet } from '../api/examSetApi';
+import { createExamSet, updateExamSet, getExamSet, updateModelAnswer } from '../api/examSetApi';
 import type { ExamSetPayload } from '../api/examSetApi';
 import ExamSetComposer from '../components/ExamSetComposer';
 
@@ -18,6 +18,164 @@ const SECTION_DEFS = [
   { key: 'READING' as const, label: '읽기', defaultDuration: 70, defaultTarget: 30 },
 ];
 
+// ─── 모범답안 모달 ────────────────────────────────────────────
+
+interface ModelAnswerModalProps {
+  item: QuestionBankItem;
+  examSetId: string;
+  initialModelAnswer: string;
+  initialScoringCriteria: string;
+  onClose: () => void;
+  onSaved: (bankId: string) => void;
+}
+
+const ModelAnswerModal: React.FC<ModelAnswerModalProps> = ({
+  item,
+  examSetId,
+  initialModelAnswer,
+  initialScoringCriteria,
+  onClose,
+  onSaved,
+}) => {
+  const [modelAnswer, setModelAnswer] = useState(initialModelAnswer);
+  const [scoringCriteria, setScoringCriteria] = useState(initialScoringCriteria);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      await updateModelAnswer(examSetId, {
+        questionBankId: item.bankId,
+        modelAnswer,
+        scoringCriteria,
+      });
+      onSaved(item.bankId);
+      onClose();
+    } catch {
+      setError('저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: '#fff',
+          borderRadius: 12,
+          padding: 28,
+          width: 560,
+          maxWidth: '90vw',
+          maxHeight: '80vh',
+          overflow: 'auto',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 style={{ margin: '0 0 4px', fontSize: 18 }}>모범답안 설정</h3>
+        <p style={{ margin: '0 0 20px', fontSize: 13, color: '#666' }}>
+          {item.previewText}
+        </p>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+            모범 답안
+          </label>
+          <textarea
+            value={modelAnswer}
+            onChange={(e) => setModelAnswer(e.target.value)}
+            rows={6}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              fontSize: 14,
+              resize: 'vertical',
+              boxSizing: 'border-box',
+              fontFamily: 'inherit',
+            }}
+            placeholder="모범 답안을 입력하세요..."
+          />
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+            채점 기준
+          </label>
+          <textarea
+            value={scoringCriteria}
+            onChange={(e) => setScoringCriteria(e.target.value)}
+            rows={6}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              fontSize: 14,
+              resize: 'vertical',
+              boxSizing: 'border-box',
+              fontFamily: 'inherit',
+            }}
+            placeholder="채점 기준을 입력하세요..."
+          />
+        </div>
+
+        {error && (
+          <p style={{ color: '#d93025', fontSize: 13, marginBottom: 12 }}>{error}</p>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 20px',
+              borderRadius: 6,
+              border: '1px solid #ccc',
+              background: '#fff',
+              cursor: 'pointer',
+              fontSize: 14,
+            }}
+          >
+            취소
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            style={{
+              padding: '8px 20px',
+              borderRadius: 6,
+              border: 'none',
+              background: '#7c4dff',
+              color: '#fff',
+              cursor: saving ? 'not-allowed' : 'pointer',
+              fontSize: 14,
+            }}
+          >
+            {saving ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── ExamSetComposePage ───────────────────────────────────────
+
 const ExamSetComposePage: React.FC = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -28,6 +186,13 @@ const ExamSetComposePage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  // 모범답안 모달 상태
+  const [modelAnswerTarget, setModelAnswerTarget] = useState<QuestionBankItem | null>(null);
+  const [modelAnswerIds, setModelAnswerIds] = useState<Set<string>>(new Set());
+  const [modelAnswerData, setModelAnswerData] = useState<
+    Record<string, { modelAnswer: string; scoringCriteria: string }>
+  >({});
 
   const [sections, setSections] = useState<Record<string, SectionState>>(() => {
     const init: Record<string, SectionState> = {};
@@ -50,6 +215,9 @@ const ExamSetComposePage: React.FC = () => {
           setExamType(data.examType);
           setDescription(data.description);
           // 세션 데이터는 서버에서 가져온 것 사용
+          const newModelAnswerIds = new Set<string>();
+          const newModelAnswerData: Record<string, { modelAnswer: string; scoringCriteria: string }> = {};
+
           data.sections?.forEach((sec) => {
             setSections((prev) => ({
               ...prev,
@@ -60,6 +228,27 @@ const ExamSetComposePage: React.FC = () => {
               },
             }));
           });
+
+          // sectionsJson에서 모범답안 정보 추출 (raw data)
+          const rawData = data as any;
+          if (rawData.sectionsJson) {
+            for (const section of rawData.sectionsJson) {
+              const questions = section.questions || section.questionBankIds || [];
+              for (const q of questions) {
+                if (typeof q === 'object' && q.modelAnswer) {
+                  const bankId = q.bankId || q.questionBankId;
+                  newModelAnswerIds.add(bankId);
+                  newModelAnswerData[bankId] = {
+                    modelAnswer: q.modelAnswer || '',
+                    scoringCriteria: q.scoringCriteria || '',
+                  };
+                }
+              }
+            }
+          }
+
+          setModelAnswerIds(newModelAnswerIds);
+          setModelAnswerData(newModelAnswerData);
         })
         .catch(() => {
           // 새 세트 구성 모드로 진행
@@ -119,6 +308,14 @@ const ExamSetComposePage: React.FC = () => {
       setSaving(false);
     }
   };
+
+  const handleModelAnswer = useCallback((item: QuestionBankItem) => {
+    setModelAnswerTarget(item);
+  }, []);
+
+  const handleModelAnswerSaved = useCallback((bankId: string) => {
+    setModelAnswerIds((prev) => new Set(prev).add(bankId));
+  }, []);
 
   const totalQuestions = SECTION_DEFS.reduce(
     (sum, s) => sum + sections[s.key].items.length,
@@ -261,6 +458,8 @@ const ExamSetComposePage: React.FC = () => {
             poolItems={poolBySection[s.key]}
             targetCount={sections[s.key].targetCount}
             onSetItemsChange={(items) => updateSectionField(s.key, 'items', items)}
+            onModelAnswer={id ? handleModelAnswer : undefined}
+            modelAnswerIds={modelAnswerIds}
           />
         </div>
       ))}
@@ -330,6 +529,18 @@ const ExamSetComposePage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 모범답안 모달 */}
+      {modelAnswerTarget && id && (
+        <ModelAnswerModal
+          item={modelAnswerTarget}
+          examSetId={id}
+          initialModelAnswer={modelAnswerData[modelAnswerTarget.bankId]?.modelAnswer || ''}
+          initialScoringCriteria={modelAnswerData[modelAnswerTarget.bankId]?.scoringCriteria || ''}
+          onClose={() => setModelAnswerTarget(null)}
+          onSaved={handleModelAnswerSaved}
+        />
+      )}
     </div>
   );
 };

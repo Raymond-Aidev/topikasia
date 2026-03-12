@@ -7,7 +7,7 @@ import { prisma } from '../../../config/database';
 import { env } from '../../../config/env';
 import { AppError } from '../../../shared/types';
 
-async function callLLM(prompt: string): Promise<{ explanation: string; model: string }> {
+async function callLLM(prompt: string, maxTokens: number = 1024): Promise<{ explanation: string; model: string }> {
   const apiKey = env.LLM_API_KEY;
   const provider = env.LLM_PROVIDER || 'openai'; // openai or anthropic
 
@@ -28,7 +28,7 @@ async function callLLM(prompt: string): Promise<{ explanation: string; model: st
       },
       body: JSON.stringify({
         model: env.LLM_MODEL || 'claude-sonnet-4-5-20250514',
-        max_tokens: 1024,
+        max_tokens: maxTokens,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -49,7 +49,7 @@ async function callLLM(prompt: string): Promise<{ explanation: string; model: st
     body: JSON.stringify({
       model: env.LLM_MODEL || 'gpt-4o',
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1024,
+      max_tokens: maxTokens,
     }),
   });
   const data = await res.json() as any;
@@ -104,8 +104,43 @@ export async function generateExplanation(req: Request, res: Response, next: Nex
       }
     }
 
+    // Determine if this is a writing (essay/short answer) question
+    const sectionName = (() => {
+      for (const sec of sections) {
+        for (const q of (sec.questions || [])) {
+          if (q.bankId === questionBankId) return (sec.section || sec.name || '').toUpperCase();
+        }
+      }
+      return '';
+    })();
+    const isWritingQuestion =
+      typeCode.startsWith('ESSAY') ||
+      typeCode.startsWith('SHORT_ANSWER') ||
+      sectionName.includes('WRITING');
+
     // LLM 프롬프트
-    const prompt = `당신은 한국어능력시험(TOPIK) 전문 해설 교사입니다.
+    let prompt: string;
+    let maxTokens: number;
+
+    if (isWritingQuestion) {
+      prompt = `당신은 한국어능력시험(TOPIK) 쓰기 영역 전문 해설 교사입니다.
+
+문항 유형: ${typeCode}
+문항 ID: ${questionBankId}
+응시자 답: ${JSON.stringify(answer?.answerJson ?? '미응답')}
+정답/모범답안: ${JSON.stringify(correctAnswer ?? '정답 정보 없음')}
+
+이 쓰기 문항에 대해 다음을 포함하여 한국어로 해설해주세요:
+1. 모범 답안 예시 (자연스러운 한국어로 작성된 완성된 글)
+2. 채점 기준 설명 (내용, 구성, 언어 사용 등 각 영역별 평가 기준)
+3. 응시자 답안에 대한 피드백 (잘한 점과 개선점)
+4. 핵심 문법/표현 포인트
+5. 고득점을 위한 학습 팁
+
+상세하게 작성하세요.`;
+      maxTokens = 1500;
+    } else {
+      prompt = `당신은 한국어능력시험(TOPIK) 전문 해설 교사입니다.
 
 문항 유형: ${typeCode}
 문항 ID: ${questionBankId}
@@ -118,8 +153,10 @@ export async function generateExplanation(req: Request, res: Response, next: Nex
 3. 학습 팁
 
 200자 이내로 작성하세요.`;
+      maxTokens = 1024;
+    }
 
-    const { explanation, model } = await callLLM(prompt);
+    const { explanation, model } = await callLLM(prompt, maxTokens);
 
     // 캐시 저장
     await prisma.questionExplanation.create({

@@ -62,3 +62,15 @@ export async function uploadExamSet(id: string): Promise<{ message: string }> {
   const { data } = await adminApi.post(`${BASE}/${id}/upload`);
   return data;
 }
+
+export async function deleteExamSet(id: string): Promise<{ message: string }> {
+  const { data } = await adminApi.delete(`${BASE}/${id}`);
+  return data;
+}
+
+export async function updateModelAnswer(
+  examSetId: string,
+  payload: { questionBankId: string; modelAnswer: string; scoringCriteria: string },
+): Promise<void> {
+  await adminApi.put(`${BASE}/${examSetId}/model-answer`, payload);
+}

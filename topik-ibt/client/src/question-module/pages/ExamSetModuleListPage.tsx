@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listExamSets } from '../api/examSetApi';
+import { listExamSets, deleteExamSet } from '../api/examSetApi';
 import type { ExamSetListItem } from '../api/examSetApi';
 
 const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }> = {
@@ -15,13 +15,27 @@ const ExamSetModuleListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const fetchSets = () => {
     setLoading(true);
     listExamSets()
       .then(setSets)
       .catch(() => setError('세트 목록을 불러올 수 없습니다.'))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchSets();
   }, []);
+
+  const handleDelete = async (s: ExamSetListItem) => {
+    if (!window.confirm(`시험세트 '${s.name}'을 삭제하시겠습니까?`)) return;
+    try {
+      await deleteExamSet(s.id);
+      fetchSets();
+    } catch (err: any) {
+      alert(err.response?.data?.message || '삭제에 실패했습니다.');
+    }
+  };
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px' }}>
@@ -141,6 +155,23 @@ const ExamSetModuleListPage: React.FC = () => {
                     >
                       업로드
                     </button>
+                    {(s.status === 'DRAFT' || s.status === 'ARCHIVED') && (
+                      <button
+                        onClick={() => handleDelete(s)}
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: 4,
+                          border: '1px solid #d93025',
+                          background: '#fce8e6',
+                          color: '#d93025',
+                          cursor: 'pointer',
+                          fontSize: 12,
+                          marginLeft: 4,
+                        }}
+                      >
+                        삭제
+                      </button>
+                    )}
                   </td>
                 </tr>
               );

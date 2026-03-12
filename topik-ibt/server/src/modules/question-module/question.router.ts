@@ -8,7 +8,9 @@ import { updateExamSet } from './handlers/updateExamSet';
 import { listExamSets } from './handlers/listExamSets';
 import { getExamSetDetail } from './handlers/getExamSetDetail';
 import { uploadExamSet } from './handlers/uploadExamSet';
+import { deleteExamSet } from './handlers/deleteExamSet';
 import { uploadMiddleware, uploadMedia } from './handlers/uploadMedia';
+import { updateModelAnswer } from './handlers/updateModelAnswer';
 
 const router = Router();
 
@@ -55,6 +57,22 @@ router.get(
   adminAuth,
   requireRole('SUPER_ADMIN', 'ADMIN', 'QUESTION_AUTHOR', 'PROCTOR'),
   getExamSetDetail,
+);
+
+// ─── 시험세트 삭제 (DRAFT / ARCHIVED만 가능) ────────────────
+router.delete(
+  '/question-module/exam-sets/:id',
+  adminAuth,
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  deleteExamSet,
+);
+
+// ─── 모범답안 / 채점기준 업데이트 ──────────────────────────────
+router.put(
+  '/question-module/exam-sets/:id/model-answer',
+  adminAuth,
+  requireRole('SUPER_ADMIN', 'ADMIN', 'QUESTION_AUTHOR'),
+  updateModelAnswer,
 );
 
 // ─── 시험세트 업로드 (DRAFT → UPLOADED) ─────────────────────

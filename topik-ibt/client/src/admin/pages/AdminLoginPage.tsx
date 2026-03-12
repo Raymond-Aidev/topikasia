@@ -6,6 +6,8 @@ const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [show2FA, setShow2FA] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -14,11 +16,18 @@ const AdminLoginPage: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      const res = await adminApi.post('/admin-auth/login', { loginId, password });
+      const payload: any = { loginId, password };
+      if (twoFactorCode) payload.twoFactorCode = twoFactorCode;
+      const res = await adminApi.post('/admin-auth/login', payload);
       localStorage.setItem('adminToken', res.data.token);
       navigate('/admin/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || '로그인에 실패했습니다.');
+      const msg = err.response?.data?.message || '로그인에 실패했습니다.';
+      setError(msg);
+      // 2FA 관련 에러면 2FA 입력 필드 표시
+      if (msg.includes('2단계 인증')) {
+        setShow2FA(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -87,7 +96,7 @@ const AdminLoginPage: React.FC = () => {
           />
         </div>
 
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: show2FA ? '16px' : '24px' }}>
           <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>
             비밀번호
           </label>
@@ -106,6 +115,29 @@ const AdminLoginPage: React.FC = () => {
             }}
           />
         </div>
+
+        {show2FA && (
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>
+              2단계 인증 코드
+            </label>
+            <input
+              type="text"
+              value={twoFactorCode}
+              onChange={(e) => setTwoFactorCode(e.target.value)}
+              placeholder="인증 코드를 입력하세요"
+              autoFocus
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+        )}
 
         <button
           type="submit"

@@ -20,13 +20,17 @@ import type { QuestionBankItem } from '../api/questionBankApi';
 
 // ─── SortableItem ────────────────────────────────────────────
 
+const WRITING_TYPES = ['ESSAY', 'SHORT_ANSWER', 'FILL_IN_BLANK', 'SENTENCE_COMPLETION', 'SUMMARY'];
+
 interface SortableItemProps {
   item: QuestionBankItem;
   index: number;
   onRemove: () => void;
+  onModelAnswer?: (item: QuestionBankItem) => void;
+  hasModelAnswer?: boolean;
 }
 
-const SortableItem: React.FC<SortableItemProps> = ({ item, index, onRemove }) => {
+const SortableItem: React.FC<SortableItemProps> = ({ item, index, onRemove, onModelAnswer, hasModelAnswer }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.bankId });
 
@@ -65,6 +69,38 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, index, onRemove }) =>
       >
         {item.typeName}
       </span>
+      {hasModelAnswer && (
+        <span
+          style={{
+            fontSize: 10,
+            padding: '2px 6px',
+            borderRadius: 4,
+            background: '#e6f4ea',
+            color: '#137333',
+            fontWeight: 600,
+          }}
+        >
+          모범답안
+        </span>
+      )}
+      {onModelAnswer && WRITING_TYPES.includes(item.typeCode) && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onModelAnswer(item); }}
+          style={{
+            padding: '2px 8px',
+            borderRadius: 4,
+            border: '1px solid #7c4dff',
+            background: hasModelAnswer ? '#ede7f6' : '#fff',
+            color: '#7c4dff',
+            cursor: 'pointer',
+            fontSize: 11,
+            whiteSpace: 'nowrap',
+          }}
+          title="모범답안 설정"
+        >
+          모범답안
+        </button>
+      )}
       <button
         onClick={onRemove}
         style={{
@@ -92,6 +128,8 @@ interface Props {
   poolItems: QuestionBankItem[];
   targetCount: number;
   onSetItemsChange: (items: QuestionBankItem[]) => void;
+  onModelAnswer?: (item: QuestionBankItem) => void;
+  modelAnswerIds?: Set<string>;
 }
 
 const ExamSetComposer: React.FC<Props> = ({
@@ -101,6 +139,8 @@ const ExamSetComposer: React.FC<Props> = ({
   poolItems,
   targetCount,
   onSetItemsChange,
+  onModelAnswer,
+  modelAnswerIds,
 }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -175,6 +215,8 @@ const ExamSetComposer: React.FC<Props> = ({
                     item={item}
                     index={index}
                     onRemove={() => removeFromSet(item.bankId)}
+                    onModelAnswer={onModelAnswer}
+                    hasModelAnswer={modelAnswerIds?.has(item.bankId)}
                   />
                 ))}
               </SortableContext>

@@ -109,12 +109,18 @@ export default function EssayQuestion({
     };
   }, []);
 
-  // Color coding for character count
+  // Color coding for character count with warning zones
   const getCounterColor = (): string => {
-    if (displayCount < charLimit.min) return '#F44336'; // red: below min
-    if (displayCount > charLimit.max) return '#F44336'; // red: above max
-    return '#4CAF50'; // green: in range
+    if (displayCount < charLimit.min * 0.8) return '#F44336'; // red: well below min
+    if (displayCount < charLimit.min) return '#FF9800'; // orange: approaching minimum
+    if (displayCount <= charLimit.max) return '#4CAF50'; // green: in range
+    if (displayCount <= charLimit.max * 1.1) return '#FF9800'; // orange: approaching maximum
+    return '#F44336'; // red: well above max
   };
+
+  // Progress bar fill percentage (capped at 100% visually)
+  const progressPercent = Math.min((displayCount / charLimit.max) * 100, 100);
+  const progressColor = getCounterColor();
 
   return (
     <div style={styles.container}>
@@ -142,10 +148,21 @@ export default function EssayQuestion({
         placeholder="여기에 작성하세요..."
       />
 
+      {/* Progress bar */}
+      <div style={{ width: '100%', height: 6, backgroundColor: '#E0E0E0', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
+        <div style={{
+          width: `${progressPercent}%`,
+          height: '100%',
+          backgroundColor: progressColor,
+          borderRadius: 3,
+          transition: 'width 0.3s ease, background-color 0.3s ease',
+        }} />
+      </div>
+
       <div style={{ ...styles.counter, color: getCounterColor() }}>
         {displayCount} / {charLimit.max}자
         {displayCount < charLimit.min && (
-          <span style={{ marginLeft: 8, fontSize: 12, color: '#F44336' }}>
+          <span style={{ marginLeft: 8, fontSize: 12, color: getCounterColor() }}>
             (최소 {charLimit.min}자)
           </span>
         )}

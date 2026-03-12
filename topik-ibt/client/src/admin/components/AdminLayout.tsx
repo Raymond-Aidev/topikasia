@@ -13,6 +13,8 @@ const navItems = [
   { to: '/admin/exam-sessions', label: '응시내역' },
   { to: '/admin/scores', label: '성적관리' },
   { to: '/admin/monitor', label: '모니터링' },
+  { to: '/admin/llm-settings', label: 'LLM 설정' },
+  { to: '/admin/question-types', label: '문제유형' },
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {

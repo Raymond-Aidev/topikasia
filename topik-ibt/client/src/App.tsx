@@ -14,6 +14,7 @@ const SubmitReviewScreen = lazy(() => import('./exam/pages/SubmitReviewScreen'))
 const ExamEndScreen = lazy(() => import('./exam/pages/ExamEndScreen'));
 const ExamBlockedScreen = lazy(() => import('./exam/pages/ExamBlockedScreen'));
 const ScoreReportScreen = lazy(() => import('./exam/pages/ScoreReportScreen'));
+const ScoreEmailScreen = lazy(() => import('./exam/pages/ScoreEmailScreen'));
 const LmsMainScreen = lazy(() => import('./exam/pages/LmsMainScreen'));
 const LmsReviewScreen = lazy(() => import('./exam/pages/LmsReviewScreen'));
 const LmsAnalysisScreen = lazy(() => import('./exam/pages/LmsAnalysisScreen'));
@@ -28,6 +29,8 @@ const ExamSessionListPage = lazy(() => import('./admin/pages/ExamSessionListPage
 const RegistrationListPage = lazy(() => import('./admin/pages/RegistrationListPage'));
 const ScoreManagementPage = lazy(() => import('./admin/pages/ScoreManagementPage'));
 const RealtimeMonitorPage = lazy(() => import('./admin/pages/RealtimeMonitorPage'));
+const LlmSettingsPage = lazy(() => import('./admin/pages/LlmSettingsPage'));
+const QuestionTypeConfigPage = lazy(() => import('./admin/pages/QuestionTypeConfigPage'));
 
 // ─── 문제 출제 모듈 ───────────────────────────────────────────
 const QuestionBankImportPage = lazy(() => import('./question-module/pages/QuestionBankImportPage'));
@@ -67,6 +70,7 @@ function App() {
           <Route path="/exam/end" element={<ExamEndScreen />} />
           <Route path="/exam-blocked" element={<ExamBlockedScreen />} />
           <Route path="/exam/score" element={<ScoreReportScreen />} />
+          <Route path="/exam/score/email" element={<ScoreEmailScreen />} />
           <Route path="/lms" element={<LmsMainScreen />} />
           <Route path="/lms/review/:sessionId" element={<LmsReviewScreen />} />
           <Route path="/lms/analysis/:sessionId" element={<LmsAnalysisScreen />} />
@@ -81,6 +85,8 @@ function App() {
           <Route path="/admin/exam-sessions" element={<ExamSessionListPage />} />
           <Route path="/admin/scores" element={<ScoreManagementPage />} />
           <Route path="/admin/monitor" element={<RealtimeMonitorPage />} />
+          <Route path="/admin/llm-settings" element={<LlmSettingsPage />} />
+          <Route path="/admin/question-types" element={<QuestionTypeConfigPage />} />
 
           {/* 문제 출제 모듈 */}
           <Route path="/question-module/import" element={<QuestionBankImportPage />} />
