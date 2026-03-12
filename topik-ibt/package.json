@@ -1,0 +1,8 @@
+{
+  "name": "topik-ibt",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd server && npm ci && cd ../client && npm ci",
+    "build": "cd client && npm run build && cd ../server && npx prisma generate && npm run build && cp -r dist/ ../ && cp -r node_modules/ ../ && cp -r prisma/ ../ && cp start.sh ../ && mkdir -p ../dist/public && cp -r ../client/dist/* ../dist/public/"
+  }
+}
