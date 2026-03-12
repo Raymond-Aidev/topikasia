@@ -50,8 +50,9 @@ model Examinee {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  examSessions ExamSession[]
-  scores       Score[]
+  examSessions  ExamSession[]
+  scores        Score[]
+  lmsAnalyses   LmsAnalysis[]
 }
 
 enum ExamineeStatus {
@@ -110,6 +111,8 @@ model ExamSession {
   examSet  ExamSet     @relation(fields: [examSetId], references: [id])
   answers  Answer[]
   score    Score?
+  explanations QuestionExplanation[]
+  lmsAnalysis  LmsAnalysis?
 }
 
 enum SessionStatus {
@@ -168,6 +171,39 @@ enum GradingStatus {
   PENDING            // 채점 전
   AUTO_GRADED        // 자동채점 완료 (쓰기 수동채점 대기)
   FULLY_GRADED       // 전체 채점 완료
+}
+
+// ─── LMS: 문제 해설 캐시 ────────────────────────────────────
+model QuestionExplanation {
+  id             String   @id @default(cuid())
+  questionBankId String
+  sessionId      String
+  examineeAnswer Json?
+  correctAnswer  Json?
+  explanation    String   @db.Text
+  llmModel       String   // e.g., "gpt-4o", "claude-sonnet-4-5"
+  generatedAt    DateTime @default(now())
+
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionBankId])
+  @@index([questionBankId])
+}
+
+// ─── LMS: 분석 스냅샷 ──────────────────────────────────────
+model LmsAnalysis {
+  id             String   @id @default(cuid())
+  sessionId      String   @unique
+  examineeId     String
+  typeBreakdown  Json     // { MCQ_SINGLE: { total, correct, accuracy }, ... }
+  strengths      Json     // ["type1", "type2"]
+  weaknesses     Json     // ["type3"]
+  createdAt      DateTime @default(now())
+
+  session  ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  examinee Examinee    @relation(fields: [examineeId], references: [id], onDelete: Cascade)
+
+  @@index([examineeId])
 }
 
 // ─── 감사 로그 ────────────────────────────────────────────────

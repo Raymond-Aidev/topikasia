@@ -14,6 +14,9 @@ const SubmitReviewScreen = lazy(() => import('./exam/pages/SubmitReviewScreen'))
 const ExamEndScreen = lazy(() => import('./exam/pages/ExamEndScreen'));
 const ExamBlockedScreen = lazy(() => import('./exam/pages/ExamBlockedScreen'));
 const ScoreReportScreen = lazy(() => import('./exam/pages/ScoreReportScreen'));
+const LmsMainScreen = lazy(() => import('./exam/pages/LmsMainScreen'));
+const LmsReviewScreen = lazy(() => import('./exam/pages/LmsReviewScreen'));
+const LmsAnalysisScreen = lazy(() => import('./exam/pages/LmsAnalysisScreen'));
 
 // ─── 어드민 화면 ───────────────────────────────────────────────
 const AdminLoginPage = lazy(() => import('./admin/pages/AdminLoginPage'));
@@ -64,6 +67,9 @@ function App() {
           <Route path="/exam/end" element={<ExamEndScreen />} />
           <Route path="/exam-blocked" element={<ExamBlockedScreen />} />
           <Route path="/exam/score" element={<ScoreReportScreen />} />
+          <Route path="/lms" element={<LmsMainScreen />} />
+          <Route path="/lms/review/:sessionId" element={<LmsReviewScreen />} />
+          <Route path="/lms/analysis/:sessionId" element={<LmsAnalysisScreen />} />
 
           {/* 어드민 */}
           <Route path="/admin/login" element={<AdminLoginPage />} />

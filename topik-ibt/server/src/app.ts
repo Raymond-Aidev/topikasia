@@ -14,6 +14,7 @@ import examRouter from './modules/exam/exam.router';
 import adminRouter from './modules/admin/admin.router';
 import questionRouter from './modules/question-module/question.router';
 import registrationRouter from './modules/registration/registration.router';
+import lmsRouter from './modules/lms/lms.router';
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/exam', examRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/questions', questionRouter);
 app.use('/api/registration', registrationRouter);
+app.use('/api/lms', lmsRouter);
 
 // ─── SPA 폴백 (API 라우트 이후) ──────────────────────────────
 if (process.env.NODE_ENV === 'production') {

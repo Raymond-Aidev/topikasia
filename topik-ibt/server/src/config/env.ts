@@ -25,6 +25,9 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().default('noreply@topikasia.com'),
+  LLM_API_KEY: z.string().optional(),
+  LLM_PROVIDER: z.enum(['openai', 'anthropic']).default('openai'),
+  LLM_MODEL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
