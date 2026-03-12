@@ -170,16 +170,22 @@ export default function LandingPage() {
                 : navigate('/registration/login')
             }
           >
-            접수하기
+            시험 접수 신청
           </button>
           {!isLoggedIn && (
             <button
               style={styles.secondaryBtn}
               onClick={() => navigate('/registration/login')}
             >
-              로그인
+              접수 로그인
             </button>
           )}
+          <button
+            style={{...styles.secondaryBtn, borderColor: '#90CAF9', color: '#90CAF9'}}
+            onClick={() => navigate('/login')}
+          >
+            응시자 입장
+          </button>
         </div>
       </div>
 

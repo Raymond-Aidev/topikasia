@@ -84,8 +84,8 @@ function App() {
           <Route path="/registration/complete" element={<RegistrationCompletePage />} />
           <Route path="/registration/mypage" element={<MyPage />} />
 
-          {/* 기본 리다이렉트 */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* 메인페이지 = 랜딩 (접수 시작점) */}
+          <Route path="/" element={<LandingPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
