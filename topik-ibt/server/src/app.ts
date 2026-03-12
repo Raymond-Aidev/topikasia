@@ -57,7 +57,8 @@ app.use('/api/registration', registrationRouter);
 // ─── SPA 폴백 (API 라우트 이후) ──────────────────────────────
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, 'public');
-  app.get('*', (_req, res) => {
+  app.use(express.static(clientDist));
+  app.get('{*path}', (_req, res) => {
     res.sendFile(path.join(clientDist, 'index.html'));
   });
 }
