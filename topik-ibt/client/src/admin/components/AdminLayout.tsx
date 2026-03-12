@@ -12,6 +12,7 @@ const navItems = [
   { to: '/admin/exam-sets', label: '시험세트' },
   { to: '/admin/exam-sessions', label: '응시내역' },
   { to: '/admin/scores', label: '성적관리' },
+  { to: '/admin/monitor', label: '모니터링' },
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {

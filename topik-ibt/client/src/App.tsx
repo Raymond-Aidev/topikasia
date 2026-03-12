@@ -24,12 +24,14 @@ const ExamSetListPage = lazy(() => import('./admin/pages/ExamSetListPage'));
 const ExamSessionListPage = lazy(() => import('./admin/pages/ExamSessionListPage'));
 const RegistrationListPage = lazy(() => import('./admin/pages/RegistrationListPage'));
 const ScoreManagementPage = lazy(() => import('./admin/pages/ScoreManagementPage'));
+const RealtimeMonitorPage = lazy(() => import('./admin/pages/RealtimeMonitorPage'));
 
 // ─── 문제 출제 모듈 ───────────────────────────────────────────
 const QuestionBankImportPage = lazy(() => import('./question-module/pages/QuestionBankImportPage'));
 const ExamSetComposePage = lazy(() => import('./question-module/pages/ExamSetComposePage'));
 const ExamSetModuleListPage = lazy(() => import('./question-module/pages/ExamSetModuleListPage'));
 const IBTUploadPage = lazy(() => import('./question-module/pages/IBTUploadPage'));
+const ExamSetPreviewPage = lazy(() => import('./question-module/pages/ExamSetPreviewPage'));
 
 // ─── 자가 접수 화면 ───────────────────────────────────────────
 const LandingPage = lazy(() => import('./registration/pages/LandingPage'));
@@ -72,12 +74,14 @@ function App() {
           <Route path="/admin/registrations" element={<RegistrationListPage />} />
           <Route path="/admin/exam-sessions" element={<ExamSessionListPage />} />
           <Route path="/admin/scores" element={<ScoreManagementPage />} />
+          <Route path="/admin/monitor" element={<RealtimeMonitorPage />} />
 
           {/* 문제 출제 모듈 */}
           <Route path="/question-module/import" element={<QuestionBankImportPage />} />
           <Route path="/question-module/sets" element={<ExamSetModuleListPage />} />
           <Route path="/question-module/compose/:id?" element={<ExamSetComposePage />} />
           <Route path="/question-module/upload/:id" element={<IBTUploadPage />} />
+          <Route path="/question-module/preview/:id" element={<ExamSetPreviewPage />} />
 
           {/* 자가 접수 */}
           <Route path="/registration" element={<LandingPage />} />

@@ -48,6 +48,12 @@ const ExamineeListPage: React.FC = () => {
   const [createForm, setCreateForm] = useState({ name: '', loginId: '', password: '', seatNumber: '' });
   const [creating, setCreating] = useState(false);
 
+  // Bulk import
+  const [showBulk, setShowBulk] = useState(false);
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<any>(null);
+
   const fetchExaminees = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -89,27 +95,63 @@ const ExamineeListPage: React.FC = () => {
     }
   };
 
+  const handleBulkImport = async () => {
+    if (!bulkFile) return;
+    setBulkUploading(true);
+    setBulkResult(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', bulkFile);
+      const res = await adminApi.post('/admin/examinees/bulk-import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setBulkResult(res.data.data);
+      fetchExaminees();
+    } catch (err: any) {
+      alert(err.response?.data?.message || '일괄 등록에 실패했습니다.');
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <AdminLayout>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 700, margin: 0 }}>회원관리</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          style={{
-            padding: '8px 18px',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: '#1e293b',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: 'pointer',
-          }}
-        >
-          응시자 추가
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => setShowBulk(true)}
+            style={{
+              padding: '8px 18px',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              backgroundColor: '#fff',
+              color: '#374151',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            Excel 일괄 등록
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            style={{
+              padding: '8px 18px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: '#1e293b',
+              color: '#fff',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            응시자 추가
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -257,6 +299,68 @@ const ExamineeListPage: React.FC = () => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+      {/* Bulk Import Modal */}
+      {showBulk && (
+        <div
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={() => { setShowBulk(false); setBulkResult(null); setBulkFile(null); }}
+        >
+          <div
+            style={{ width: '100%', maxWidth: '480px', padding: '32px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.15)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 style={{ fontSize: '18px', fontWeight: 700, marginTop: 0, marginBottom: '16px' }}>Excel 일괄 등록</h2>
+            <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
+              Excel 파일 컬럼: loginId, password, name, registrationNumber, seatNumber, institutionName, examRoomName
+            </p>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={e => setBulkFile(e.target.files?.[0] || null)}
+              style={{ marginBottom: 16, display: 'block' }}
+            />
+
+            {bulkResult && (
+              <div style={{ padding: 12, borderRadius: 8, backgroundColor: '#f0fdf4', marginBottom: 16, fontSize: 13 }}>
+                <div><strong>총 {bulkResult.totalRows}건</strong> 중 <strong style={{ color: '#16a34a' }}>{bulkResult.created}건 생성</strong>, {bulkResult.skipped}건 스킵</div>
+                {bulkResult.skippedDetails?.length > 0 && (
+                  <div style={{ marginTop: 8, color: '#92400e' }}>
+                    스킵: {bulkResult.skippedDetails.join(', ')}
+                  </div>
+                )}
+                {bulkResult.parseErrors?.length > 0 && (
+                  <div style={{ marginTop: 8, color: '#991b1b' }}>
+                    파싱 오류: {bulkResult.parseErrors.join('; ')}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => { setShowBulk(false); setBulkResult(null); setBulkFile(null); }}
+                style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: '14px', cursor: 'pointer' }}
+              >
+                닫기
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkImport}
+                disabled={!bulkFile || bulkUploading}
+                style={{
+                  padding: '8px 16px', borderRadius: '6px', border: 'none',
+                  backgroundColor: '#2563eb', color: '#fff', fontSize: '14px', fontWeight: 600,
+                  cursor: !bulkFile || bulkUploading ? 'not-allowed' : 'pointer',
+                  opacity: !bulkFile || bulkUploading ? 0.5 : 1,
+                }}
+              >
+                {bulkUploading ? '업로드 중...' : '업로드'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </AdminLayout>

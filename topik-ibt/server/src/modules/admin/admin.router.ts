@@ -21,6 +21,8 @@ import { listRegistrations } from './handlers/listRegistrations';
 import { approveRegistration } from './handlers/approveRegistration';
 import { rejectRegistration } from './handlers/rejectRegistration';
 import { batchApproveRegistrations } from './handlers/batchApproveRegistrations';
+import { getRealtimeMonitor } from './handlers/getRealtimeMonitor';
+import { bulkImportExaminees } from './handlers/bulkImportExaminees';
 import { runAutoScore } from './handlers/runAutoScore';
 import { listScores } from './handlers/listScores';
 import { getScoreDetail } from './handlers/getScoreDetail';
@@ -32,13 +34,17 @@ const router = Router();
 // multer 설정 (메모리 스토리지 - S3 업로드용)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (_req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedMimes = [
+      'image/jpeg', 'image/png', 'image/webp',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+      'application/vnd.ms-excel', // xls
+    ];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('지원하지 않는 이미지 형식입니다 (JPEG, PNG, WebP만 허용)'));
+      cb(new Error('지원하지 않는 파일 형식입니다'));
     }
   },
 });
@@ -95,6 +101,21 @@ router.put(
   '/examinees/:id/status',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   changeStatus,
+);
+
+// ─── 실시간 모니터링 ───────────────────────────────────────────
+router.get(
+  '/monitor/realtime',
+  requireRole('SUPER_ADMIN', 'ADMIN', 'PROCTOR'),
+  getRealtimeMonitor,
+);
+
+// ─── 응시자 일괄 등록 ─────────────────────────────────────────
+router.post(
+  '/examinees/bulk-import',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  upload.single('file'),
+  bulkImportExaminees,
 );
 
 // ─── 시험세트 관리 ────────────────────────────────────────────
