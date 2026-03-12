@@ -21,6 +21,11 @@ import { listRegistrations } from './handlers/listRegistrations';
 import { approveRegistration } from './handlers/approveRegistration';
 import { rejectRegistration } from './handlers/rejectRegistration';
 import { batchApproveRegistrations } from './handlers/batchApproveRegistrations';
+import { runAutoScore } from './handlers/runAutoScore';
+import { listScores } from './handlers/listScores';
+import { getScoreDetail } from './handlers/getScoreDetail';
+import { manualGrade } from './handlers/manualGrade';
+import { publishScores } from './handlers/publishScores';
 
 const router = Router();
 
@@ -155,6 +160,37 @@ router.post(
   '/registrations/:id/reject',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   rejectRegistration,
+);
+
+// ─── 성적 관리 ─────────────────────────────────────────────
+router.post(
+  '/scores/auto-grade',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  runAutoScore,
+);
+
+router.post(
+  '/scores/publish',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  publishScores,
+);
+
+router.get(
+  '/scores',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  listScores,
+);
+
+router.get(
+  '/scores/:id',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  getScoreDetail,
+);
+
+router.patch(
+  '/scores/:id/manual-grade',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  manualGrade,
 );
 
 export default router;

@@ -51,6 +51,7 @@ model Examinee {
   updatedAt       DateTime      @updatedAt
 
   examSessions ExamSession[]
+  scores       Score[]
 }
 
 enum ExamineeStatus {
@@ -78,6 +79,7 @@ model ExamSet {
 
   assignedExaminees Examinee[]
   examSessions      ExamSession[]
+  scores            Score[]
 }
 
 enum ExamType {
@@ -107,6 +109,7 @@ model ExamSession {
   examinee Examinee    @relation(fields: [examineeId], references: [id], onDelete: Cascade)
   examSet  ExamSet     @relation(fields: [examSetId], references: [id])
   answers  Answer[]
+  score    Score?
 }
 
 enum SessionStatus {
@@ -130,6 +133,41 @@ model Answer {
   session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, questionBankId])
+}
+
+// ─── 성적 ───────────────────────────────────────────────────
+model Score {
+  id              String       @id @default(cuid())
+  sessionId       String       @unique
+  examineeId      String
+  examSetId       String
+  examType        ExamType
+  sectionScores   Json         // { LISTENING: { raw, scaled, maxScore, autoGraded }, ... }
+  totalScore      Int
+  maxTotalScore   Int          // 200 (TOPIK_I) or 300 (TOPIK_II)
+  grade           Int?         // 1~6급
+  gradingStatus   GradingStatus @default(PENDING)
+  isPublished     Boolean      @default(false)
+  publishedAt     DateTime?
+  publishedById   String?
+  gradedAt        DateTime?
+  gradedById      String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  session   ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  examinee  Examinee    @relation(fields: [examineeId], references: [id], onDelete: Cascade)
+  examSet   ExamSet     @relation(fields: [examSetId], references: [id])
+
+  @@index([examineeId])
+  @@index([examSetId])
+  @@index([gradingStatus])
+}
+
+enum GradingStatus {
+  PENDING            // 채점 전
+  AUTO_GRADED        // 자동채점 완료 (쓰기 수동채점 대기)
+  FULLY_GRADED       // 전체 채점 완료
 }
 
 // ─── 감사 로그 ────────────────────────────────────────────────

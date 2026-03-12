@@ -9,6 +9,7 @@ import { recordSectionStart } from './handlers/recordSectionStart';
 import { saveAnswers } from './handlers/saveAnswers';
 import { submitSection } from './handlers/submitSection';
 import { completeSession } from './handlers/completeSession';
+import { getMyScore } from './handlers/getMyScore';
 
 const router = Router();
 
@@ -60,5 +61,8 @@ router.post(
 
 // 세션 완료
 router.post('/sessions/:sessionId/complete', completeSession);
+
+// 성적 조회
+router.get('/score', getMyScore);
 
 export default router;

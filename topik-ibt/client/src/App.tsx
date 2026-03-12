@@ -13,6 +13,7 @@ const ReadingScreen = lazy(() => import('./exam/pages/ReadingScreen'));
 const SubmitReviewScreen = lazy(() => import('./exam/pages/SubmitReviewScreen'));
 const ExamEndScreen = lazy(() => import('./exam/pages/ExamEndScreen'));
 const ExamBlockedScreen = lazy(() => import('./exam/pages/ExamBlockedScreen'));
+const ScoreReportScreen = lazy(() => import('./exam/pages/ScoreReportScreen'));
 
 // ─── 어드민 화면 ───────────────────────────────────────────────
 const AdminLoginPage = lazy(() => import('./admin/pages/AdminLoginPage'));
@@ -22,6 +23,7 @@ const ExamineeDetailPage = lazy(() => import('./admin/pages/ExamineeDetailPage')
 const ExamSetListPage = lazy(() => import('./admin/pages/ExamSetListPage'));
 const ExamSessionListPage = lazy(() => import('./admin/pages/ExamSessionListPage'));
 const RegistrationListPage = lazy(() => import('./admin/pages/RegistrationListPage'));
+const ScoreManagementPage = lazy(() => import('./admin/pages/ScoreManagementPage'));
 
 // ─── 문제 출제 모듈 ───────────────────────────────────────────
 const QuestionBankImportPage = lazy(() => import('./question-module/pages/QuestionBankImportPage'));
@@ -59,6 +61,7 @@ function App() {
           <Route path="/exam/submit/:section" element={<SubmitReviewScreen />} />
           <Route path="/exam/end" element={<ExamEndScreen />} />
           <Route path="/exam-blocked" element={<ExamBlockedScreen />} />
+          <Route path="/exam/score" element={<ScoreReportScreen />} />
 
           {/* 어드민 */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -68,6 +71,7 @@ function App() {
           <Route path="/admin/exam-sets" element={<ExamSetListPage />} />
           <Route path="/admin/registrations" element={<RegistrationListPage />} />
           <Route path="/admin/exam-sessions" element={<ExamSessionListPage />} />
+          <Route path="/admin/scores" element={<ScoreManagementPage />} />
 
           {/* 문제 출제 모듈 */}
           <Route path="/question-module/import" element={<QuestionBankImportPage />} />
