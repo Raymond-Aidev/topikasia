@@ -63,8 +63,13 @@ export async function login(payload: LoginPayload) {
 
 // ── Schedules ────────────────────────────────────────
 export async function fetchSchedules() {
-  const res = await registrationApi.get<ExamSchedule[]>('/registration/schedules');
-  return res.data;
+  const res = await registrationApi.get('/registration/schedules');
+  const body = res.data;
+  // API returns { success, data: { schedules: [...] } }
+  if (body?.data?.schedules) return body.data.schedules as ExamSchedule[];
+  if (Array.isArray(body?.data)) return body.data as ExamSchedule[];
+  if (Array.isArray(body)) return body as ExamSchedule[];
+  return [];
 }
 
 export async function fetchVenues(scheduleId: string) {
