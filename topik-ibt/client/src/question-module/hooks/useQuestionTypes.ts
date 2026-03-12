@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import {
   DEFAULT_QUESTION_TYPES,
-  QuestionTypeConfig,
 } from '../config/questionTypes.config';
+import type { QuestionTypeConfig } from '../config/questionTypes.config';
 
 export function useQuestionTypes(section?: 'LISTENING' | 'WRITING' | 'READING') {
   const types = useMemo<QuestionTypeConfig[]>(() => {

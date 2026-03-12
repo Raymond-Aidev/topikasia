@@ -82,17 +82,6 @@ const ExamSetListPage: React.FC = () => {
     }
   };
 
-  const getStatusBadgeStyle = (status: string): React.CSSProperties => {
-    switch (status) {
-      case 'ACTIVE':
-        return { backgroundColor: '#dcfce7', color: '#166534' };
-      case 'ARCHIVED':
-        return { backgroundColor: '#f3f4f6', color: '#6b7280' };
-      default:
-        return { backgroundColor: '#f3f4f6', color: '#374151' };
-    }
-  };
-
   return (
     <AdminLayout>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>

@@ -1,4 +1,4 @@
-import {
+import type {
   QuestionBankQuery,
   QuestionBankItem,
   QuestionBankDetail,

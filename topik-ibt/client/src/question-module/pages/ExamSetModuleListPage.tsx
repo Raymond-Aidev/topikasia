@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExamSetListItem, listExamSets } from '../api/examSetApi';
+import { listExamSets } from '../api/examSetApi';
+import type { ExamSetListItem } from '../api/examSetApi';
 
 const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }> = {
   DRAFT: { bg: '#e0e0e0', color: '#555', label: '임시저장' },

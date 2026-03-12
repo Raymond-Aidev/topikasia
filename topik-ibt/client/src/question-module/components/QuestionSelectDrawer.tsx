@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { QuestionBankItem } from '../api/questionBankApi';
+import type { QuestionBankItem } from '../api/questionBankApi';
 import { fetchQuestionsFromBank } from '../api/questionBankMock';
 import QuestionPreview from './QuestionPreview';
 

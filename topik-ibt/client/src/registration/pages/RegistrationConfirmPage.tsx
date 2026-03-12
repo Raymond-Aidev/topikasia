@@ -108,7 +108,7 @@ export default function RegistrationConfirmPage() {
   };
 
   const handleSubmit = async () => {
-    if (!selectedSchedule || !formData.gender || formData.gender === '') return;
+    if (!selectedSchedule || !formData.gender) return;
 
     setLoading(true);
     setError('');

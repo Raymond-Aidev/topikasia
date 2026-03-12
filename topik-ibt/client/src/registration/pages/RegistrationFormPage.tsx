@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegistrationHeader from '../components/RegistrationHeader';
 import StepIndicator from '../components/StepIndicator';

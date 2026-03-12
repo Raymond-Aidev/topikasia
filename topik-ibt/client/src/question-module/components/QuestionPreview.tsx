@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { QuestionBankDetail } from '../api/questionBankApi';
+import type { QuestionBankDetail } from '../api/questionBankApi';
 import { fetchQuestionDetail } from '../api/questionBankMock';
 
 interface Props {

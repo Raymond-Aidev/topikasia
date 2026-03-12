@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { QuestionTypeConfig } from '../config/questionTypes.config';
-import { QuestionBankItem } from '../api/questionBankApi';
+import type { QuestionTypeConfig } from '../config/questionTypes.config';
+import type { QuestionBankItem } from '../api/questionBankApi';
 import { fetchQuestionsFromBank } from '../api/questionBankMock';
 import { useImportedQuestionsStore } from '../store/importedQuestionsStore';
 import QuestionTypeRow from './QuestionTypeRow';

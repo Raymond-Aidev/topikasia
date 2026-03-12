@@ -217,7 +217,7 @@ export default function ReadingScreen() {
   const handleAnswer = useCallback(
     (value: AnswerValue) => {
       setAnswer(question.questionId, value);
-      saveAnswer(question.questionId, value);
+      saveAnswer(question.questionId, question.questionNumber, value);
     },
     [question.questionId, setAnswer, saveAnswer],
   );

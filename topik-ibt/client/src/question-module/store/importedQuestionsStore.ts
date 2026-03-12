@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { QuestionBankItem } from '../api/questionBankApi';
+import type { QuestionBankItem } from '../api/questionBankApi';
 
 interface ImportedQuestionsState {
   selectedByType: Record<string, QuestionBankItem[]>;

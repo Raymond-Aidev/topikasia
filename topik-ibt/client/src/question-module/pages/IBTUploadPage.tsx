@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getExamSet, uploadExamSet, ExamSetDetail } from '../api/examSetApi';
-import UploadValidationPanel, { ValidationError } from '../components/UploadValidationPanel';
+import { getExamSet, uploadExamSet } from '../api/examSetApi';
+import type { ExamSetDetail } from '../api/examSetApi';
+import UploadValidationPanel from '../components/UploadValidationPanel';
+import type { ValidationError } from '../components/UploadValidationPanel';
 
 const SECTION_LABELS: Record<string, string> = {
   LISTENING: '듣기',

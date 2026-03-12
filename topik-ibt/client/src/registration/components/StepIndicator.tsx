@@ -45,7 +45,7 @@ const styles = {
     flex: 1,
     gap: 0,
   },
-  step: (isActive: boolean, isCompleted: boolean) => ({
+  step: (_isActive: boolean, isCompleted: boolean) => ({
     display: 'flex',
     flexDirection: 'column' as const,
     padding: '8px 24px',

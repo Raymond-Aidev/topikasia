@@ -194,12 +194,6 @@ export default function SubmitReviewScreen() {
   const sectionInfo = assignedExamSet?.sections.find((s) => s.section === section);
   const totalQuestions = sectionInfo?.questionCount || 0;
 
-  // Build question number list for this section
-  const questionIds = Object.keys(answers).filter((qid) => {
-    // We assume question IDs are prefixed or we count all current answers for this section
-    return true;
-  });
-
   // Count answered/unanswered
   const answeredCount = Object.values(answers).filter(isAnswered).length;
   const unansweredCount = Math.max(0, totalQuestions - answeredCount);
@@ -276,7 +270,7 @@ export default function SubmitReviewScreen() {
 
           <div style={styles.answerGrid}>
             {questionNumbers.map((num) => {
-              const qKey = Object.keys(answers).find((k) => {
+              const qKey = Object.keys(answers).find((_k) => {
                 // Match by question number embedded in key or by index
                 return true;
               });

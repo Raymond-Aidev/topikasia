@@ -6,8 +6,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
@@ -16,7 +16,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { QuestionBankItem } from '../api/questionBankApi';
+import type { QuestionBankItem } from '../api/questionBankApi';
 
 // ─── SortableItem ────────────────────────────────────────────
 
@@ -95,7 +95,7 @@ interface Props {
 }
 
 const ExamSetComposer: React.FC<Props> = ({
-  section,
+  section: _section,
   sectionLabel,
   setItems,
   poolItems,

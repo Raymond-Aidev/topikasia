@@ -1,6 +1,5 @@
 import React from 'react';
-import { QuestionTypeConfig } from '../config/questionTypes.config';
-import { QuestionBankItem } from '../api/questionBankApi';
+import type { QuestionTypeConfig } from '../config/questionTypes.config';
 
 interface Props {
   config: QuestionTypeConfig;

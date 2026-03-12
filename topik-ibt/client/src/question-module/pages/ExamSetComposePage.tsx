@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useImportedQuestionsStore } from '../store/importedQuestionsStore';
-import { QuestionBankItem } from '../api/questionBankApi';
-import { createExamSet, updateExamSet, getExamSet, ExamSetPayload } from '../api/examSetApi';
+import type { QuestionBankItem } from '../api/questionBankApi';
+import { createExamSet, updateExamSet, getExamSet } from '../api/examSetApi';
+import type { ExamSetPayload } from '../api/examSetApi';
 import ExamSetComposer from '../components/ExamSetComposer';
 
 interface SectionState {
