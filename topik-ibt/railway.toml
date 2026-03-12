@@ -3,7 +3,7 @@ builder = "NIXPACKS"
 buildCommand = "echo 'using nixpacks.toml'"
 
 [deploy]
-startCommand = "cd server && sh start.sh"
+startCommand = "sh start.sh"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
