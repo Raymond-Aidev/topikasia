@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 // ─── 응시자 화면 ───────────────────────────────────────────────
@@ -21,6 +21,7 @@ const ExamineeListPage = lazy(() => import('./admin/pages/ExamineeListPage'));
 const ExamineeDetailPage = lazy(() => import('./admin/pages/ExamineeDetailPage'));
 const ExamSetListPage = lazy(() => import('./admin/pages/ExamSetListPage'));
 const ExamSessionListPage = lazy(() => import('./admin/pages/ExamSessionListPage'));
+const RegistrationListPage = lazy(() => import('./admin/pages/RegistrationListPage'));
 
 // ─── 문제 출제 모듈 ───────────────────────────────────────────
 const QuestionBankImportPage = lazy(() => import('./question-module/pages/QuestionBankImportPage'));
@@ -65,6 +66,7 @@ function App() {
           <Route path="/admin/examinees" element={<ExamineeListPage />} />
           <Route path="/admin/examinees/:id" element={<ExamineeDetailPage />} />
           <Route path="/admin/exam-sets" element={<ExamSetListPage />} />
+          <Route path="/admin/registrations" element={<RegistrationListPage />} />
           <Route path="/admin/exam-sessions" element={<ExamSessionListPage />} />
 
           {/* 문제 출제 모듈 */}

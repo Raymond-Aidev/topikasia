@@ -8,6 +8,7 @@ interface AdminLayoutProps {
 const navItems = [
   { to: '/admin/dashboard', label: '대시보드' },
   { to: '/admin/examinees', label: '회원관리' },
+  { to: '/admin/registrations', label: '접수관리' },
   { to: '/admin/exam-sets', label: '시험세트' },
   { to: '/admin/exam-sessions', label: '응시내역' },
 ];
