@@ -1,4 +1,5 @@
 # TOPIK IBT - Single-stage build (Railway compatible)
+# Cache bust: v3 - force full rebuild with client+server
 FROM node:20-alpine AS builder
 RUN apk add --no-cache openssl
 
