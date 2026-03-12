@@ -10,6 +10,30 @@ const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 
+/** Split SQL file into individual statements, respecting $$ blocks */
+function splitSqlStatements(sql) {
+  const statements = [];
+  let current = '';
+  let inDollarQuote = false;
+
+  for (const line of sql.split('\n')) {
+    const dollarCount = (line.match(/\$\$/g) || []).length;
+    if (dollarCount % 2 === 1) inDollarQuote = !inDollarQuote;
+
+    current += line + '\n';
+
+    if (!inDollarQuote && line.trimEnd().endsWith(';')) {
+      const stmt = current.trim();
+      if (stmt.length > 0 && stmt !== ';') statements.push(stmt);
+      current = '';
+    }
+  }
+
+  const remaining = current.trim();
+  if (remaining.length > 0) statements.push(remaining);
+  return statements;
+}
+
 async function runMigrations() {
   const migrationDir = path.join(__dirname, 'migrations', 'manual');
   const files = fs.readdirSync(migrationDir).filter(f => f.endsWith('.sql')).sort();
@@ -17,8 +41,11 @@ async function runMigrations() {
   for (const file of files) {
     const sql = fs.readFileSync(path.join(migrationDir, file), 'utf8');
     console.log(`[Init] Running migration: ${file}`);
+    const statements = splitSqlStatements(sql);
     try {
-      await prisma.$executeRawUnsafe(sql);
+      for (const stmt of statements) {
+        await prisma.$executeRawUnsafe(stmt);
+      }
       console.log(`[Init] ✅ ${file} completed`);
     } catch (err) {
       // Ignore "already exists" errors
