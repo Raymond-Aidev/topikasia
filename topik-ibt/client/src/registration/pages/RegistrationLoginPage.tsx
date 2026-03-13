@@ -137,7 +137,10 @@ export default function RegistrationLoginPage() {
 
     setLoading(true);
     try {
-      const { token, user } = await login({ email, password });
+      const result = await login({ email, password });
+      const token = result.token || result.data?.token;
+      const user = result.user || result.data?.user;
+      if (!token) throw new Error('토큰을 받지 못했습니다');
       localStorage.setItem('registrationToken', token);
       setUser(user);
       setLoggedIn(true);
