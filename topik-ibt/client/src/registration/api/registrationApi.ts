@@ -29,8 +29,14 @@ registrationApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('registrationToken');
-      window.location.href = '/registration';
+      const url = error.config?.url || '';
+      // 로그인/회원가입 요청은 인터셉터에서 리다이렉트하지 않음
+      const authPaths = ['/registration/login', '/registration/signup', '/registration/verify-email', '/registration/resend-code'];
+      const isAuthRequest = authPaths.some((p) => url.includes(p));
+      if (!isAuthRequest) {
+        localStorage.removeItem('registrationToken');
+        window.location.href = '/registration';
+      }
     }
     return Promise.reject(error);
   }
