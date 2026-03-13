@@ -68,7 +68,7 @@ export async function resendCode(email: string) {
 }
 
 export async function login(payload: LoginPayload) {
-  const res = await registrationApi.post<{ token: string; user: RegistrationUser }>(
+  const res = await registrationApi.post<{ success: boolean; data: { token: string; user: RegistrationUser } }>(
     '/registration/login',
     payload
   );
