@@ -1,9 +1,8 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "echo 'using nixpacks.toml'"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "sh start.sh"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
