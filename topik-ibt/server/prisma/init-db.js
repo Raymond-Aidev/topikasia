@@ -35,7 +35,7 @@ function splitSqlStatements(sql) {
 }
 
 async function runMigrations() {
-  const migrationDir = path.join(__dirname, 'migrations', 'manual');
+  const migrationDir = path.join(__dirname, 'sql');
   const files = fs.readdirSync(migrationDir).filter(f => f.endsWith('.sql')).sort();
 
   for (const file of files) {
