@@ -125,7 +125,7 @@ export default function RegistrationHeader({ showTimer = false, showUserMenu = t
   return (
     <header style={styles.header}>
       <div style={styles.logo} onClick={() => navigate('/registration')}>
-        TOPIK
+        <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 36, objectFit: 'contain' as const }} />
       </div>
 
       <div style={styles.rightSection}>

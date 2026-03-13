@@ -39,8 +39,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <span style={{ fontWeight: 700, fontSize: '16px', whiteSpace: 'nowrap' }}>
-            TOPIK IBT 관리자
+          <span style={{ fontWeight: 700, fontSize: '16px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 28, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            관리자
           </span>
           <div style={{ display: 'flex', gap: '4px' }}>
             {navItems.map((item) => (

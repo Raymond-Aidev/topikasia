@@ -136,7 +136,9 @@ export default function LoginScreen() {
   return (
     <div style={styles.container}>
       <form style={styles.card} onSubmit={handleSubmit}>
-        <div style={styles.logo}>TOPIK IBT</div>
+        <div style={styles.logo}>
+          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const, marginBottom: 8 }} />
+        </div>
         <div style={styles.subtitle}>한국어능력시험 컴퓨터 기반 평가</div>
 
         <div style={styles.fieldGroup}>

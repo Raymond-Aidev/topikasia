@@ -77,7 +77,10 @@ export default function ExamHeader({ registrationNumber, examTitle, timerMode, r
   return (
     <div style={styles.header}>
       <div style={styles.left}>{registrationNumber || ''}</div>
-      <div style={styles.center}>{examTitle || 'TOPIK IBT'}</div>
+      <div style={styles.center}>
+        <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 32, objectFit: 'contain' as const, filter: 'brightness(0) invert(1)', marginRight: 8, verticalAlign: 'middle' }} />
+        <span style={{ verticalAlign: 'middle' }}>{examTitle || 'IBT'}</span>
+      </div>
       <div style={{ ...styles.right, color: isWarning ? '#FF5252' : '#fff' }}>
         <span style={{ fontSize: 12, fontWeight: 400, marginRight: 6 }}>{timerLabel}</span>
         {timerValue}

@@ -56,7 +56,7 @@ const styles = {
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,
     padding: '0 24px',
-    maxWidth: 1280,
+    maxWidth: 1200,
     margin: '0 auto',
   },
   mainNavOuter: {

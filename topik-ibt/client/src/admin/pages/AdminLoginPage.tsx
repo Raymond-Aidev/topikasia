@@ -54,8 +54,11 @@ const AdminLoginPage: React.FC = () => {
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}
       >
+        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 40, objectFit: 'contain' }} />
+        </div>
         <h1 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
-          TOPIK IBT 관리자
+          관리자
         </h1>
         <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px', textAlign: 'center' }}>
           관리자 계정으로 로그인하세요
