@@ -156,8 +156,13 @@ export default function RegistrationLoginPage() {
   };
 
   return (
-    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div style={{
+      minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif',
+      display: 'flex', flexDirection: 'column',
+      paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT,
+    }}>
       <GlobalNavigationBar />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '32px 0' : '48px 0' }}>
       <form style={{ ...styles.card, width: isMobile ? '90%' : 400, maxWidth: 400, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
         <div style={styles.logo}>
           <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const }} />
@@ -214,6 +219,7 @@ export default function RegistrationLoginPage() {
           </button>
         </div>
       </form>
+      </div>
       <Footer />
     </div>
   );

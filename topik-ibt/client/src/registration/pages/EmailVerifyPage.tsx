@@ -213,8 +213,13 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div style={{
+      minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif',
+      display: 'flex', flexDirection: 'column',
+      paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT,
+    }}>
       <GlobalNavigationBar />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '32px 0' : '48px 0' }}>
       <form style={{ ...styles.card, width: isMobile ? '90%' : 440, maxWidth: 440, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
         <div style={styles.title}>이메일 인증</div>
         <div style={styles.desc}>
@@ -263,6 +268,7 @@ export default function EmailVerifyPage() {
 
         {error && <div style={styles.error}>{error}</div>}
       </form>
+      </div>
       <Footer />
     </div>
   );
