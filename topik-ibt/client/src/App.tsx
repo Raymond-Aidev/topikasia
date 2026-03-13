@@ -41,6 +41,7 @@ const ExamSetPreviewPage = lazy(() => import('./question-module/pages/ExamSetPre
 
 // ─── 자가 접수 화면 ───────────────────────────────────────────
 const AboutPage = lazy(() => import('./registration/pages/AboutPage'));
+const NoticePage = lazy(() => import('./registration/pages/NoticePage'));
 const LandingPage = lazy(() => import('./registration/pages/LandingPage'));
 const SignUpPage = lazy(() => import('./registration/pages/SignUpPage'));
 const EmailVerifyPage = lazy(() => import('./registration/pages/EmailVerifyPage'));
@@ -98,6 +99,7 @@ function App() {
 
           {/* 자가 접수 */}
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/notice" element={<NoticePage />} />
           <Route path="/registration" element={<LandingPage />} />
           <Route path="/registration/signup" element={<SignUpPage />} />
           <Route path="/registration/verify-email" element={<EmailVerifyPage />} />

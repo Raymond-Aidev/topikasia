@@ -15,7 +15,7 @@ export const GNB_HEIGHT_MOBILE = MOBILE_NAV_HEIGHT; // 56px mobile
 const MENU_ITEMS = [
   { label: '토픽아시아 소개', path: '/about' },
   { label: '시험별 안내', path: '/registration/schedules' },
-  { label: '알림·소통', path: '/about' },
+  { label: '알림·소통', path: '/notice' },
   { label: '학습하기', path: '/lms' },
 ];
 
