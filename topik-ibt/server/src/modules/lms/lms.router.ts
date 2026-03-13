@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { examAuth } from '../../middleware/auth.middleware';
+import { lmsAuth } from '../../middleware/lms-auth.middleware';
 import { getExamHistory } from './handlers/getExamHistory';
 import { getQuestionReview } from './handlers/getQuestionReview';
 import { generateExplanation } from './handlers/generateExplanation';
@@ -7,8 +7,8 @@ import { getAnalysis } from './handlers/getAnalysis';
 
 const router = Router();
 
-// LMS는 응시자 인증 필요
-router.use(examAuth);
+// LMS는 응시자 또는 접수자 인증 허용
+router.use(lmsAuth);
 
 // 시험 이력 목록
 router.get('/history', getExamHistory);

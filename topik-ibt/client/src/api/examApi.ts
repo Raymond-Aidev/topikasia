@@ -8,7 +8,7 @@ export const examApi = axios.create({
 });
 
 examApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('examToken');
+  const token = localStorage.getItem('examToken') || localStorage.getItem('registrationToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,8 +19,12 @@ examApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('examToken');
-      window.location.href = '/login';
+      const url = error.config?.url || '';
+      const isLmsRequest = url.includes('/lms');
+      if (!isLmsRequest) {
+        localStorage.removeItem('examToken');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

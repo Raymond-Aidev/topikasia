@@ -8,7 +8,11 @@ import { AppError } from '../../../shared/types';
 
 export async function getExamHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    if (!req.examinee) throw new AppError(401, '인증이 필요합니다');
+    if (!req.examinee) {
+      // registrationToken으로 인증했지만 연결된 Examinee가 없는 경우
+      res.json({ data: [] });
+      return;
+    }
 
     const sessions = await prisma.examSession.findMany({
       where: {

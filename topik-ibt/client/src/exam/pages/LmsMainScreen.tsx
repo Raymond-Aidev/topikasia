@@ -54,7 +54,7 @@ export default function LmsMainScreen() {
   const [history, setHistory] = useState<ExamHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const hasToken = !!localStorage.getItem('examToken');
+  const hasToken = !!(localStorage.getItem('examToken') || localStorage.getItem('registrationToken'));
 
   useEffect(() => {
     if (!hasToken) {
