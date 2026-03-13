@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import { login } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
 
@@ -13,7 +14,7 @@ const styles = {
     justifyContent: 'center',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   card: {
     width: 400,
@@ -153,9 +154,11 @@ export default function RegistrationLoginPage() {
 
   return (
     <div style={styles.page}>
-      <RegistrationHeader showUserMenu={false} />
+      <GlobalNavigationBar />
       <form style={styles.card} onSubmit={handleSubmit}>
-        <div style={styles.logo}>TOPIK IBT</div>
+        <div style={styles.logo}>
+          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const }} />
+        </div>
         <div style={styles.subtitle}>시험 접수 로그인</div>
 
         {verified && (
@@ -208,6 +211,7 @@ export default function RegistrationLoginPage() {
           </button>
         </div>
       </form>
+      <Footer />
     </div>
   );
 }

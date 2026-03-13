@@ -5,6 +5,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 
 interface SectionScore {
   raw: number;
@@ -57,29 +59,38 @@ export default function ScoreReportScreen() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#9ca3af' }}>
-        불러오는 중...
+      <div style={{ minHeight: '100vh', paddingTop: GNB_HEIGHT }}>
+        <GlobalNavigationBar />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: `calc(100vh - ${GNB_HEIGHT}px)`, color: '#9ca3af' }}>
+          불러오는 중...
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (error || scores.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>-</div>
-        <div style={{ fontSize: 18, color: '#6b7280', marginBottom: 24 }}>{error || '공개된 성적이 없습니다'}</div>
-        <button
-          onClick={() => navigate('/login')}
-          style={{ padding: '10px 24px', borderRadius: 8, border: 'none', backgroundColor: '#2563eb', color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
-        >
-          돌아가기
-        </button>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', paddingTop: GNB_HEIGHT }}>
+        <GlobalNavigationBar />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: `calc(100vh - ${GNB_HEIGHT}px)` }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>-</div>
+          <div style={{ fontSize: 18, color: '#6b7280', marginBottom: 24 }}>{error || '공개된 성적이 없습니다'}</div>
+          <button
+            onClick={() => navigate('/registration')}
+            style={{ padding: '10px 24px', borderRadius: 8, border: 'none', backgroundColor: '#2563eb', color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+          >
+            돌아가기
+          </button>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', padding: '40px 20px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', paddingTop: GNB_HEIGHT }}>
+      <GlobalNavigationBar />
       {scores.map(score => (
         <div key={score.id} style={{
           maxWidth: 600, margin: '0 auto 32px', backgroundColor: '#fff', borderRadius: 16,
@@ -204,6 +215,7 @@ export default function ScoreReportScreen() {
           돌아가기
         </button>
       </div>
+      <Footer />
     </div>
   );
 }

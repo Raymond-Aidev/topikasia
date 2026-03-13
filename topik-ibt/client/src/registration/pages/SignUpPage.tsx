@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import { signUp } from '../api/registrationApi';
 
 const styles = {
@@ -12,7 +13,7 @@ const styles = {
     justifyContent: 'center',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   card: {
     width: 440,
@@ -160,9 +161,12 @@ export default function SignUpPage() {
 
   return (
     <div style={styles.page}>
-      <RegistrationHeader showUserMenu={false} />
+      <GlobalNavigationBar />
       <form style={styles.card} onSubmit={handleSubmit}>
-        <div style={styles.title}>TOPIK IBT 회원가입</div>
+        <div style={styles.title}>
+          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 36, objectFit: 'contain' as const, marginRight: 8, verticalAlign: 'middle' }} />
+          <span style={{ verticalAlign: 'middle' }}>회원가입</span>
+        </div>
         <div style={styles.subtitle}>시험 접수를 위한 계정을 생성합니다</div>
 
         <div style={styles.fieldGroup}>
@@ -258,6 +262,7 @@ export default function SignUpPage() {
           </button>
         </div>
       </form>
+      <Footer />
     </div>
   );
 }

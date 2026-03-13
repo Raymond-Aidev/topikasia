@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import { fetchSchedules } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
 import type { ExamSchedule } from '../types/registration.types';
@@ -10,7 +11,7 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   content: {
     maxWidth: 1000,
@@ -122,7 +123,7 @@ export default function ExamSchedulePage() {
 
   return (
     <div style={styles.page}>
-      <RegistrationHeader showTimer />
+      <GlobalNavigationBar />
 
       <div style={styles.content}>
         <div style={styles.title}>시험 일정 조회</div>
@@ -188,6 +189,7 @@ export default function ExamSchedulePage() {
           </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import { verifyEmail } from '../api/registrationApi';
 
 const TIMER_SECONDS = 180; // 3분
@@ -14,7 +15,7 @@ const styles = {
     justifyContent: 'center',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   card: {
     width: 440,
@@ -210,7 +211,7 @@ export default function EmailVerifyPage() {
 
   return (
     <div style={styles.page}>
-      <RegistrationHeader showUserMenu={false} />
+      <GlobalNavigationBar />
       <form style={styles.card} onSubmit={handleSubmit}>
         <div style={styles.title}>이메일 인증</div>
         <div style={styles.desc}>
@@ -259,6 +260,7 @@ export default function EmailVerifyPage() {
 
         {error && <div style={styles.error}>{error}</div>}
       </form>
+      <Footer />
     </div>
   );
 }

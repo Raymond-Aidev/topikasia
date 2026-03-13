@@ -4,6 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 
 interface ExamHistoryItem {
   sessionId: string;
@@ -37,14 +39,8 @@ export default function LmsMainScreen() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', fontFamily: 'sans-serif' }}>
-      {/* Header */}
-      <div style={{ backgroundColor: '#1565C0', color: '#fff', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 18, fontWeight: 700 }}>학습 관리 (LMS)</div>
-        <button onClick={() => navigate('/login')} style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)', backgroundColor: 'transparent', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
-          돌아가기
-        </button>
-      </div>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', fontFamily: 'sans-serif', paddingTop: GNB_HEIGHT }}>
+      <GlobalNavigationBar />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 20px' }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24, color: '#111827' }}>시험 이력</h2>
@@ -115,6 +111,7 @@ export default function LmsMainScreen() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

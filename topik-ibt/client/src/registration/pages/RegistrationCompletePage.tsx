@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { downloadTicket } from '../api/registrationApi';
 
@@ -8,7 +9,7 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   content: {
     maxWidth: 560,
@@ -118,7 +119,7 @@ export default function RegistrationCompletePage() {
 
   return (
     <div style={styles.page}>
-      <RegistrationHeader showTimer={false} />
+      <GlobalNavigationBar />
 
       <div style={styles.content}>
         <div style={styles.card}>
@@ -186,6 +187,7 @@ export default function RegistrationCompletePage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

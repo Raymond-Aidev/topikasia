@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import StepIndicator from '../components/StepIndicator';
 import ExamSelectionPanel from '../components/ExamSelectionPanel';
 import { useRegistrationStore } from '../store/registrationStore';
@@ -14,7 +15,7 @@ const s = {
     minHeight: '100vh',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   body: {
     display: 'flex',
@@ -710,7 +711,7 @@ export default function RegistrationFormPage() {
 
   return (
     <div style={s.page}>
-      <RegistrationHeader showTimer />
+      <GlobalNavigationBar />
       <StepIndicator currentStep={currentStep} onStepClick={handleStepClick} />
 
       <div style={s.body}>
@@ -727,6 +728,7 @@ export default function RegistrationFormPage() {
           buttonDisabled={panelButtonDisabled}
         />
       </div>
+      <Footer />
     </div>
   );
 }

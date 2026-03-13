@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import RegistrationHeader from '../components/RegistrationHeader';
+import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { fetchMyRegistrations, downloadTicket } from '../api/registrationApi';
 import type { Registration } from '../types/registration.types';
@@ -10,7 +11,7 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#F5F5F5',
     fontFamily: 'sans-serif',
-    paddingTop: 56,
+    paddingTop: GNB_HEIGHT,
   },
   content: {
     maxWidth: 1000,
@@ -142,7 +143,7 @@ export default function MyPage() {
 
   return (
     <div style={styles.page}>
-      <RegistrationHeader showTimer />
+      <GlobalNavigationBar />
 
       <div style={styles.content}>
         <div style={styles.title}>내 접수 내역</div>
@@ -205,6 +206,7 @@ export default function MyPage() {
           새 시험 접수하기
         </button>
       </div>
+      <Footer />
     </div>
   );
 }
