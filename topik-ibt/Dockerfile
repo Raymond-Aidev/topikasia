@@ -1,4 +1,4 @@
-# TOPIK IBT - Combined Client + Server Build
+# TOPIK IBT - Combined Client + Server Build (v2)
 FROM node:20-alpine AS builder
 RUN apk add --no-cache openssl
 
