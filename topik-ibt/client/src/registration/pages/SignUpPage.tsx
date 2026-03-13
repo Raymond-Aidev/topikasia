@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
+import LegalModal from '../../shared/components/LegalModal';
 import { signUp } from '../api/registrationApi';
 
 const styles = {
@@ -63,15 +64,6 @@ const styles = {
     color: '#C62828',
     marginTop: 4,
   },
-  checkbox: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginBottom: 20,
-    fontSize: 13,
-    color: '#616161',
-    lineHeight: 1.5,
-  },
   button: {
     width: '100%',
     padding: '14px 0',
@@ -124,10 +116,19 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [phone, setPhone] = useState('');
-  const [agreed, setAgreed] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState<'terms' | 'privacy' | null>(null);
+
+  const allAgreed = agreedTerms && agreedPrivacy;
+
+  const handleAllAgree = (checked: boolean) => {
+    setAgreedTerms(checked);
+    setAgreedPrivacy(checked);
+  };
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -140,7 +141,8 @@ export default function SignUpPage() {
       errs.password = '영문, 숫자, 특수문자를 포함해야 합니다.';
     if (password !== passwordConfirm) errs.passwordConfirm = '비밀번호가 일치하지 않습니다.';
     if (!phone.trim()) errs.phone = '연락처를 입력하세요.';
-    if (!agreed) errs.agreed = '개인정보 수집 이용에 동의해야 합니다.';
+    if (!agreedTerms) errs.agreedTerms = '이용약관에 동의해야 합니다.';
+    if (!agreedPrivacy) errs.agreedPrivacy = '개인정보 수집·이용에 동의해야 합니다.';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -160,6 +162,13 @@ export default function SignUpPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const viewBtnStyle: React.CSSProperties = {
+    fontSize: 12, color: '#1565C0', cursor: 'pointer',
+    background: 'none', border: 'none', padding: 0,
+    textDecoration: 'underline', fontFamily: 'inherit',
+    flexShrink: 0,
   };
 
   return (
@@ -231,18 +240,67 @@ export default function SignUpPage() {
           {errors.phone && <div style={styles.fieldError}>{errors.phone}</div>}
         </div>
 
-        <label style={styles.checkbox}>
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            style={{ marginTop: 2 }}
-          />
-          <span>
-            개인정보 수집 및 이용에 동의합니다. (필수)
-          </span>
-        </label>
-        {errors.agreed && <div style={{ ...styles.fieldError, marginTop: -12, marginBottom: 12 }}>{errors.agreed}</div>}
+        {/* 약관 동의 영역 */}
+        <div style={{
+          border: '1px solid #E0E0E0', borderRadius: 12, padding: 16,
+          marginBottom: 20, backgroundColor: '#FAFAFA',
+        }}>
+          {/* 전체 동의 */}
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            cursor: 'pointer', paddingBottom: 12, marginBottom: 12,
+            borderBottom: '1px solid #E0E0E0',
+            fontSize: 15, fontWeight: 700, color: '#111827',
+          }}>
+            <input
+              type="checkbox"
+              checked={allAgreed}
+              onChange={(e) => handleAllAgree(e.target.checked)}
+              style={{ width: 18, height: 18, accentColor: '#1565C0' }}
+            />
+            전체 동의
+          </label>
+
+          {/* 이용약관 동의 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              cursor: 'pointer', fontSize: 13, color: '#424242', flex: 1,
+            }}>
+              <input
+                type="checkbox"
+                checked={agreedTerms}
+                onChange={(e) => setAgreedTerms(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: '#1565C0' }}
+              />
+              이용약관 동의 <span style={{ color: '#C62828', fontSize: 12 }}>(필수)</span>
+            </label>
+            <button type="button" style={viewBtnStyle} onClick={() => setModalType('terms')}>
+              약관보기
+            </button>
+          </div>
+          {errors.agreedTerms && <div style={{ ...styles.fieldError, marginLeft: 24, marginBottom: 8 }}>{errors.agreedTerms}</div>}
+
+          {/* 개인정보 수집·이용 동의 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              cursor: 'pointer', fontSize: 13, color: '#424242', flex: 1,
+            }}>
+              <input
+                type="checkbox"
+                checked={agreedPrivacy}
+                onChange={(e) => setAgreedPrivacy(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: '#1565C0' }}
+              />
+              개인정보 수집·이용 동의 <span style={{ color: '#C62828', fontSize: 12 }}>(필수)</span>
+            </label>
+            <button type="button" style={viewBtnStyle} onClick={() => setModalType('privacy')}>
+              약관보기
+            </button>
+          </div>
+          {errors.agreedPrivacy && <div style={{ ...styles.fieldError, marginLeft: 24, marginTop: 8 }}>{errors.agreedPrivacy}</div>}
+        </div>
 
         <button
           type="submit"
@@ -265,6 +323,8 @@ export default function SignUpPage() {
           </button>
         </div>
       </form>
+
+      {modalType && <LegalModal type={modalType} onClose={() => setModalType(null)} />}
       <Footer />
     </div>
   );
