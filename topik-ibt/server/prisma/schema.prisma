@@ -206,6 +206,89 @@ model LmsAnalysis {
   @@index([examineeId])
 }
 
+// ─── 접수 회원 ─────────────────────────────────────────────────
+model RegistrationUser {
+  id           String    @id @default(dbgenerated("gen_random_uuid()::text"))
+  email        String    @unique
+  passwordHash String
+  name         String
+  phone        String?
+  isVerified   Boolean   @default(false)
+  verifyCode   String?
+  verifyExpiry DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+
+  registrations Registration[]
+}
+
+// ─── 시험 일정 ─────────────────────────────────────────────────
+model ExamSchedule {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()::text"))
+  examName            String
+  examRound           Int
+  examType            ExamType
+  examDate            DateTime
+  registrationStartAt DateTime
+  registrationEndAt   DateTime
+  venues              Json           @default("[]")
+  maxCapacity         Int
+  currentCount        Int            @default(0)
+  status              ScheduleStatus @default(OPEN)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @default(now())
+
+  registrations Registration[]
+}
+
+enum ScheduleStatus {
+  OPEN
+  CLOSED
+  FULL
+}
+
+// ─── 접수 신청 ─────────────────────────────────────────────────
+model Registration {
+  id            String             @id @default(dbgenerated("gen_random_uuid()::text"))
+  userId        String
+  scheduleId    String
+  examType      ExamType
+  englishName   String
+  birthDate     DateTime
+  gender        Gender
+  photoUrl      String?
+  venueId       String
+  venueName     String
+  contactPhone  String?
+  address       String?
+  status        RegistrationStatus @default(PENDING)
+  examineeId    String?
+  rejectionNote String?
+  approvedAt    DateTime?
+  approvedById  String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @default(now())
+
+  user     RegistrationUser @relation(fields: [userId], references: [id], onDelete: Restrict)
+  schedule ExamSchedule     @relation(fields: [scheduleId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, scheduleId])
+  @@index([status])
+  @@index([scheduleId])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 // ─── 감사 로그 ────────────────────────────────────────────────
 model AuditLog {
   id         String   @id @default(cuid())
