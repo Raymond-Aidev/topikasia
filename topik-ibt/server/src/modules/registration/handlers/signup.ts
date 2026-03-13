@@ -22,6 +22,7 @@ const signupSchema = z.object({
 export async function signup(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const body = signupSchema.parse(req.body);
+    const email = body.email.toLowerCase().trim();
 
     const passwordHash = await bcrypt.hash(body.password, SALT_ROUNDS);
 
@@ -33,7 +34,7 @@ export async function signup(req: Request, res: Response, next: NextFunction): P
     const existing = await prisma.$queryRaw`
       SELECT "id", "email", "isVerified"
       FROM "RegistrationUser"
-      WHERE "email" = ${body.email}
+      WHERE LOWER("email") = ${email}
       LIMIT 1
     ` as any[];
 
@@ -57,7 +58,7 @@ export async function signup(req: Request, res: Response, next: NextFunction): P
       try {
         const user = await prisma.$queryRaw`
           INSERT INTO "RegistrationUser" ("id", "email", "passwordHash", "name", "phone", "isVerified", "verifyCode", "verifyExpiry", "createdAt", "updatedAt")
-          VALUES (gen_random_uuid()::text, ${body.email}, ${passwordHash}, ${body.name}, ${body.phone || null}, false, ${verifyCode}, ${verifyExpiry}, NOW(), NOW())
+          VALUES (gen_random_uuid()::text, ${email}, ${passwordHash}, ${body.name}, ${body.phone || null}, false, ${verifyCode}, ${verifyExpiry}, NOW(), NOW())
           RETURNING "id", "email"
         ` as any[];
         created = user[0];
@@ -69,7 +70,7 @@ export async function signup(req: Request, res: Response, next: NextFunction): P
       }
     }
 
-    await sendVerificationEmail(body.email, verifyCode);
+    await sendVerificationEmail(email, verifyCode);
 
     res.status(201).json({
       success: true,

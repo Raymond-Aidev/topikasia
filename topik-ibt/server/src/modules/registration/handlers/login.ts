@@ -21,11 +21,12 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     const users = await prisma.$queryRaw`
       SELECT "id", "email", "name", "passwordHash", "isVerified"
       FROM "RegistrationUser"
-      WHERE "email" = ${body.email}
+      WHERE LOWER("email") = LOWER(${body.email})
       LIMIT 1
     ` as any[];
 
     if (users.length === 0) {
+      console.log(`[Login] 사용자 없음: ${body.email}`);
       throw new AppError(401, '이메일 또는 비밀번호가 올바르지 않습니다');
     }
 
@@ -33,6 +34,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
 
     const isValid = await bcrypt.compare(body.password, user.passwordHash);
     if (!isValid) {
+      console.log(`[Login] 비밀번호 불일치: ${body.email}, hash길이=${user.passwordHash?.length}`);
       throw new AppError(401, '이메일 또는 비밀번호가 올바르지 않습니다');
     }
 
