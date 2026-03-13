@@ -1,6 +1,10 @@
 # TOPIK IBT - Combined Client + Server Build
 FROM node:20-alpine AS builder
+ARG RAILWAY_GIT_COMMIT_SHA
 RUN apk add --no-cache openssl
+
+# Cache bust on every commit
+RUN echo "commit: ${RAILWAY_GIT_COMMIT_SHA}"
 
 # Build client
 WORKDIR /app/client
