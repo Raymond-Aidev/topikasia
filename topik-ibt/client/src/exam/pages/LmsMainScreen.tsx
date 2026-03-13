@@ -126,16 +126,28 @@ export default function LmsMainScreen() {
               <div style={{ fontSize: 14, color: '#9ca3af', marginBottom: 28, lineHeight: 1.6 }}>
                 시험에 응시한 이력을 확인하려면 로그인이 필요합니다
               </div>
-              <button
-                onClick={() => navigate('/login')}
-                style={{
-                  padding: '12px 36px', borderRadius: 8, border: 'none',
-                  backgroundColor: '#4A148C', color: '#fff',
-                  fontSize: 15, fontWeight: 600, cursor: 'pointer',
-                }}
-              >
-                로그인
-              </button>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => navigate('/registration/login')}
+                  style={{
+                    padding: '12px 36px', borderRadius: 8,
+                    border: '2px solid #4A148C', backgroundColor: '#fff', color: '#4A148C',
+                    fontSize: 15, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  로그인
+                </button>
+                <button
+                  onClick={() => navigate('/registration/signup')}
+                  style={{
+                    padding: '12px 36px', borderRadius: 8, border: 'none',
+                    backgroundColor: '#4A148C', color: '#fff',
+                    fontSize: 15, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  회원가입
+                </button>
+              </div>
             </div>
           )}
 
