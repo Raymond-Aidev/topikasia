@@ -32,6 +32,7 @@ import { getLlmSettings, testLlmExplanation } from './handlers/getLlmSettings';
 import { getQuestionTypes } from './handlers/getQuestionTypes';
 import { updateQuestionTypes } from './handlers/updateQuestionTypes';
 import { updateExamSetSchedule } from './handlers/updateExamSetSchedule';
+import { listExamineeSessions } from './handlers/listExamineeSessions';
 import { listSchedules, createSchedule, updateSchedule, deleteSchedule } from './handlers/manageSchedules';
 
 const router = Router();
@@ -76,6 +77,12 @@ router.post(
   requireRole('SUPER_ADMIN', 'ADMIN'),
   upload.single('photo'),
   createExaminee,
+);
+
+router.get(
+  '/examinees/:id/sessions',
+  requireRole('SUPER_ADMIN', 'ADMIN', 'PROCTOR'),
+  listExamineeSessions,
 );
 
 router.get(
