@@ -11,6 +11,7 @@ import { submitSection } from './handlers/submitSection';
 import { completeSession } from './handlers/completeSession';
 import { getMyScore } from './handlers/getMyScore';
 import { sendScoreEmail } from './handlers/sendScoreEmail';
+import { getSessionQuestions } from './handlers/getSessionQuestions';
 
 const router = Router();
 
@@ -25,6 +26,9 @@ router.post('/sessions', createExamSession);
 
 // 현재 세션 조회
 router.get('/sessions/current', getCurrentSession);
+
+// 세션 문제 조회 (snapshotJson 기반)
+router.get('/sessions/:sessionId/questions', getSessionQuestions);
 
 // 섹션 시작
 const sectionNameSchema = z.object({

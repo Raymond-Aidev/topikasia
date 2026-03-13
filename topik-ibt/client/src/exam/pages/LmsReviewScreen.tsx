@@ -15,6 +15,9 @@ interface ReviewQuestion {
   typeCode: string | null;
   isCorrect: boolean | null;
   explanation: string | null;
+  instruction: string | null;
+  passageText: string | null;
+  options: Array<{ id: number; text: string }> | null;
 }
 
 interface ReviewData {
@@ -169,29 +172,88 @@ export default function LmsReviewScreen() {
               )}
             </div>
 
-            {/* Answer comparison */}
-            <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-              <div style={{ flex: 1, backgroundColor: '#f0f4f8', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 600 }}>내 답안</div>
-                <div style={{ fontSize: 15, color: '#374151', wordBreak: 'break-all' }}>
-                  {current.examineeAnswer != null ? (
-                    typeof current.examineeAnswer === 'object'
-                      ? JSON.stringify(current.examineeAnswer)
-                      : String(current.examineeAnswer)
-                  ) : <span style={{ color: '#9ca3af' }}>미응답</span>}
+            {/* 문제 내용 */}
+            {current.instruction && (
+              <div style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 12, fontWeight: 600 }}>
+                {current.instruction}
+              </div>
+            )}
+            {current.passageText && (
+              <div style={{
+                backgroundColor: '#FAFAFA', border: '1px solid #E0E0E0', borderRadius: 8,
+                padding: '14px 18px', marginBottom: 16, fontSize: 14, lineHeight: 1.8,
+                whiteSpace: 'pre-wrap', color: '#333',
+              }}>
+                {current.passageText}
+              </div>
+            )}
+
+            {/* 선택지 + 정답/오답 표시 */}
+            {current.options && current.options.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                {current.options.map(opt => {
+                  const isUserAnswer = current.examineeAnswer?.selectedOptions?.includes(opt.id);
+                  const isCorrectOption = opt.id === current.correctAnswer;
+                  let borderColor = '#e5e7eb';
+                  let bgColor = '#fff';
+                  let textColor = '#374151';
+                  if (isCorrectOption) { borderColor = '#16a34a'; bgColor = '#f0fdf4'; }
+                  if (isUserAnswer && !isCorrectOption) { borderColor = '#dc2626'; bgColor = '#fef2f2'; }
+                  if (isUserAnswer && isCorrectOption) { borderColor = '#16a34a'; bgColor = '#dcfce7'; }
+
+                  return (
+                    <div key={opt.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '10px 14px', borderRadius: 8,
+                      border: `2px solid ${borderColor}`, backgroundColor: bgColor,
+                    }}>
+                      <span style={{
+                        width: 28, height: 28, borderRadius: '50%', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700,
+                        backgroundColor: isCorrectOption ? '#16a34a' : (isUserAnswer ? '#dc2626' : '#e5e7eb'),
+                        color: (isCorrectOption || isUserAnswer) ? '#fff' : '#6b7280',
+                        flexShrink: 0,
+                      }}>
+                        {opt.id}
+                      </span>
+                      <span style={{ fontSize: 14, color: textColor, lineHeight: 1.5 }}>{opt.text}</span>
+                      {isUserAnswer && !isCorrectOption && (
+                        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#dc2626', fontWeight: 600 }}>내 답</span>
+                      )}
+                      {isCorrectOption && (
+                        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#16a34a', fontWeight: 600 }}>정답</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* 선택지가 없는 경우 기존 답안 비교 형식 (fallback) */}
+            {(!current.options || current.options.length === 0) && (
+              <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+                <div style={{ flex: 1, backgroundColor: '#f0f4f8', borderRadius: 8, padding: 16 }}>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 600 }}>내 답안</div>
+                  <div style={{ fontSize: 15, color: '#374151', wordBreak: 'break-all' }}>
+                    {current.examineeAnswer != null ? (
+                      typeof current.examineeAnswer === 'object'
+                        ? JSON.stringify(current.examineeAnswer)
+                        : String(current.examineeAnswer)
+                    ) : <span style={{ color: '#9ca3af' }}>미응답</span>}
+                  </div>
+                </div>
+                <div style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 8, padding: 16 }}>
+                  <div style={{ fontSize: 12, color: '#16a34a', marginBottom: 8, fontWeight: 600 }}>정답</div>
+                  <div style={{ fontSize: 15, color: '#374151', wordBreak: 'break-all' }}>
+                    {current.correctAnswer != null ? (
+                      typeof current.correctAnswer === 'object'
+                        ? JSON.stringify(current.correctAnswer)
+                        : String(current.correctAnswer)
+                    ) : <span style={{ color: '#9ca3af' }}>정답 정보 없음</span>}
+                  </div>
                 </div>
               </div>
-              <div style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 12, color: '#16a34a', marginBottom: 8, fontWeight: 600 }}>정답</div>
-                <div style={{ fontSize: 15, color: '#374151', wordBreak: 'break-all' }}>
-                  {current.correctAnswer != null ? (
-                    typeof current.correctAnswer === 'object'
-                      ? JSON.stringify(current.correctAnswer)
-                      : String(current.correctAnswer)
-                  ) : <span style={{ color: '#9ca3af' }}>정답 정보 없음</span>}
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Explanation */}
             <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>

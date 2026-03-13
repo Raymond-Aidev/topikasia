@@ -19,7 +19,11 @@ function generateTempPassword(): string {
 
 /**
  * POST /api/admin/examinees/:id/reset-password
- * 비밀번호 초기화 - 임시 비밀번호 생성, loginFailCount 초기화, 상태 ACTIVE
+ * PATCH /api/admin/examinees/:id/password
+ * 비밀번호 초기화
+ * - body.password가 있으면 해당 비밀번호로 설정
+ * - body.password가 없으면 임시 비밀번호 생성
+ * - loginFailCount 초기화, 상태 ACTIVE
  */
 export async function resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -30,8 +34,8 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
       throw new AppError(404, '응시자를 찾을 수 없습니다');
     }
 
-    const tempPassword = generateTempPassword();
-    const passwordHash = await bcrypt.hash(tempPassword, SALT_ROUNDS);
+    const newPassword = req.body?.password || generateTempPassword();
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
     await prisma.examinee.update({
       where: { id },
@@ -45,8 +49,10 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
     res.json({
       success: true,
       data: {
-        tempPassword,
-        message: '임시 비밀번호가 생성되었습니다. 응시자에게 안전하게 전달해주세요.',
+        tempPassword: req.body?.password ? undefined : newPassword,
+        message: req.body?.password
+          ? '비밀번호가 변경되었습니다.'
+          : '임시 비밀번호가 생성되었습니다. 응시자에게 안전하게 전달해주세요.',
       },
     });
   } catch (err) {

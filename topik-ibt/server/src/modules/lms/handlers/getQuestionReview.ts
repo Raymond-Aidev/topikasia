@@ -15,7 +15,7 @@ export async function getQuestionReview(req: Request, res: Response, next: NextF
     const session = await prisma.examSession.findUnique({
       where: { id: sessionId },
       include: {
-        examSet: { select: { sectionsJson: true, examType: true, name: true } },
+        examSet: { select: { sectionsJson: true, snapshotJson: true, examType: true, name: true } },
         answers: { orderBy: [{ section: 'asc' }, { questionIndex: 'asc' }] },
         explanations: true,
       },
@@ -40,6 +40,61 @@ export async function getQuestionReview(req: Request, res: Response, next: NextF
       }
     }
 
+    // snapshotJson에서 문제 텍스트 추출
+    const snapshot = session.examSet.snapshotJson as any;
+    const questionTextMap = new Map<string, {
+      instruction: string;
+      passageText: string;
+      options: Array<{ id: number; text: string }>;
+    }>();
+
+    if (snapshot?.questionList) {
+      // topik210 seed 형식
+      const examTextList = snapshot.examTextList || [];
+      const passageMap = new Map<number, string>();
+      for (const et of examTextList) {
+        for (let seq = et.startQuestSeq; seq <= et.endQuestSeq; seq++) {
+          passageMap.set(seq, et.textArea);
+        }
+      }
+
+      // sectionsJson에서 bankId 목록 매칭
+      const sectionDef = (sectionsJson as any)?.READING || (sectionsJson as any)?.reading;
+      const bankIdList: string[] = sectionDef?.questions?.map((q: any) => q.bankId) || [];
+
+      snapshot.questionList.forEach((q: any, idx: number) => {
+        const bankId = bankIdList[idx] || `TOPIK2_R_Q${String(q.questSeq).padStart(3, '0')}`;
+        const passage = passageMap.get(q.questSeq);
+        let passageText = q.questExplain || '';
+        if (passage) {
+          passageText = passage + (q.questExplain ? '\n\n' + q.questExplain : '');
+        }
+
+        questionTextMap.set(bankId, {
+          instruction: q.quest,
+          passageText,
+          options: (q.item || []).map((item: any) => ({
+            id: item.itemNo,
+            text: item.itemExample,
+          })),
+        });
+      });
+    } else if (Array.isArray(snapshot)) {
+      // question-module upload 형식
+      for (const sec of snapshot) {
+        for (const q of (sec.questionsSnapshot || [])) {
+          questionTextMap.set(q.bankId, {
+            instruction: q.question || q.instruction || '',
+            passageText: q.passage || q.passageText || '',
+            options: (q.options || q.choices || []).map((opt: any, i: number) => ({
+              id: opt.id ?? i + 1,
+              text: opt.text || opt.label || '',
+            })),
+          });
+        }
+      }
+    }
+
     // 캐시된 해설 맵
     const explanationMap = new Map(
       session.explanations.map((e: any) => [e.questionBankId, e.explanation]),
@@ -47,6 +102,21 @@ export async function getQuestionReview(req: Request, res: Response, next: NextF
 
     const questions = session.answers.map(a => {
       const questionInfo = correctAnswerMap.get(a.questionBankId);
+      const questionText = questionTextMap.get(a.questionBankId);
+
+      // MCQ 답안 비교: selectedOptions 형식 대응
+      let isCorrect: boolean | null = null;
+      if (questionInfo?.correctAnswer != null) {
+        const userAnswer = a.answerJson as any;
+        if (userAnswer?.selectedOptions?.length > 0) {
+          isCorrect = userAnswer.selectedOptions[0] === questionInfo.correctAnswer;
+        } else if (typeof userAnswer === 'number') {
+          isCorrect = userAnswer === questionInfo.correctAnswer;
+        } else {
+          isCorrect = JSON.stringify(a.answerJson) === JSON.stringify(questionInfo.correctAnswer);
+        }
+      }
+
       return {
         answerId: a.id,
         questionBankId: a.questionBankId,
@@ -55,10 +125,12 @@ export async function getQuestionReview(req: Request, res: Response, next: NextF
         examineeAnswer: a.answerJson,
         correctAnswer: questionInfo?.correctAnswer ?? null,
         typeCode: questionInfo?.typeCode ?? null,
-        isCorrect: questionInfo?.correctAnswer != null
-          ? JSON.stringify(a.answerJson) === JSON.stringify(questionInfo.correctAnswer)
-          : null,
+        isCorrect,
         explanation: explanationMap.get(a.questionBankId) || null,
+        // 문제 텍스트 (LMS 복습용)
+        instruction: questionText?.instruction ?? null,
+        passageText: questionText?.passageText ?? null,
+        options: questionText?.options ?? null,
       };
     });
 

@@ -53,6 +53,14 @@ export async function verifyEmail(payload: VerifyEmailPayload) {
   return res.data;
 }
 
+export async function resendCode(email: string) {
+  const res = await registrationApi.post<{ message: string }>(
+    '/registration/resend-code',
+    { email }
+  );
+  return res.data;
+}
+
 export async function login(payload: LoginPayload) {
   const res = await registrationApi.post<{ token: string; user: RegistrationUser }>(
     '/registration/login',

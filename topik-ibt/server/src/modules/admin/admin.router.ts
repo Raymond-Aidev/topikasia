@@ -31,6 +31,8 @@ import { publishScores } from './handlers/publishScores';
 import { getLlmSettings, testLlmExplanation } from './handlers/getLlmSettings';
 import { getQuestionTypes } from './handlers/getQuestionTypes';
 import { updateQuestionTypes } from './handlers/updateQuestionTypes';
+import { updateExamSetSchedule } from './handlers/updateExamSetSchedule';
+import { listSchedules, createSchedule, updateSchedule, deleteSchedule } from './handlers/manageSchedules';
 
 const router = Router();
 
@@ -88,13 +90,31 @@ router.put(
   updateExaminee,
 );
 
+router.patch(
+  '/examinees/:id',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  updateExaminee,
+);
+
 router.post(
   '/examinees/:id/reset-password',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   resetPassword,
 );
 
+router.patch(
+  '/examinees/:id/password',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  resetPassword,
+);
+
 router.put(
+  '/examinees/:id/exam-set',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  changeExamSet,
+);
+
+router.patch(
   '/examinees/:id/exam-set',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   changeExamSet,
@@ -140,6 +160,12 @@ router.get(
   getExamSet,
 );
 
+router.patch(
+  '/exam-sets/:id/schedule',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  updateExamSetSchedule,
+);
+
 // ─── 시험 세션 관리 ───────────────────────────────────────────
 // NOTE: /export must come before /:id to avoid route conflict
 router.get(
@@ -180,7 +206,19 @@ router.post(
   approveRegistration,
 );
 
+router.put(
+  '/registrations/:id/approve',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  approveRegistration,
+);
+
 router.post(
+  '/registrations/:id/reject',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  rejectRegistration,
+);
+
+router.put(
   '/registrations/:id/reject',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   rejectRegistration,
@@ -241,6 +279,31 @@ router.put(
   '/question-types',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   updateQuestionTypes,
+);
+
+// ─── 시험 일정 관리 ──────────────────────────────────────────
+router.get(
+  '/schedules',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  listSchedules,
+);
+
+router.post(
+  '/schedules',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  createSchedule,
+);
+
+router.put(
+  '/schedules/:id',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  updateSchedule,
+);
+
+router.delete(
+  '/schedules/:id',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  deleteSchedule,
 );
 
 export default router;

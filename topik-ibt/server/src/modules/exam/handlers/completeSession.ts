@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../../config/database';
 import { AppError } from '../../../shared/types';
+import { autoGradeSession } from '../../../services/scoring.service';
 
 interface SectionProgress {
   sectionName: string;
@@ -77,9 +78,70 @@ export async function completeSession(req: Request, res: Response, next: NextFun
       });
     });
 
+    // 자동채점 시도 (완료된 세션에 대해)
+    let scoreResult = null;
+    try {
+      const sessionWithSet = await prisma.examSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          examSet: true,
+          answers: true,
+          score: true,
+        },
+      });
+
+      if (sessionWithSet && !sessionWithSet.score) {
+        const examType = sessionWithSet.examSet.examType;
+        const sectionsJson = sessionWithSet.examSet.sectionsJson as Record<string, any>;
+
+        const result = autoGradeSession(
+          examType,
+          sectionsJson,
+          sessionWithSet.answers.map(a => ({
+            questionBankId: a.questionBankId,
+            section: a.section,
+            questionIndex: a.questionIndex,
+            answerJson: a.answerJson,
+          })),
+        );
+
+        const gradingStatus = result.hasManualSections ? 'AUTO_GRADED' : 'FULLY_GRADED';
+        // 전체 자동채점 완료(수동채점 불필요)인 경우 자동 공개
+        const autoPublish = gradingStatus === 'FULLY_GRADED';
+
+        scoreResult = await prisma.score.create({
+          data: {
+            sessionId: sessionId,
+            examineeId: sessionWithSet.examineeId,
+            examSetId: sessionWithSet.examSetId,
+            examType,
+            sectionScores: result.sectionScores as any,
+            totalScore: result.totalScore,
+            maxTotalScore: result.maxTotalScore,
+            grade: result.grade,
+            gradingStatus,
+            gradedAt: new Date(),
+            isPublished: autoPublish,
+            publishedAt: autoPublish ? new Date() : null,
+          },
+        });
+      }
+    } catch {
+      // 채점 실패해도 세션 완료는 유지
+    }
+
     res.json({
       success: true,
-      data: updatedSession,
+      data: {
+        ...updatedSession,
+        autoGraded: !!scoreResult,
+        score: scoreResult ? {
+          totalScore: scoreResult.totalScore,
+          maxTotalScore: scoreResult.maxTotalScore,
+          grade: scoreResult.grade,
+          gradingStatus: scoreResult.gradingStatus,
+        } : undefined,
+      },
     });
   } catch (err) {
     next(err);

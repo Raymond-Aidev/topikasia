@@ -15,6 +15,7 @@ const navItems = [
   { to: '/admin/monitor', label: '모니터링' },
   { to: '/admin/llm-settings', label: 'LLM 설정' },
   { to: '/admin/question-types', label: '문제유형' },
+  { to: '/admin/schedules', label: '시험일정' },
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {

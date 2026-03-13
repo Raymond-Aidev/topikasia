@@ -29,22 +29,45 @@ export async function signup(req: Request, res: Response, next: NextFunction): P
     const verifyCode = String(Math.floor(100000 + Math.random() * 900000));
     const verifyExpiry = new Date(Date.now() + VERIFY_CODE_EXPIRY_MINUTES * 60 * 1000);
 
-    let user;
-    try {
-      user = await prisma.$queryRaw`
-        INSERT INTO "RegistrationUser" ("id", "email", "passwordHash", "name", "phone", "isVerified", "verifyCode", "verifyExpiry", "createdAt", "updatedAt")
-        VALUES (gen_random_uuid()::text, ${body.email}, ${passwordHash}, ${body.name}, ${body.phone || null}, false, ${verifyCode}, ${verifyExpiry}, NOW(), NOW())
-        RETURNING "id", "email"
-      ` as any[];
-    } catch (err: any) {
-      // P2002 또는 unique_violation (23505)
-      if (err.code === 'P2002' || err.code === '23505') {
-        throw new AppError(409, '이미 가입된 이메일입니다');
-      }
-      throw err;
-    }
+    // 기존 유저 확인
+    const existing = await prisma.$queryRaw`
+      SELECT "id", "email", "isVerified"
+      FROM "RegistrationUser"
+      WHERE "email" = ${body.email}
+      LIMIT 1
+    ` as any[];
 
-    const created = user[0];
+    let created: { id: string; email: string };
+
+    if (existing.length > 0) {
+      const ex = existing[0];
+      if (ex.isVerified) {
+        throw new AppError(409, '이미 가입된 이메일입니다. 로그인해주세요.');
+      }
+
+      // 미인증 유저 → 정보 갱신 후 인증코드 재발급
+      await prisma.$executeRaw`
+        UPDATE "RegistrationUser"
+        SET "passwordHash" = ${passwordHash}, "name" = ${body.name}, "phone" = ${body.phone || null},
+            "verifyCode" = ${verifyCode}, "verifyExpiry" = ${verifyExpiry}, "updatedAt" = NOW()
+        WHERE "id" = ${ex.id}
+      `;
+      created = { id: ex.id, email: ex.email };
+    } else {
+      try {
+        const user = await prisma.$queryRaw`
+          INSERT INTO "RegistrationUser" ("id", "email", "passwordHash", "name", "phone", "isVerified", "verifyCode", "verifyExpiry", "createdAt", "updatedAt")
+          VALUES (gen_random_uuid()::text, ${body.email}, ${passwordHash}, ${body.name}, ${body.phone || null}, false, ${verifyCode}, ${verifyExpiry}, NOW(), NOW())
+          RETURNING "id", "email"
+        ` as any[];
+        created = user[0];
+      } catch (err: any) {
+        if (err.code === 'P2002' || err.code === '23505') {
+          throw new AppError(409, '이미 가입된 이메일입니다');
+        }
+        throw err;
+      }
+    }
 
     await sendVerificationEmail(body.email, verifyCode);
 

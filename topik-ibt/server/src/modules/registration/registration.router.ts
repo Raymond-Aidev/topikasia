@@ -7,12 +7,14 @@ import { listSchedules, getScheduleDetail } from './handlers/listSchedules';
 import { applyRegistration } from './handlers/applyRegistration';
 import { myRegistrations, myRegistrationDetail } from './handlers/myRegistrations';
 import { cancelRegistration } from './handlers/cancelRegistration';
+import { resendCode } from './handlers/resendCode';
 
 const router = Router();
 
 // ─── Public 라우트 ───────────────────────────────────────────
 router.post('/signup', signup);
 router.post('/verify-email', verifyEmail);
+router.post('/resend-code', resendCode);
 router.post('/login', login);
 router.get('/schedules', listSchedules);
 router.get('/schedules/:id', getScheduleDetail);

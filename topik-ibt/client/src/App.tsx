@@ -32,6 +32,7 @@ const ScoreManagementPage = lazy(() => import('./admin/pages/ScoreManagementPage
 const RealtimeMonitorPage = lazy(() => import('./admin/pages/RealtimeMonitorPage'));
 const LlmSettingsPage = lazy(() => import('./admin/pages/LlmSettingsPage'));
 const QuestionTypeConfigPage = lazy(() => import('./admin/pages/QuestionTypeConfigPage'));
+const ExamScheduleManagePage = lazy(() => import('./admin/pages/ExamScheduleManagePage'));
 
 // ─── 문제 출제 모듈 ───────────────────────────────────────────
 const QuestionBankImportPage = lazy(() => import('./question-module/pages/QuestionBankImportPage'));
@@ -90,6 +91,7 @@ function App() {
           <Route path="/admin/monitor" element={<RealtimeMonitorPage />} />
           <Route path="/admin/llm-settings" element={<LlmSettingsPage />} />
           <Route path="/admin/question-types" element={<QuestionTypeConfigPage />} />
+          <Route path="/admin/schedules" element={<ExamScheduleManagePage />} />
 
           {/* 문제 출제 모듈 */}
           <Route path="/question-module/import" element={<QuestionBankImportPage />} />

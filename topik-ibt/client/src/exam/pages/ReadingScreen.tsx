@@ -12,149 +12,7 @@ import OrderingQuestion from '../components/OrderingQuestion';
 import InsertPositionQuestion from '../components/InsertPositionQuestion';
 import AllQuestionsPopup from '../components/AllQuestionsPopup';
 import { useAutoSave } from '../hooks/useAutoSave';
-
-// ─── Mock Data ──────────────────────────────────────────────────
-const MOCK_READING_QUESTIONS: Question[] = [
-  {
-    questionId: 'R1',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'MCQ_SINGLE',
-    questionNumber: 1,
-    instruction: '다음 (    )에 들어갈 가장 알맞은 것을 고르십시오.',
-    passageText: '저는 매일 아침 7시에 (    ). 그리고 8시에 학교에 갑니다.',
-    options: [
-      { id: 1, text: '일어납니다' },
-      { id: 2, text: '잠을 잡니다' },
-      { id: 3, text: '밥을 먹습니다' },
-      { id: 4, text: '운동을 합니다' },
-    ],
-  },
-  {
-    questionId: 'R2',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'MCQ_SINGLE',
-    questionNumber: 2,
-    instruction: '다음 글의 내용과 같은 것을 고르십시오.',
-    passageText:
-      '한국의 사계절은 봄, 여름, 가을, 겨울로 나뉩니다. 봄에는 벚꽃이 피고 날씨가 따뜻해집니다. 여름에는 비가 많이 오고 매우 덥습니다. 가을에는 단풍이 아름답고 날씨가 선선합니다. 겨울에는 눈이 내리고 매우 춥습니다.',
-    options: [
-      { id: 1, text: '한국의 봄에는 눈이 내립니다.' },
-      { id: 2, text: '한국의 여름에는 비가 많이 옵니다.' },
-      { id: 3, text: '한국의 가을에는 날씨가 덥습니다.' },
-      { id: 4, text: '한국의 겨울에는 벚꽃이 핍니다.' },
-    ],
-  },
-  {
-    questionId: 'R3',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'MCQ_SINGLE',
-    questionNumber: 3,
-    instruction: '다음 글의 주제로 가장 알맞은 것을 고르십시오.',
-    passageText:
-      '최근 많은 사람들이 환경 문제에 관심을 가지고 있습니다. 특히 플라스틱 사용을 줄이기 위해 텀블러를 사용하고 장바구니를 가지고 다니는 사람이 늘고 있습니다. 이러한 작은 실천이 모여 큰 변화를 만들 수 있습니다.',
-    options: [
-      { id: 1, text: '텀블러의 종류와 가격' },
-      { id: 2, text: '환경 보호를 위한 생활 속 실천' },
-      { id: 3, text: '플라스틱의 장점과 단점' },
-      { id: 4, text: '장바구니를 만드는 방법' },
-    ],
-  },
-  {
-    questionId: 'R4',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'MCQ_SINGLE',
-    questionNumber: 4,
-    instruction: '다음을 읽고 중심 생각을 고르십시오.',
-    passageText:
-      '독서는 우리의 지식을 넓히고 사고력을 향상시킵니다. 또한 다른 사람의 경험을 간접적으로 할 수 있게 해 줍니다. 바쁜 현대인들에게도 하루 30분이라도 책을 읽는 습관을 가지는 것이 중요합니다.',
-    options: [
-      { id: 1, text: '독서는 시간 낭비이다.' },
-      { id: 2, text: '독서 습관은 중요하다.' },
-      { id: 3, text: '현대인은 바빠서 책을 읽을 수 없다.' },
-      { id: 4, text: '경험이 독서보다 중요하다.' },
-    ],
-  },
-  {
-    questionId: 'R5',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'MCQ_SINGLE',
-    questionNumber: 5,
-    instruction: '다음 글에서 알 수 있는 것을 고르십시오.',
-    passageText:
-      '서울의 대중교통은 매우 편리합니다. 지하철은 1호선부터 9호선까지 있으며 버스도 다양한 노선이 있습니다. 교통카드 하나로 지하철과 버스를 모두 이용할 수 있어서 환승도 편리합니다.',
-    options: [
-      { id: 1, text: '서울에는 지하철이 10개 노선 있다.' },
-      { id: 2, text: '교통카드로 지하철만 탈 수 있다.' },
-      { id: 3, text: '서울의 대중교통은 환승이 편리하다.' },
-      { id: 4, text: '버스는 교통카드를 사용할 수 없다.' },
-    ],
-  },
-  // ─── DROPDOWN type questions ───
-  {
-    questionId: 'R6',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'DROPDOWN',
-    questionNumber: 6,
-    instruction: '다음 글의 빈칸에 들어갈 가장 알맞은 것을 고르십시오.',
-    passageText:
-      '한국어를 배우는 외국인들이 점점 늘고 있습니다. 한국 드라마와 K-POP의 인기 덕분에 한국 문화에 관심을 갖는 사람들이 많아졌기 때문입니다. 한국어는 [BLANK] 많은 사람들이 도전하고 있습니다.',
-    options: [
-      { id: 1, text: '배우기 어렵지만' },
-      { id: 2, text: '배울 필요가 없지만' },
-      { id: 3, text: '인기가 없지만' },
-      { id: 4, text: '관심이 없지만' },
-    ],
-  },
-  {
-    questionId: 'R7',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'DROPDOWN',
-    questionNumber: 7,
-    instruction: '다음 글의 빈칸에 들어갈 가장 알맞은 것을 고르십시오.',
-    passageText:
-      '건강한 식습관을 갖는 것이 중요합니다. 아침 식사를 거르지 않고 규칙적으로 먹는 것이 좋습니다. 또한 채소와 과일을 [BLANK] 건강을 유지할 수 있습니다.',
-    options: [
-      { id: 1, text: '많이 먹으면' },
-      { id: 2, text: '적게 먹으면' },
-      { id: 3, text: '먹지 않으면' },
-      { id: 4, text: '가끔 먹으면' },
-    ],
-  },
-  // ─── ORDERING type questions ───
-  {
-    questionId: 'R8',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'ORDERING',
-    questionNumber: 8,
-    instruction: '다음 문장을 순서에 맞게 배열하십시오.',
-    passageText: '주어진 문장들을 읽고 자연스러운 글이 되도록 순서를 정하세요.',
-    sentenceCards: [
-      { id: 'o1', text: '그래서 우산을 가지고 나갔습니다.' },
-      { id: 'o2', text: '오늘 아침에 날씨 예보를 봤습니다.' },
-      { id: 'o3', text: '예보에서 오후에 비가 온다고 했습니다.' },
-      { id: 'o4', text: '다행히 비가 올 때 우산이 있어서 젖지 않았습니다.' },
-    ],
-  },
-  // ─── INSERT_POSITION type questions ───
-  {
-    questionId: 'R9',
-    bankId: 'B3',
-    section: 'READING',
-    questionType: 'INSERT_POSITION',
-    questionNumber: 9,
-    instruction: '다음 문장이 들어가기에 가장 알맞은 곳을 고르십시오.',
-    sentenceToInsert: '그러나 모든 사람이 같은 의견을 가지고 있는 것은 아닙니다.',
-    passageText: '최근 재택근무가 늘어나고 있습니다. [INSERT] 많은 직장인들이 재택근무를 선호합니다. [INSERT] 출퇴근 시간을 절약할 수 있고 자유로운 환경에서 일할 수 있기 때문입니다. [INSERT] 일부 사람들은 사무실에서 동료와 함께 일하는 것이 더 효율적이라고 생각합니다.',
-  },
-];
+import { examApi } from '../../api/examApi';
 
 // ─── Styles ─────────────────────────────────────────────────────
 const styles = {
@@ -183,12 +41,39 @@ export default function ReadingScreen() {
   const remainingSeconds = useExamStore((s) => s.sectionRemainingSeconds);
   const setSectionRemainingSeconds = useExamStore((s) => s.setSectionRemainingSeconds);
   const examinee = useExamStore((s) => s.examinee);
+  const sessionId = useExamStore((s) => s.sessionId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAllPopup, setShowAllPopup] = useState(false);
-  const questions = MOCK_READING_QUESTIONS;
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const question = questions[currentIndex];
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // 서버에서 읽기 문제 로드
+  useEffect(() => {
+    if (!sessionId) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await examApi.get(`/exam/sessions/${sessionId}/questions`, {
+          params: { section: 'READING' },
+        });
+        if (cancelled) return;
+        const data = res.data?.data || res.data;
+        setQuestions(data.questions || []);
+      } catch (err: any) {
+        if (cancelled) return;
+        setFetchError(err.response?.data?.message || '문제를 불러올 수 없습니다.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [sessionId]);
 
   // Initialize timer if not set
   useEffect(() => {
@@ -282,6 +167,40 @@ export default function ReadingScreen() {
         return <div>지원하지 않는 문제 유형입니다.</div>;
     }
   };
+
+  if (loading) {
+    return (
+      <>
+        <ExamHeader
+          registrationNumber={examinee?.registrationNumber}
+          examTitle="TOPIK IBT - 읽기"
+          timerMode="countdown"
+          remainingSeconds={remainingSeconds}
+        />
+        <div style={{ ...styles.page, textAlign: 'center' as const, paddingTop: 160 }}>
+          <div style={{ fontSize: 18, color: '#757575' }}>문제를 불러오는 중...</div>
+        </div>
+      </>
+    );
+  }
+
+  if (fetchError || questions.length === 0) {
+    return (
+      <>
+        <ExamHeader
+          registrationNumber={examinee?.registrationNumber}
+          examTitle="TOPIK IBT - 읽기"
+          timerMode="countdown"
+          remainingSeconds={remainingSeconds}
+        />
+        <div style={{ ...styles.page, textAlign: 'center' as const, paddingTop: 160 }}>
+          <div style={{ fontSize: 18, color: '#C62828' }}>
+            {fetchError || '문제 데이터가 없습니다.'}
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

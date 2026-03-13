@@ -115,7 +115,6 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [phone, setPhone] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -140,7 +139,6 @@ export default function SignUpPage() {
     else if (!/(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(password))
       errs.password = '영문, 숫자, 특수문자를 포함해야 합니다.';
     if (password !== passwordConfirm) errs.passwordConfirm = '비밀번호가 일치하지 않습니다.';
-    if (!phone.trim()) errs.phone = '연락처를 입력하세요.';
     if (!agreedTerms) errs.agreedTerms = '이용약관에 동의해야 합니다.';
     if (!agreedPrivacy) errs.agreedPrivacy = '개인정보 수집·이용에 동의해야 합니다.';
     setErrors(errs);
@@ -154,7 +152,7 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
-      const result = await signUp({ name, email, password, phone });
+      const result = await signUp({ name, email, password });
       navigate('/registration/verify-email', { state: { email: result.email || email } });
     } catch (err: any) {
       const msg = err?.response?.data?.message;
@@ -231,18 +229,6 @@ export default function SignUpPage() {
             placeholder="비밀번호 재입력"
           />
           {errors.passwordConfirm && <div style={styles.fieldError}>{errors.passwordConfirm}</div>}
-        </div>
-
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>연락처</label>
-          <input
-            style={{ ...styles.input, ...(errors.phone ? styles.inputError : {}) }}
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value.replace(/[^\d-]/g, ''))}
-            placeholder="010-1234-5678"
-          />
-          {errors.phone && <div style={styles.fieldError}>{errors.phone}</div>}
         </div>
 
         {/* 약관 동의 영역 */}

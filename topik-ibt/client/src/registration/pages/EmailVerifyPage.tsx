@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
-import { verifyEmail } from '../api/registrationApi';
+import { verifyEmail, resendCode } from '../api/registrationApi';
 
 const TIMER_SECONDS = 180; // 3분
 
@@ -202,14 +202,19 @@ export default function EmailVerifyPage() {
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!canResend) return;
-    setSeconds(TIMER_SECONDS);
-    setCanResend(false);
-    setDigits(['', '', '', '', '', '']);
     setError('');
-    inputRefs.current[0]?.focus();
-    // In real app, call resend API here
+    try {
+      await resendCode(email);
+      setSeconds(TIMER_SECONDS);
+      setCanResend(false);
+      setDigits(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message;
+      setError(msg || '인증코드 재전송에 실패했습니다.');
+    }
   };
 
   return (

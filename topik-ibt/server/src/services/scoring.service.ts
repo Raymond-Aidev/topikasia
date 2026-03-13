@@ -102,7 +102,21 @@ function gradeQuestion(
       userAnswer.every((v: number, i: number) => v === correctAnswer[i]);
   } else {
     // MCQ, DROPDOWN: 단일값 비교
-    const userVal = typeof userAnswer === 'object' ? userAnswer.selected : userAnswer;
+    let userVal: any;
+    if (typeof userAnswer === 'object') {
+      // { selectedOptions: [2] } 또는 { selectedDropdown: 3 } 또는 { selected: 1 }
+      if (Array.isArray(userAnswer.selectedOptions) && userAnswer.selectedOptions.length > 0) {
+        userVal = userAnswer.selectedOptions[0];
+      } else if (userAnswer.selectedDropdown != null) {
+        userVal = userAnswer.selectedDropdown;
+      } else if (userAnswer.selected != null) {
+        userVal = userAnswer.selected;
+      } else {
+        userVal = userAnswer;
+      }
+    } else {
+      userVal = userAnswer;
+    }
     correct = userVal === correctAnswer;
   }
 
@@ -121,8 +135,9 @@ export function gradeSection(
   const autoGradableCount = questions.filter(q => isAutoGradable(q.typeCode)).length;
   const hasManualQuestions = autoGradableCount < questions.length;
 
-  // 배점 계산: 자동채점 문항만 있는 경우 균등 배분
-  const pointsPerQuestion = autoGradableCount > 0
+  // 배점 계산: 문항에 개별 배점(points)이 있으면 사용, 없으면 균등 배분
+  const hasIndividualPoints = questions.some(q => q.points && q.points > 0);
+  const pointsPerQuestion = !hasIndividualPoints && autoGradableCount > 0
     ? Math.floor(sectionMaxScore / (hasManualQuestions ? autoGradableCount : questions.length))
     : 0;
 
@@ -130,7 +145,9 @@ export function gradeSection(
 
   const questionResults = questions.map(q => {
     const answer = answerMap.get(q.bankId);
-    const points = isAutoGradable(q.typeCode) ? pointsPerQuestion : (q.points || 0);
+    const points = q.points && q.points > 0
+      ? q.points
+      : (isAutoGradable(q.typeCode) ? pointsPerQuestion : 0);
     const result = gradeQuestion(q, answer, points);
     return {
       bankId: q.bankId,
