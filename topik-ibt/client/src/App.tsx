@@ -40,6 +40,7 @@ const IBTUploadPage = lazy(() => import('./question-module/pages/IBTUploadPage')
 const ExamSetPreviewPage = lazy(() => import('./question-module/pages/ExamSetPreviewPage'));
 
 // ─── 자가 접수 화면 ───────────────────────────────────────────
+const AboutPage = lazy(() => import('./registration/pages/AboutPage'));
 const LandingPage = lazy(() => import('./registration/pages/LandingPage'));
 const SignUpPage = lazy(() => import('./registration/pages/SignUpPage'));
 const EmailVerifyPage = lazy(() => import('./registration/pages/EmailVerifyPage'));
@@ -96,6 +97,7 @@ function App() {
           <Route path="/question-module/preview/:id" element={<ExamSetPreviewPage />} />
 
           {/* 자가 접수 */}
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/registration" element={<LandingPage />} />
           <Route path="/registration/signup" element={<SignUpPage />} />
           <Route path="/registration/verify-email" element={<EmailVerifyPage />} />
