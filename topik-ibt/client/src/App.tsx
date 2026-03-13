@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import CookieConsent from './shared/components/CookieConsent';
 
 // ─── 응시자 화면 ───────────────────────────────────────────────
 const LoginScreen = lazy(() => import('./exam/pages/LoginScreen'));
@@ -114,6 +115,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
         </Routes>
       </Suspense>
+      <CookieConsent />
     </BrowserRouter>
   );
 }
