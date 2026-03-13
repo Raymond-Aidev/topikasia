@@ -115,8 +115,8 @@ export default function LmsAnalysisScreen() {
               >
                 <XAxis type="number" domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} fontSize={12} />
                 <YAxis type="category" dataKey="name" width={120} fontSize={13} tick={{ fill: '#374151', fontWeight: 600 }} />
-                <Tooltip formatter={(value: number, _name: string, props: any) => [`${value}% (${props.payload.correct}/${props.payload.total})`, '정답률']} />
-                <Bar dataKey="accuracy" barSize={20} radius={[0, 4, 4, 0]} label={{ position: 'right', formatter: (v: number) => `${v}%`, fontSize: 12, fill: '#374151' }}>
+                <Tooltip formatter={(value: any, _name: any, props: any) => [`${value}% (${props.payload.correct}/${props.payload.total})`, '정답률']} />
+                <Bar dataKey="accuracy" barSize={20} radius={[0, 4, 4, 0]} label={{ position: 'right', formatter: (v: any) => `${v}%`, fontSize: 12, fill: '#374151' }}>
                   {entries.map(([type, stats]) => (
                     <Cell key={type} fill={getAccuracyColor(stats.accuracy)} />
                   ))}

@@ -21,7 +21,7 @@ export default function ScoreEmailScreen() {
     setError('');
     setLoading(true);
     try {
-      const res = await examApi.post('/exam/score/email', { email });
+      await examApi.post('/exam/score/email', { email });
       setSuccess(true);
       setError('');
     } catch (err: any) {
