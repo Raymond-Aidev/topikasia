@@ -1,13 +1,9 @@
 #!/bin/sh
 echo "=== Server Starting ==="
 
-# 1. DB 스키마 동기화 (재시도 3회)
-for i in 1 2 3; do
-  echo "=== Prisma db push 시도 ($i/3) ==="
-  npx prisma db push && break
-  echo "=== 실패, 10초 대기 후 재시도... ==="
-  sleep 10
-done
+# 1. Prisma 클라이언트 생성 (스키마 변경 시 필요)
+echo "=== Prisma generate ==="
+npx prisma generate
 
 # 2. 수동 마이그레이션 + 시드 데이터
 echo "=== DB 초기화 (마이그레이션 + 시딩) ==="
