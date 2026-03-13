@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import StepIndicator from '../components/StepIndicator';
 import ExamSelectionPanel from '../components/ExamSelectionPanel';
@@ -260,6 +261,8 @@ const STUDY_PERIODS = ['6개월 미만', '6개월~1년', '1~2년', '2~3년', '3~
 
 // ─── Component ───────────────────────────────────────────────────
 export default function RegistrationFormPage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const {
     selectedSchedule,
@@ -710,23 +713,32 @@ export default function RegistrationFormPage() {
     (currentStep === 2 && !formData.venueId);
 
   return (
-    <div style={s.page}>
+    <div style={{ ...s.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
       <StepIndicator currentStep={currentStep} onStepClick={handleStepClick} />
 
-      <div style={s.body}>
-        <div style={s.main}>
+      <div style={{ ...s.body, flexDirection: isMobile ? 'column' : 'row', padding: isMobile ? '24px 16px' : '32px 24px' }}>
+        <div style={{ ...s.main, padding: isMobile ? 20 : 32 }}>
           {stepContent[currentStep - 1]()}
           {error && <div style={s.errorMsg}>{error}</div>}
         </div>
 
-        <ExamSelectionPanel
+        {!isMobile && <ExamSelectionPanel
           schedule={selectedSchedule}
           venueName={currentStep >= 2 ? formData.venueName : undefined}
           buttonLabel={panelButtonLabel}
           onButtonClick={handleNext}
           buttonDisabled={panelButtonDisabled}
-        />
+        />}
+        {isMobile && (
+          <button
+            style={{ ...s.submitBtn, width: '100%', marginTop: 16 }}
+            onClick={handleNext}
+            disabled={panelButtonDisabled}
+          >
+            {panelButtonLabel}
+          </button>
+        )}
       </div>
       <Footer />
     </div>

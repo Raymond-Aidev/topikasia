@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { fetchMyRegistrations, downloadTicket } from '../api/registrationApi';
@@ -106,6 +107,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function MyPage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const { setMyRegistrations, resetForm } = useRegistrationStore();
 
@@ -142,10 +145,10 @@ export default function MyPage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={styles.content}>
+      <div style={{ ...styles.content, padding: isMobile ? '24px 16px' : '32px 24px' }}>
         <div style={styles.title}>내 접수 내역</div>
 
         {loading && <div style={styles.loading}>불러오는 중...</div>}
@@ -156,7 +159,8 @@ export default function MyPage() {
 
         {!loading && registrations.length > 0 && (
           <div style={styles.card}>
-            <table style={styles.table}>
+            <div style={{ overflowX: isMobile ? 'auto' : undefined }}>
+            <table style={{ ...styles.table, minWidth: isMobile ? 700 : undefined }}>
               <thead>
                 <tr>
                   <th style={styles.th}>접수번호</th>
@@ -199,6 +203,7 @@ export default function MyPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 

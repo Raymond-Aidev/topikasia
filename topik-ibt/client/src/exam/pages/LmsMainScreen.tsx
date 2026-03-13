@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 
 interface ExamHistoryItem {
@@ -27,6 +28,8 @@ const GRADE_LABELS: Record<number, string> = { 1: '1급', 2: '2급', 3: '3급', 
 const SECTION_LABELS: Record<string, string> = { LISTENING: '듣기', WRITING: '쓰기', READING: '읽기' };
 
 export default function LmsMainScreen() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const [history, setHistory] = useState<ExamHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,10 +42,10 @@ export default function LmsMainScreen() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', fontFamily: 'sans-serif', paddingTop: GNB_HEIGHT }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', fontFamily: 'sans-serif', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 20px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: isMobile ? '24px 16px' : '32px 20px' }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24, color: '#111827' }}>시험 이력</h2>
 
         {loading && <div style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>불러오는 중...</div>}

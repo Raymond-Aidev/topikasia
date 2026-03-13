@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { applyRegistration } from '../api/registrationApi';
@@ -96,6 +97,8 @@ const styles = {
 };
 
 export default function RegistrationConfirmPage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const { selectedSchedule, formData, setCurrentStep, setCurrentRegistration } =
     useRegistrationStore();
@@ -139,11 +142,11 @@ export default function RegistrationConfirmPage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={styles.content}>
-        <div style={styles.card}>
+      <div style={{ ...styles.content, maxWidth: isMobile ? '100%' : 720, padding: isMobile ? '24px 16px' : '40px 24px' }}>
+        <div style={{ ...styles.card, padding: isMobile ? 20 : 32 }}>
           <div style={styles.title}>접수 확인</div>
           <div style={styles.subtitle}>
             아래 내용을 최종 확인한 후 제출 버튼을 눌러주세요.

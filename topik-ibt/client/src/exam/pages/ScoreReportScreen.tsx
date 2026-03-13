@@ -5,7 +5,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 
 interface SectionScore {
@@ -37,6 +38,8 @@ const SECTION_LABELS: Record<string, string> = {
 };
 
 export default function ScoreReportScreen() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const [scores, setScores] = useState<ScoreData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,9 +62,9 @@ export default function ScoreReportScreen() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', paddingTop: GNB_HEIGHT }}>
+      <div style={{ minHeight: '100vh', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
         <GlobalNavigationBar />
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: `calc(100vh - ${GNB_HEIGHT}px)`, color: '#9ca3af' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)`, color: '#9ca3af' }}>
           불러오는 중...
         </div>
         <Footer />
@@ -71,9 +74,9 @@ export default function ScoreReportScreen() {
 
   if (error || scores.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', paddingTop: GNB_HEIGHT }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
         <GlobalNavigationBar />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: `calc(100vh - ${GNB_HEIGHT}px)` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)` }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>-</div>
           <div style={{ fontSize: 18, color: '#6b7280', marginBottom: 24 }}>{error || '공개된 성적이 없습니다'}</div>
           <button
@@ -89,7 +92,7 @@ export default function ScoreReportScreen() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', paddingTop: GNB_HEIGHT }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
       {scores.map(score => (
         <div key={score.id} style={{
@@ -98,7 +101,7 @@ export default function ScoreReportScreen() {
         }}>
           {/* Header */}
           <div style={{
-            backgroundColor: '#1565C0', color: '#fff', padding: '28px 32px', textAlign: 'center',
+            backgroundColor: '#1565C0', color: '#fff', padding: isMobile ? '20px 16px' : '28px 32px', textAlign: 'center',
           }}>
             <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 4 }}>한국어능력시험</div>
             <div style={{ fontSize: 24, fontWeight: 800 }}>TOPIK 성적표</div>
@@ -108,8 +111,8 @@ export default function ScoreReportScreen() {
           </div>
 
           {/* Exam Info */}
-          <div style={{ padding: '24px 32px', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px', fontSize: 14 }}>
+          <div style={{ padding: isMobile ? '16px' : '24px 32px', borderBottom: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px 24px', fontSize: 14 }}>
               <div>
                 <span style={{ color: '#6b7280' }}>시험명</span>
                 <div style={{ fontWeight: 600, marginTop: 2 }}>{score.examSetName}</div>
@@ -136,7 +139,7 @@ export default function ScoreReportScreen() {
           </div>
 
           {/* Section Scores */}
-          <div style={{ padding: '24px 32px' }}>
+          <div style={{ padding: isMobile ? '16px' : '24px 32px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
               <thead>
                 <tr>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { fetchSchedules } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
@@ -95,6 +96,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function ExamSchedulePage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const selectSchedule = useRegistrationStore((s) => s.selectSchedule);
 
@@ -122,10 +125,10 @@ export default function ExamSchedulePage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={styles.content}>
+      <div style={{ ...styles.content, padding: isMobile ? '24px 16px' : '32px 24px' }}>
         <div style={styles.title}>시험 일정 조회</div>
 
         {loading && <div style={styles.loading}>불러오는 중...</div>}
@@ -136,6 +139,7 @@ export default function ExamSchedulePage() {
 
         {!loading && schedules.length > 0 && (
           <>
+            <div style={{ overflowX: isMobile ? 'auto' : undefined }}>
             <table style={styles.table}>
               <thead>
                 <tr>
@@ -178,6 +182,7 @@ export default function ExamSchedulePage() {
                 })}
               </tbody>
             </table>
+            </div>
 
             <button
               style={styles.applyBtn(!selectedId)}

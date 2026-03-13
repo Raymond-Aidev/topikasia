@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { signUp } from '../api/registrationApi';
 
@@ -114,6 +115,8 @@ const styles = {
 };
 
 export default function SignUpPage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
@@ -160,9 +163,9 @@ export default function SignUpPage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
-      <form style={styles.card} onSubmit={handleSubmit}>
+      <form style={{ ...styles.card, width: isMobile ? '90%' : 440, maxWidth: 440, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
         <div style={styles.title}>
           <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 36, objectFit: 'contain' as const, marginRight: 8, verticalAlign: 'middle' }} />
           <span style={{ verticalAlign: 'middle' }}>회원가입</span>

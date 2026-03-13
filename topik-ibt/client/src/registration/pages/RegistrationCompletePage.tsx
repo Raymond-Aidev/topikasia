@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { downloadTicket } from '../api/registrationApi';
@@ -94,6 +95,8 @@ const styles = {
 };
 
 export default function RegistrationCompletePage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const { currentRegistration, selectedSchedule, resetForm } = useRegistrationStore();
 
@@ -118,11 +121,11 @@ export default function RegistrationCompletePage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={styles.content}>
-        <div style={styles.card}>
+      <div style={{ ...styles.content, maxWidth: isMobile ? '100%' : 560, padding: isMobile ? '32px 16px' : '60px 24px' }}>
+        <div style={{ ...styles.card, padding: isMobile ? '32px 20px' : '48px 40px' }}>
           <div style={styles.checkIcon}>&#10003;</div>
           <div style={styles.title}>접수가 완료되었습니다</div>
           <div style={styles.subtitle}>

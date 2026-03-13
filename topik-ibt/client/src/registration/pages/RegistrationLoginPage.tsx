@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { login } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
@@ -106,6 +107,8 @@ const styles = {
 };
 
 export default function RegistrationLoginPage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const location = useLocation();
   const setUser = useRegistrationStore((s) => s.setUser);
@@ -153,9 +156,9 @@ export default function RegistrationLoginPage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
-      <form style={styles.card} onSubmit={handleSubmit}>
+      <form style={{ ...styles.card, width: isMobile ? '90%' : 400, maxWidth: 400, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
         <div style={styles.logo}>
           <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const }} />
         </div>

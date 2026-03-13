@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import GlobalNavigationBar, { GNB_HEIGHT } from '../../shared/components/GlobalNavigationBar';
+import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
+import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { verifyEmail } from '../api/registrationApi';
 
@@ -119,6 +120,8 @@ const styles = {
 };
 
 export default function EmailVerifyPage() {
+  const { isMobile, isTablet } = useResponsive();
+  const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const location = useLocation();
   const email = (location.state as any)?.email || '';
@@ -210,9 +213,9 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
-      <form style={styles.card} onSubmit={handleSubmit}>
+      <form style={{ ...styles.card, width: isMobile ? '90%' : 440, maxWidth: 440, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
         <div style={styles.title}>이메일 인증</div>
         <div style={styles.desc}>
           <span style={styles.email}>{email}</span> 으로
