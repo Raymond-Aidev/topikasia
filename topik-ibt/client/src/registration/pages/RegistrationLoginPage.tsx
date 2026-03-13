@@ -121,6 +121,7 @@ export default function RegistrationLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -191,13 +192,28 @@ export default function RegistrationLoginPage() {
 
         <div style={styles.fieldGroup}>
           <label style={styles.label}>비밀번호</label>
-          <input
-            style={styles.input}
-            type="password"
-            placeholder="비밀번호 입력"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              style={{ ...styles.input, paddingRight: 44 }}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="비밀번호 입력"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              style={{
+                position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                fontSize: 18, color: '#757575', lineHeight: 1,
+              }}
+              tabIndex={-1}
+              aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+            >
+              {showPassword ? '\u{1F441}' : '\u{1F441}\u{200D}\u{1F5E8}'}
+            </button>
+          </div>
         </div>
 
         <button
