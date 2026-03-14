@@ -3,7 +3,7 @@ import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
-import { downloadTicket } from '../api/registrationApi';
+// downloadTicket is available on MyPage after admin approval
 
 const styles = {
   page: {
@@ -72,16 +72,6 @@ const styles = {
     gap: 16,
     justifyContent: 'center',
   },
-  downloadBtn: {
-    padding: '14px 32px',
-    fontSize: 15,
-    fontWeight: 700 as const,
-    color: '#FFFFFF',
-    backgroundColor: '#4CAF50',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
   mypageBtn: {
     padding: '14px 32px',
     fontSize: 15,
@@ -99,21 +89,6 @@ export default function RegistrationCompletePage() {
   const compact = isMobile || isTablet;
   const navigate = useNavigate();
   const { currentRegistration, selectedSchedule, resetForm } = useRegistrationStore();
-
-  const handleDownloadTicket = async () => {
-    if (!currentRegistration) return;
-    try {
-      const blob = await downloadTicket(currentRegistration.id);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `수험표_${currentRegistration.registrationNumber}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert('수험표 다운로드에 실패했습니다.');
-    }
-  };
 
   const handleMyPage = () => {
     resetForm();
@@ -170,22 +145,23 @@ export default function RegistrationCompletePage() {
                       fontSize: 12,
                       fontWeight: 600,
                       color: '#fff',
-                      backgroundColor: '#4CAF50',
+                      backgroundColor: '#FF9800',
                     }}
                   >
-                    접수완료
+                    승인 대기중
                   </span>
                 </td>
               </tr>
             </tbody>
           </table>
 
+          <div style={{ padding: '16px 20px', backgroundColor: '#FFF8E1', borderRadius: 8, marginBottom: 24, fontSize: 14, color: '#795548', lineHeight: 1.6 }}>
+            관리자 승인 후 마이페이지에서 수험표를 다운로드할 수 있습니다.
+          </div>
+
           <div style={styles.btnRow}>
-            <button style={styles.downloadBtn} onClick={handleDownloadTicket}>
-              수험표 다운로드
-            </button>
             <button style={styles.mypageBtn} onClick={handleMyPage}>
-              마이페이지
+              마이페이지에서 확인
             </button>
           </div>
         </div>
