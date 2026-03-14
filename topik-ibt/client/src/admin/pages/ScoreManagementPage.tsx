@@ -75,8 +75,9 @@ const ScoreManagementPage: React.FC = () => {
       if (publishedFilter) params.isPublished = publishedFilter;
       if (search) params.search = search;
       const res = await adminApi.get('/admin/scores', { params });
-      setScores(res.data.data || []);
-      setTotal(res.data.total || 0);
+      const body = res.data?.data || res.data;
+      setScores(Array.isArray(body) ? body : body.data || []);
+      setTotal(res.data.total ?? body.total ?? 0);
     } catch (err: any) {
       setError(err.response?.data?.message || '데이터 로딩 실패');
     } finally {
@@ -87,7 +88,10 @@ const ScoreManagementPage: React.FC = () => {
   useEffect(() => { fetchScores(); }, [fetchScores]);
 
   useEffect(() => {
-    adminApi.get('/admin/exam-sets/assignable').then(r => setExamSets(r.data)).catch(() => {});
+    adminApi.get('/admin/exam-sets/assignable').then(r => {
+      const body = r.data?.data || r.data;
+      setExamSets(Array.isArray(body) ? body : []);
+    }).catch(() => {});
   }, []);
 
   // ─── 자동채점 실행 ────────────────────────────
@@ -135,8 +139,9 @@ const ScoreManagementPage: React.FC = () => {
     setWritingScore('');
     try {
       const res = await adminApi.get(`/admin/scores/${id}`);
-      setDetail(res.data);
-      const ws = res.data.sectionScores?.WRITING;
+      const scoreData = res.data?.data || res.data;
+      setDetail(scoreData);
+      const ws = scoreData.sectionScores?.WRITING;
       if (ws) setWritingScore(String(ws.raw || 0));
     } catch (err: any) {
       alert(err.response?.data?.message || '상세 조회 실패');

@@ -97,7 +97,7 @@ const ExamineeDetailPage: React.FC = () => {
     try {
       setLoading(true);
       const res = await adminApi.get(`/admin/examinees/${id}`);
-      const data = res.data;
+      const data = res.data?.data || res.data;
       setExaminee(data);
       setName(data.name);
       setSeatNumber(data.seatNumber || '');

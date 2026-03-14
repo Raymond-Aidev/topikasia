@@ -68,9 +68,9 @@ const ExamSessionListPage: React.FC = () => {
       if (dateFrom) params.dateFrom = dateFrom;
       if (dateTo) params.dateTo = dateTo;
       const res = await adminApi.get('/admin/exam-sessions', { params });
-      const data = res.data;
-      setSessions(data.data || data.items || data);
-      setTotal(data.total || 0);
+      const body = res.data?.data || res.data;
+      setSessions(body.sessions || body.data || []);
+      setTotal(body.pagination?.total ?? body.total ?? 0);
     } catch (err: any) {
       setError(err.response?.data?.message || '데이터를 불러오는 데 실패했습니다.');
     } finally {
@@ -85,7 +85,10 @@ const ExamSessionListPage: React.FC = () => {
   useEffect(() => {
     adminApi
       .get('/admin/exam-sets/assignable')
-      .then((res) => setExamSets(res.data))
+      .then((res) => {
+        const body = res.data?.data || res.data;
+        setExamSets(Array.isArray(body) ? body : []);
+      })
       .catch(() => {});
   }, []);
 

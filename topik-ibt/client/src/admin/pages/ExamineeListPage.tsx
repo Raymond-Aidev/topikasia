@@ -61,8 +61,9 @@ const ExamineeListPage: React.FC = () => {
       const res = await adminApi.get<PaginatedResponse>('/admin/examinees', {
         params: { page, limit: PAGE_SIZE, search: search || undefined },
       });
-      setExaminees(res.data.data);
-      setTotal(res.data.total);
+      const body = res.data?.data || res.data;
+      setExaminees(body.examinees || body.data || []);
+      setTotal(body.pagination?.total ?? body.total ?? 0);
     } catch (err: any) {
       setError(err.response?.data?.message || '데이터를 불러오는 데 실패했습니다.');
     } finally {
