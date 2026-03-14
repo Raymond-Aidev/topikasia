@@ -29,7 +29,21 @@ export function useDashboardPolling() {
     try {
       setIsLoading(true);
       const res = await adminApi.get('/admin/dashboard/summary');
-      setData(res.data);
+      const raw = res.data?.data || res.data;
+      setData({
+        totalMembers: raw.examinees?.total ?? 0,
+        completed: raw.sessions?.completed ?? 0,
+        inProgress: raw.sessions?.inProgress ?? 0,
+        notStarted: raw.sessions?.notStarted ?? 0,
+        examSetStats: (raw.examSetStats || []).map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          examType: s.examType || s.examSetNumber || '',
+          assignedCount: s.assignedCount ?? 0,
+          completedCount: s.completed ?? s.completedCount ?? 0,
+          inProgressCount: s.inProgress ?? s.inProgressCount ?? 0,
+        })),
+      });
       setLastUpdated(new Date());
       setError(null);
     } catch (err: any) {
