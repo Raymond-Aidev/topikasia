@@ -20,7 +20,8 @@ const AdminLoginPage: React.FC = () => {
       const payload: any = { loginId, password };
       if (twoFactorCode) payload.twoFactorCode = twoFactorCode;
       const res = await adminApi.post('/admin-auth/login', payload);
-      localStorage.setItem('adminToken', res.data.token);
+      const token = res.data?.data?.token || res.data?.token;
+      localStorage.setItem('adminToken', token);
       navigate('/admin/dashboard');
     } catch (err: any) {
       const msg = err.response?.data?.message || '로그인에 실패했습니다.';
