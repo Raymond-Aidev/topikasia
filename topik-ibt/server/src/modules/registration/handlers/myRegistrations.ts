@@ -10,7 +10,7 @@ export async function myRegistrations(req: Request, res: Response, next: NextFun
   try {
     const userId = req.registrationUser!.sub;
 
-    const registrations = await prisma.$queryRaw`
+    const rows = await prisma.$queryRaw`
       SELECT r."id", r."scheduleId", r."examType", r."englishName", r."birthDate",
              r."gender", r."photoUrl", r."venueId", r."venueName",
              r."contactPhone", r."address", r."status", r."examineeId",
@@ -21,6 +21,19 @@ export async function myRegistrations(req: Request, res: Response, next: NextFun
       WHERE r."userId" = ${userId}
       ORDER BY r."createdAt" DESC
     ` as any[];
+
+    // 클라이언트 형식에 맞춰 변환
+    const registrations = rows.map((r: any) => ({
+      ...r,
+      registrationNumber: r.id.slice(0, 8).toUpperCase(),
+      examSchedule: {
+        examName: r.examName,
+        examRound: r.examRound,
+        examDate: r.examDate instanceof Date ? r.examDate.toISOString().split('T')[0] : r.examDate,
+        examType: r.examType,
+      },
+      venue: { id: r.venueId, name: r.venueName },
+    }));
 
     res.json({
       success: true,

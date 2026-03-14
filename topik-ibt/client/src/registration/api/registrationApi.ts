@@ -115,8 +115,12 @@ export async function applyRegistration(payload: ApplyPayload) {
 }
 
 export async function fetchMyRegistrations() {
-  const res = await registrationApi.get<Registration[]>('/registration/my');
-  return res.data;
+  const res = await registrationApi.get('/registration/my');
+  const body = res.data;
+  if (body?.data?.registrations) return body.data.registrations as Registration[];
+  if (Array.isArray(body?.data)) return body.data as Registration[];
+  if (Array.isArray(body)) return body as Registration[];
+  return [];
 }
 
 export async function fetchMyRegistrationDetail(id: string) {

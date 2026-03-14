@@ -58,11 +58,13 @@ const styles = {
     fontWeight: 600 as const,
     color: '#fff',
     backgroundColor:
-      status === 'CONFIRMED'
+      status === 'APPROVED'
         ? '#4CAF50'
         : status === 'PENDING'
           ? '#FF9800'
-          : '#9E9E9E',
+          : status === 'REJECTED'
+            ? '#E53935'
+            : '#9E9E9E',
   }),
   ticketBtn: {
     padding: '6px 16px',
@@ -102,7 +104,8 @@ const styles = {
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: '접수대기',
-  CONFIRMED: '접수완료',
+  APPROVED: '접수완료',
+  REJECTED: '반려',
   CANCELLED: '취소됨',
 };
 
@@ -190,7 +193,7 @@ export default function MyPage() {
                       </span>
                     </td>
                     <td style={styles.td}>
-                      {reg.status === 'CONFIRMED' && (
+                      {reg.status === 'APPROVED' && (
                         <button
                           style={styles.ticketBtn}
                           onClick={() => handleDownload(reg)}
