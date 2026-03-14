@@ -103,7 +103,7 @@ export default function RegistrationCompletePage() {
   const handleDownloadTicket = async () => {
     if (!currentRegistration) return;
     try {
-      const blob = await downloadTicket(currentRegistration.id || currentRegistration.registrationId);
+      const blob = await downloadTicket(currentRegistration.id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
