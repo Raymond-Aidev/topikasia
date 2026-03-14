@@ -156,8 +156,12 @@ export default function ExamSchedulePage() {
                   </thead>
                   <tbody>
                     {schedules.map((sch) => {
-                      const totalSeats = sch.venues.reduce((a, v) => a + v.capacity, 0);
-                      const remaining = sch.venues.reduce((a, v) => a + v.remainingSeats, 0);
+                      const venues = sch.venues || [];
+                      const totalSeats = venues.reduce((a, v) => a + (v.capacity || 0), 0);
+                      const remaining = venues.reduce((a, v) => a + (v.remainingSeats || 0), 0);
+                      const formatDate = (d: string) => {
+                        try { return new Date(d).toLocaleDateString('ko-KR'); } catch { return d; }
+                      };
                       return (
                         <tr
                           key={sch.id}
@@ -172,10 +176,10 @@ export default function ExamSchedulePage() {
                           <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                             {sch.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'}
                           </td>
-                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{sch.examDate}</td>
-                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{sch.registrationEndDate}</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{formatDate(sch.examDate)}</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{formatDate(sch.registrationEndDate)}</td>
                           <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
-                            {sch.status === 'OPEN' ? `${remaining}/${totalSeats}` : '-'}
+                            {sch.status === 'OPEN' ? (totalSeats > 0 ? `${remaining}/${totalSeats}` : '접수 가능') : '-'}
                           </td>
                           <td className="px-4 py-3.5 text-sm border-b border-gray-100">
                             <span className={cn(
