@@ -76,11 +76,11 @@ export async function approveRegistrationInTx(
   const examinees = await tx.$queryRaw`
     INSERT INTO "Examinee" (
       "id", "loginId", "passwordHash", "name", "registrationNumber",
-      "photoUrl", "status", "createdById", "createdAt", "updatedAt"
+      "photoUrl", "status", "loginFailCount", "createdById", "createdAt", "updatedAt"
     ) VALUES (
       gen_random_uuid()::text, ${loginId}, ${passwordHash}, ${registration.name},
       ${registrationNumber}, ${registration.photoUrl || null},
-      'ACTIVE'::"ExamineeStatus", ${adminId}, NOW(), NOW()
+      'ACTIVE'::"ExamineeStatus", 0, ${adminId}, NOW(), NOW()
     )
     RETURNING "id"
   ` as any[];
