@@ -1,6 +1,7 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
+watchPatterns = ["client/src/**", "client/package*.json", "server/src/**", "server/prisma/**", "server/package*.json", "Dockerfile"]
 
 [deploy]
 startCommand = "sh start.sh"
