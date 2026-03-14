@@ -112,12 +112,16 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         status: result.status,
       },
     });
-  } catch (err) {
+  } catch (err: any) {
+    console.error('[applyRegistration] Error:', err?.message, err?.code, err?.meta, err?.stack?.slice(0, 500));
     if (err instanceof z.ZodError) {
       const message = err.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       next(new AppError(400, `입력값 검증 실패: ${message}`));
-    } else {
+    } else if (err instanceof AppError) {
       next(err);
+    } else {
+      // 디버그용: 실제 에러 메시지 포함
+      next(new AppError(500, `접수 처리 중 오류: ${err?.message || '알 수 없는 오류'}`));
     }
   }
 }
