@@ -31,6 +31,20 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
       throw new AppError(400, '유효한 생년월일을 입력해주세요');
     }
 
+    // 기존 접수 확인 (중복 접수 방지 — 멱등성)
+    const existing = await prisma.registration.findFirst({
+      where: { userId, scheduleId: body.scheduleId },
+      select: { id: true, status: true },
+    });
+    if (existing) {
+      res.status(200).json({
+        success: true,
+        data: { registrationId: existing.id, status: existing.status },
+        message: '이미 접수된 시험입니다',
+      });
+      return;
+    }
+
     // 트랜잭션: 일정 상태 확인 + 접수 생성 + currentCount 증가
     const result = await prisma.$transaction(async (tx) => {
       // 1. 일정 확인 (FOR UPDATE로 잠금)
@@ -89,7 +103,7 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
           select: { id: true, status: true },
         });
       } catch (err: any) {
-        if (err.code === 'P2002' || err.code === '23505') {
+        if (err.code === 'P2002' || err.code === '23505' || err.code === 'P2010') {
           throw new AppError(409, '이미 해당 시험에 접수하셨습니다');
         }
         throw err;
