@@ -2,6 +2,7 @@
 **/dist
 **/.git
 **/.env*
+!client/.env.production
 *.md
 .dockerignore
 railway.toml
