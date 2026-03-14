@@ -8,7 +8,7 @@ import BannerCarousel from '../../shared/components/BannerCarousel';
 import type { BannerSlide } from '../../shared/components/BannerCarousel';
 import Footer from '../../shared/components/Footer';
 import { useResponsive } from '../../shared/hooks/useResponsive';
-import { fetchSchedules } from '../api/registrationApi';
+import { fetchSchedules, fetchMyRegistrations } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
 import type { ExamSchedule } from '../types/registration.types';
 
@@ -53,9 +53,26 @@ export default function LandingPage() {
       .finally(() => setLoading(false));
   }, [setSchedules]);
 
-  const handleApply = (schedule: ExamSchedule) => {
+  const handleApply = async (schedule: ExamSchedule) => {
+    if (!isLoggedIn) {
+      selectSchedule(schedule);
+      navigate('/registration/login');
+      return;
+    }
+    try {
+      const regs = await fetchMyRegistrations();
+      const existing = regs.find(
+        (r) => r.scheduleId === schedule.id && r.status !== 'CANCELLED'
+      );
+      if (existing) {
+        alert('이미 접수한 신청입니다');
+        return;
+      }
+    } catch {
+      // 조회 실패 시 서버 중복 체크에 의존
+    }
     selectSchedule(schedule);
-    navigate(isLoggedIn ? '/registration/apply' : '/registration/login');
+    navigate('/registration/apply');
   };
 
   const handleBannerCta = (link: string) => navigate(link);

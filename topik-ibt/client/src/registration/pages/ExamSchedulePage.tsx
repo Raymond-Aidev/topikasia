@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
-import { fetchSchedules } from '../api/registrationApi';
+import { fetchSchedules, fetchMyRegistrations } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
 import type { ExamSchedule } from '../types/registration.types';
 
@@ -54,11 +54,28 @@ export default function ExamSchedulePage() {
     setSelectedId(sch.id);
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
     const sch = schedules.find((s) => s.id === selectedId);
     if (!sch) return;
+    if (!isLoggedIn) {
+      selectSchedule(sch);
+      navigate('/registration/login');
+      return;
+    }
+    try {
+      const regs = await fetchMyRegistrations();
+      const existing = regs.find(
+        (r) => r.scheduleId === sch.id && r.status !== 'CANCELLED'
+      );
+      if (existing) {
+        alert('이미 접수한 신청입니다');
+        return;
+      }
+    } catch {
+      // 조회 실패 시 서버 중복 체크에 의존
+    }
     selectSchedule(sch);
-    navigate(isLoggedIn ? '/registration/apply' : '/registration/login');
+    navigate('/registration/apply');
   };
 
   return (
