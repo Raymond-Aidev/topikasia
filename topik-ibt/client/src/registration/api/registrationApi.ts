@@ -93,6 +93,14 @@ export async function fetchVenues(scheduleId: string) {
   return res.data;
 }
 
+// ── Eligibility ─────────────────────────────────────
+export async function checkEligibility(scheduleId: string): Promise<{ eligible: boolean; examineeId?: string }> {
+  const res = await registrationApi.get('/registration/check-eligibility', {
+    params: { scheduleId },
+  });
+  return res.data?.data || { eligible: false };
+}
+
 // ── Registration ─────────────────────────────────────
 export async function applyRegistration(payload: ApplyPayload) {
   // 서버 스키마에 맞춰 birthDate 문자열로 변환, 필드명 매핑
@@ -110,8 +118,16 @@ export async function applyRegistration(payload: ApplyPayload) {
     address: payload.address || undefined,
   };
 
-  const res = await registrationApi.post<Registration>('/registration/apply', body);
-  return res.data;
+  const res = await registrationApi.post('/registration/apply', body);
+  const result = res.data;
+  // 서버 응답: { success, data: { registrationId, status, examineeId } }
+  const data = result?.data || result;
+  return {
+    id: data.registrationId || data.id,
+    registrationId: data.registrationId || data.id,
+    status: data.status,
+    examineeId: data.examineeId,
+  } as any;
 }
 
 export async function fetchMyRegistrations() {

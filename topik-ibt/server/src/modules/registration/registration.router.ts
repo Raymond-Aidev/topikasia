@@ -8,6 +8,7 @@ import { applyRegistration } from './handlers/applyRegistration';
 import { myRegistrations, myRegistrationDetail } from './handlers/myRegistrations';
 import { cancelRegistration } from './handlers/cancelRegistration';
 import { downloadTicket } from './handlers/downloadTicket';
+import { checkEligibility } from './handlers/checkEligibility';
 import { resendCode } from './handlers/resendCode';
 
 const router = Router();
@@ -21,6 +22,7 @@ router.get('/schedules', listSchedules);
 router.get('/schedules/:id', getScheduleDetail);
 
 // ─── 접수자 인증 필요 라우트 ─────────────────────────────────
+router.get('/check-eligibility', registrationAuth, checkEligibility);
 router.post('/apply', registrationAuth, applyRegistration);
 router.get('/my', registrationAuth, myRegistrations);
 router.get('/my/:id/ticket', registrationAuth, downloadTicket);

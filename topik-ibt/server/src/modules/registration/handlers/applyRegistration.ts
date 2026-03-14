@@ -19,7 +19,11 @@ const applySchema = z.object({
 /**
  * POST /api/registration/apply
  * 접수 신청 (registrationAuth 필요)
- * ACID: 트랜잭션 내에서 일정 상태 확인 + 접수 생성 + currentCount 증가
+ *
+ * 변경: 관리자 수동 승인 → 자동 응시자 확인 + 자동 승인
+ * 1. 응시자(Examinee) DB에서 이름 매칭 확인
+ * 2. 매칭 성공 → APPROVED + examineeId 연결
+ * 3. 매칭 실패 → 403 "응시대상이 아닙니다"
  */
 export async function applyRegistration(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -45,7 +49,47 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
       return;
     }
 
-    // 트랜잭션: 일정 상태 확인 + 접수 생성 + currentCount 증가
+    // ── 응시 대상자 확인 ──
+    // 1. RegistrationUser 이름 조회
+    const users = await prisma.$queryRaw`
+      SELECT "name" FROM "RegistrationUser" WHERE "id" = ${userId} LIMIT 1
+    ` as any[];
+
+    if (users.length === 0) {
+      throw new AppError(404, '사용자를 찾을 수 없습니다');
+    }
+    const userName = users[0].name;
+
+    // 2. ExamSchedule의 examSetId 조회
+    const scheduleInfo = await prisma.$queryRaw`
+      SELECT "examSetId" FROM "ExamSchedule" WHERE "id" = ${body.scheduleId} LIMIT 1
+    ` as any[];
+
+    const examSetId = scheduleInfo.length > 0 ? scheduleInfo[0].examSetId : null;
+
+    // 3. 매칭 Examinee 찾기
+    let matchedExamineeId: string | null = null;
+
+    if (examSetId) {
+      const examinees = await prisma.$queryRaw`
+        SELECT "id" FROM "Examinee"
+        WHERE "name" = ${userName}
+          AND "assignedExamSetId" = ${examSetId}
+          AND "status" = 'ACTIVE'::"ExamineeStatus"
+        LIMIT 1
+      ` as any[];
+
+      if (examinees.length > 0) {
+        matchedExamineeId = examinees[0].id;
+      }
+    }
+
+    // 4. 응시 대상이 아니면 거부
+    if (!matchedExamineeId) {
+      throw new AppError(403, '응시대상이 아닙니다');
+    }
+
+    // ── 트랜잭션: 일정 상태 확인 + 접수 생성(APPROVED) + currentCount 증가 ──
     const result = await prisma.$transaction(async (tx) => {
       // 1. 일정 확인 (FOR UPDATE로 잠금)
       const schedules = await tx.$queryRaw`
@@ -65,16 +109,7 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         throw new AppError(400, '접수가 마감된 시험 일정입니다');
       }
 
-      const now = new Date();
-      if (now < new Date(schedule.registrationStartAt)) {
-        throw new AppError(400, '아직 접수 기간이 아닙니다');
-      }
-      if (now > new Date(schedule.registrationEndAt)) {
-        throw new AppError(400, '접수 기간이 종료되었습니다');
-      }
-
       if (schedule.currentCount >= schedule.maxCapacity) {
-        // 정원 초과 시 상태를 FULL로 변경
         await tx.$executeRaw`
           UPDATE "ExamSchedule" SET "status" = 'FULL'::"ScheduleStatus", "updatedAt" = NOW()
           WHERE "id" = ${body.scheduleId}
@@ -82,7 +117,7 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         throw new AppError(400, '정원이 초과되었습니다');
       }
 
-      // 2. 접수 생성 (중복 접수 방지는 unique constraint에 의존)
+      // 2. 접수 생성 (자동 승인: APPROVED + examineeId 연결)
       let registration;
       try {
         registration = await tx.registration.create({
@@ -98,9 +133,11 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
             venueName: body.venueName,
             contactPhone: body.contactPhone || null,
             address: body.address || null,
-            status: 'PENDING',
+            status: 'APPROVED',
+            examineeId: matchedExamineeId,
+            approvedAt: new Date(),
           },
-          select: { id: true, status: true },
+          select: { id: true, status: true, examineeId: true },
         });
       } catch (err: any) {
         if (err.code === 'P2002' || err.code === '23505' || err.code === 'P2010') {
@@ -124,17 +161,16 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
       data: {
         registrationId: result.id,
         status: result.status,
+        examineeId: result.examineeId,
       },
     });
   } catch (err: any) {
-    console.error('[applyRegistration] Error:', err?.message, err?.code, err?.meta, err?.stack?.slice(0, 500));
     if (err instanceof z.ZodError) {
       const message = err.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       next(new AppError(400, `입력값 검증 실패: ${message}`));
     } else if (err instanceof AppError) {
       next(err);
     } else {
-      // 디버그용: 실제 에러 메시지 포함
       next(new AppError(500, `접수 처리 중 오류: ${err?.message || '알 수 없는 오류'}`));
     }
   }

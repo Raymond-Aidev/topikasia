@@ -136,8 +136,13 @@ export default function RegistrationConfirmPage() {
       setCurrentRegistration(result);
       navigate('/registration/complete');
     } catch (err: any) {
+      const status = err?.response?.status;
       const msg = err?.response?.data?.message;
-      setError(msg || '접수 신청에 실패했습니다. 잠시 후 다시 시도하세요.');
+      if (status === 403 && msg?.includes('응시대상')) {
+        alert('응시대상이 아닙니다');
+      } else {
+        setError(msg || '접수 신청에 실패했습니다. 잠시 후 다시 시도하세요.');
+      }
     } finally {
       setLoading(false);
     }
