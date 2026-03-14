@@ -68,27 +68,28 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         throw new AppError(400, '정원이 초과되었습니다');
       }
 
-      // 2. 접수 생성 (중복 접수 방지는 unique index에 의존)
+      // 2. 접수 생성 (중복 접수 방지는 unique constraint에 의존)
       let registration;
       try {
-        const rows = await tx.$queryRaw`
-          INSERT INTO "Registration" (
-            "id", "userId", "scheduleId", "examType", "englishName", "birthDate",
-            "gender", "photoUrl", "venueId", "venueName", "contactPhone", "address",
-            "status", "createdAt", "updatedAt"
-          ) VALUES (
-            gen_random_uuid()::text, ${userId}, ${body.scheduleId},
-            ${body.examType}::"ExamType", ${body.englishName}, ${birthDate},
-            ${body.gender}::"Gender", ${body.photoUrl || null},
-            ${body.venueId}, ${body.venueName},
-            ${body.contactPhone || null}, ${body.address || null},
-            'PENDING'::"RegistrationStatus", NOW(), NOW()
-          )
-          RETURNING "id", "status"
-        ` as any[];
-        registration = rows[0];
+        registration = await tx.registration.create({
+          data: {
+            userId,
+            scheduleId: body.scheduleId,
+            examType: body.examType as any,
+            englishName: body.englishName,
+            birthDate,
+            gender: body.gender as any,
+            photoUrl: body.photoUrl || null,
+            venueId: body.venueId,
+            venueName: body.venueName,
+            contactPhone: body.contactPhone || null,
+            address: body.address || null,
+            status: 'PENDING',
+          },
+          select: { id: true, status: true },
+        });
       } catch (err: any) {
-        if (err.code === '23505' || err.code === 'P2002') {
+        if (err.code === 'P2002' || err.code === '23505') {
           throw new AppError(409, '이미 해당 시험에 접수하셨습니다');
         }
         throw err;
