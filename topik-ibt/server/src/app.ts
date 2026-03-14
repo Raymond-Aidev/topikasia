@@ -44,7 +44,12 @@ app.get('/api/health', (_req, res) => {
 // ─── 프로덕션 정적 파일 서빙 ─────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, 'public');
-  app.use(express.static(clientDist));
+  // Vite 해시 파일(assets/)은 1년 캐시, 나머지는 5분
+  app.use('/assets', express.static(path.join(clientDist, 'assets'), {
+    maxAge: '1y',
+    immutable: true,
+  }));
+  app.use(express.static(clientDist, { maxAge: '5m' }));
 }
 
 // ─── 라우터 마운트 ───────────────────────────────────────────

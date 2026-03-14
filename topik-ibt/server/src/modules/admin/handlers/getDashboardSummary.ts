@@ -3,93 +3,73 @@ import { prisma } from '../../../config/database';
 
 /**
  * GET /api/admin/dashboard/summary
- * 대시보드 요약 정보
+ * 대시보드 요약 정보 (단일 쿼리 최적화)
  */
 export async function getDashboardSummary(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const [
-      totalExaminees,
-      activeExaminees,
-      inactiveExaminees,
-      lockedExaminees,
-      completedSessions,
-      inProgressSessions,
-      examSets,
-    ] = await prisma.$transaction([
-      prisma.examinee.count(),
-      prisma.examinee.count({ where: { status: 'ACTIVE' } }),
-      prisma.examinee.count({ where: { status: 'INACTIVE' } }),
-      prisma.examinee.count({ where: { status: 'LOCKED' } }),
-      prisma.examSession.count({ where: { status: 'COMPLETED' } }),
-      prisma.examSession.count({ where: { status: 'IN_PROGRESS' } }),
-      prisma.examSet.findMany({
-        where: { status: 'ACTIVE' },
-        select: {
-          id: true,
-          name: true,
-          examSetNumber: true,
-          _count: {
-            select: {
-              assignedExaminees: true,
-              examSessions: true,
-            },
-          },
-        },
-      }),
-    ]);
+    // 1. 응시자 상태별 카운트 (1 쿼리)
+    const examineeCounts = await prisma.$queryRaw`
+      SELECT
+        COUNT(*)::int AS "total",
+        COUNT(*) FILTER (WHERE "status" = 'ACTIVE')::int AS "active",
+        COUNT(*) FILTER (WHERE "status" = 'INACTIVE')::int AS "inactive",
+        COUNT(*) FILTER (WHERE "status" = 'LOCKED')::int AS "locked",
+        COUNT(*) FILTER (WHERE "id" NOT IN (SELECT DISTINCT "examineeId" FROM "ExamSession"))::int AS "notStarted"
+      FROM "Examinee"
+    ` as any[];
 
-    // 시험세트별 세션 상태 통계
-    const examSetStats = await Promise.all(
-      examSets.map(async (es: any) => {
-        const [completed, inProgress, notStarted] = await prisma.$transaction([
-          prisma.examSession.count({
-            where: { examSetId: es.id, status: 'COMPLETED' },
-          }),
-          prisma.examSession.count({
-            where: { examSetId: es.id, status: 'IN_PROGRESS' },
-          }),
-          prisma.examinee.count({
-            where: {
-              assignedExamSetId: es.id,
-              examSessions: { none: { examSetId: es.id } },
-            },
-          }),
-        ]);
+    // 2. 세션 상태별 카운트 (1 쿼리)
+    const sessionCounts = await prisma.$queryRaw`
+      SELECT
+        COUNT(*) FILTER (WHERE "status" = 'COMPLETED')::int AS "completed",
+        COUNT(*) FILTER (WHERE "status" = 'IN_PROGRESS')::int AS "inProgress"
+      FROM "ExamSession"
+    ` as any[];
 
-        return {
-          id: es.id,
-          name: es.name,
-          examSetNumber: es.examSetNumber,
-          assignedCount: es._count.assignedExaminees,
-          sessionCount: es._count.examSessions,
-          completed,
-          inProgress,
-          notStarted,
-        };
-      }),
-    );
+    // 3. 시험세트별 통계 (1 쿼리)
+    const examSetStats = await prisma.$queryRaw`
+      SELECT
+        es."id",
+        es."name",
+        es."examSetNumber",
+        COUNT(DISTINCT e."id")::int AS "assignedCount",
+        COUNT(DISTINCT sess."id") FILTER (WHERE sess."status" = 'COMPLETED')::int AS "completed",
+        COUNT(DISTINCT sess."id") FILTER (WHERE sess."status" = 'IN_PROGRESS')::int AS "inProgress",
+        (COUNT(DISTINCT e."id") - COUNT(DISTINCT sess."examineeId"))::int AS "notStarted"
+      FROM "ExamSet" es
+      LEFT JOIN "Examinee" e ON e."assignedExamSetId" = es."id"
+      LEFT JOIN "ExamSession" sess ON sess."examSetId" = es."id" AND sess."examineeId" = e."id"
+      WHERE es."status" = 'ACTIVE'
+      GROUP BY es."id", es."name", es."examSetNumber"
+      ORDER BY es."name"
+    ` as any[];
 
-    // 전체 미시작 응시자 수 계산
-    const examineesWithSessions = await prisma.examinee.count({
-      where: { examSessions: { some: {} } },
-    });
-    const notStartedTotal = totalExaminees - examineesWithSessions;
+    const ec = examineeCounts[0];
+    const sc = sessionCounts[0];
 
     res.json({
       success: true,
       data: {
         examinees: {
-          total: totalExaminees,
-          active: activeExaminees,
-          inactive: inactiveExaminees,
-          locked: lockedExaminees,
+          total: ec.total,
+          active: ec.active,
+          inactive: ec.inactive,
+          locked: ec.locked,
         },
         sessions: {
-          completed: completedSessions,
-          inProgress: inProgressSessions,
-          notStarted: notStartedTotal,
+          completed: sc.completed,
+          inProgress: sc.inProgress,
+          notStarted: ec.notStarted,
         },
-        examSetStats,
+        examSetStats: examSetStats.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          examSetNumber: s.examSetNumber,
+          assignedCount: s.assignedCount,
+          completed: s.completed,
+          inProgress: s.inProgress,
+          notStarted: Math.max(0, s.notStarted),
+        })),
       },
     });
   } catch (err) {
