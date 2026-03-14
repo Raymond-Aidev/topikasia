@@ -16,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { cn } from '../../lib/utils';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
 
@@ -41,44 +42,28 @@ function SortableItem({ id, text, index }: SortableItemProps) {
     isDragging,
   } = useSortable({ id });
 
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '14px 16px',
-    borderRadius: 8,
-    border: '2px solid #E0E0E0',
-    backgroundColor: isDragging ? '#E3F2FD' : '#fff',
-    cursor: 'grab',
-    fontSize: 15,
-    lineHeight: '1.6',
-    opacity: isDragging ? 0.8 : 1,
-    boxShadow: isDragging ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
-    userSelect: 'none' as const,
-    touchAction: 'none',
-  };
-
-  const handleStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 28,
-    height: 28,
-    borderRadius: '50%',
-    backgroundColor: '#F5F5F5',
-    color: '#757575',
-    fontSize: 14,
-    fontWeight: 700,
-    flexShrink: 0,
-  };
-
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div style={handleStyle}>{index + 1}</div>
-      <span style={{ flex: 1 }}>{text}</span>
-      <span style={{ color: '#BDBDBD', fontSize: 18 }}>☰</span>
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        touchAction: 'none',
+      }}
+      className={cn(
+        'flex cursor-grab select-none items-center gap-3 rounded-lg border-2 border-gray-300 px-4 py-3.5 text-[15px] leading-relaxed',
+        isDragging
+          ? 'bg-blue-50 opacity-80 shadow-lg'
+          : 'bg-white'
+      )}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-500">
+        {index + 1}
+      </div>
+      <span className="flex-1">{text}</span>
+      <span className="text-lg text-gray-400">☰</span>
     </div>
   );
 }
@@ -118,39 +103,18 @@ export default function OrderingQuestion({ question, answer, onAnswer }: Orderin
   const cardMap = new Map(cards.map((c) => [c.id, c.text]));
 
   return (
-    <div style={{ padding: '0 0 16px 0' }}>
-      <div style={{
-        fontSize: 16,
-        lineHeight: '1.7',
-        color: '#212121',
-        marginBottom: 16,
-        whiteSpace: 'pre-wrap',
-      }}>
+    <div className="pb-4">
+      <div className="mb-4 whitespace-pre-wrap text-base leading-[1.7] text-gray-900">
         {question.instruction}
       </div>
 
       {question.passageText && (
-        <div style={{
-          backgroundColor: '#FAFAFA',
-          border: '1px solid #E0E0E0',
-          borderRadius: 8,
-          padding: '16px 20px',
-          marginBottom: 16,
-          fontSize: 15,
-          lineHeight: '1.8',
-          whiteSpace: 'pre-wrap',
-          color: '#333',
-        }}>
+        <div className="mb-4 whitespace-pre-wrap rounded-lg border border-gray-300 bg-gray-50 px-5 py-4 text-[15px] leading-[1.8] text-gray-700">
           {question.passageText}
         </div>
       )}
 
-      <div style={{
-        fontSize: 13,
-        color: '#1565C0',
-        marginBottom: 12,
-        fontWeight: 500,
-      }}>
+      <div className="mb-3 text-[13px] font-medium text-blue-800">
         문장을 드래그하여 올바른 순서로 배열하세요
       </div>
 
@@ -160,7 +124,7 @@ export default function OrderingQuestion({ question, answer, onAnswer }: Orderin
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="flex flex-col gap-2">
             {orderedIds.map((id, index) => (
               <SortableItem
                 key={id}

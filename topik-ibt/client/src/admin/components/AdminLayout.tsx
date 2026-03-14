@@ -1,5 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -27,60 +29,42 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      <nav
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px',
-          height: '56px',
-          backgroundColor: '#1e293b',
-          color: '#fff',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <span style={{ fontWeight: 700, fontSize: '16px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 28, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+    <div className="min-h-screen bg-muted">
+      <nav className="flex items-center justify-between px-6 h-14 bg-primary text-primary-foreground">
+        <div className="flex items-center gap-6">
+          <span className="font-bold text-base whitespace-nowrap flex items-center gap-2">
+            <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-7 object-contain brightness-0 invert" />
             관리자
           </span>
-          <div style={{ display: 'flex', gap: '4px' }}>
+          <div className="flex gap-1">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
-                style={({ isActive }) => ({
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  color: isActive ? '#fff' : '#94a3b8',
-                  backgroundColor: isActive ? '#334155' : 'transparent',
-                  transition: 'all 0.15s',
-                })}
+                className={({ isActive }) =>
+                  cn(
+                    "px-4 py-2 rounded-md text-sm font-medium no-underline transition-all",
+                    isActive
+                      ? "text-primary-foreground bg-white/15"
+                      : "text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/10"
+                  )
+                }
               >
                 {item.label}
               </NavLink>
             ))}
           </div>
         </div>
-        <button
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-primary-foreground/30 bg-transparent text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/10"
           onClick={handleLogout}
-          style={{
-            padding: '6px 16px',
-            borderRadius: '6px',
-            border: '1px solid #475569',
-            backgroundColor: 'transparent',
-            color: '#94a3b8',
-            fontSize: '13px',
-            cursor: 'pointer',
-          }}
         >
           로그아웃
-        </button>
+        </Button>
       </nav>
-      <main style={{ padding: '24px', maxWidth: '1280px', margin: '0 auto' }}>
+      <main className="p-6 max-w-[1280px] mx-auto">
         {children}
       </main>
     </div>

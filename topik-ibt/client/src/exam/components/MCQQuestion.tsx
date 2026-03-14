@@ -1,3 +1,4 @@
+import { cn } from '../../lib/utils';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
 
@@ -6,86 +7,6 @@ interface MCQQuestionProps {
   answer: AnswerValue | undefined;
   onAnswer: (value: AnswerValue) => void;
 }
-
-const styles = {
-  container: {
-    padding: '0 0 16px 0',
-  },
-  instruction: {
-    fontSize: 16,
-    lineHeight: '1.7',
-    color: '#212121',
-    marginBottom: 16,
-    whiteSpace: 'pre-wrap' as const,
-  },
-  passage: {
-    backgroundColor: '#FAFAFA',
-    border: '1px solid #E0E0E0',
-    borderRadius: 8,
-    padding: '16px 20px',
-    marginBottom: 16,
-    fontSize: 15,
-    lineHeight: '1.8',
-    whiteSpace: 'pre-wrap' as const,
-    color: '#333',
-  },
-  optionList: {
-    listStyle: 'none' as const,
-    padding: 0,
-    margin: 0,
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 8,
-  },
-  option: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '12px 16px',
-    borderRadius: 8,
-    border: '2px solid #E0E0E0',
-    cursor: 'pointer',
-    fontSize: 15,
-    lineHeight: '1.5',
-    transition: 'all 0.15s',
-    backgroundColor: '#fff',
-  },
-  optionSelected: {
-    borderColor: '#1565C0',
-    backgroundColor: '#E3F2FD',
-  },
-  indicator: {
-    width: 22,
-    height: 22,
-    borderRadius: '50%',
-    border: '2px solid #BDBDBD',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    fontSize: 12,
-    fontWeight: 700 as const,
-    color: '#757575',
-  },
-  indicatorSelected: {
-    borderColor: '#1565C0',
-    backgroundColor: '#1565C0',
-    color: '#fff',
-  },
-  checkboxIndicator: {
-    width: 22,
-    height: 22,
-    borderRadius: 4,
-    border: '2px solid #BDBDBD',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    fontSize: 14,
-    fontWeight: 700 as const,
-    color: '#757575',
-  },
-};
 
 const circleNumbers = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
 
@@ -114,48 +35,58 @@ export default function MCQQuestion({ question, answer, onAnswer }: MCQQuestionP
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.instruction}>{question.instruction}</div>
+    <div className="pb-4">
+      <div className="mb-4 whitespace-pre-wrap text-base leading-[1.7] text-gray-900">
+        {question.instruction}
+      </div>
 
       {question.passageText && (
-        <div style={styles.passage}>{question.passageText}</div>
+        <div className="mb-4 whitespace-pre-wrap rounded-lg border border-gray-300 bg-gray-50 px-5 py-4 text-[15px] leading-[1.8] text-gray-700">
+          {question.passageText}
+        </div>
       )}
 
       {question.imageUrl && (
         <img
           src={question.imageUrl}
           alt="문제 이미지"
-          style={{ maxWidth: '100%', borderRadius: 8, marginBottom: 16 }}
+          className="mb-4 max-w-full rounded-lg"
         />
       )}
 
-      <ul style={styles.optionList}>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
         {question.options?.map((opt, idx) => {
           const isSelected = selectedOptions.includes(opt.id);
           return (
             <li
               key={opt.id}
-              style={{
-                ...styles.option,
-                ...(isSelected ? styles.optionSelected : {}),
-              }}
+              className={cn(
+                'flex cursor-pointer items-center gap-3 rounded-lg border-2 bg-white px-4 py-3 text-[15px] leading-normal transition-all',
+                isSelected
+                  ? 'border-blue-800 bg-blue-50'
+                  : 'border-gray-300'
+              )}
               onClick={() => handleSelect(opt.id)}
             >
               {isMulti ? (
                 <div
-                  style={{
-                    ...styles.checkboxIndicator,
-                    ...(isSelected ? styles.indicatorSelected : {}),
-                  }}
+                  className={cn(
+                    'flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded text-sm font-bold',
+                    isSelected
+                      ? 'border-2 border-blue-800 bg-blue-800 text-white'
+                      : 'border-2 border-gray-400 text-gray-500'
+                  )}
                 >
                   {isSelected ? '✓' : ''}
                 </div>
               ) : (
                 <div
-                  style={{
-                    ...styles.indicator,
-                    ...(isSelected ? styles.indicatorSelected : {}),
-                  }}
+                  className={cn(
+                    'flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                    isSelected
+                      ? 'border-2 border-blue-800 bg-blue-800 text-white'
+                      : 'border-2 border-gray-400 text-gray-500'
+                  )}
                 >
                   {circleNumbers[idx] || idx + 1}
                 </div>

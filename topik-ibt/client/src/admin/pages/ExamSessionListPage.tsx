@@ -3,6 +3,20 @@ import AdminLayout from '../components/AdminLayout';
 import StatusBadge from '../components/StatusBadge';
 import ExamSessionDetailModal from '../components/ExamSessionDetailModal';
 import { adminApi } from '../../api/adminApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Card, CardContent } from '../../components/ui/card';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from '../../components/ui/pagination';
 
 interface ExamSession {
   id: string;
@@ -20,22 +34,6 @@ interface ExamSetOption {
 }
 
 const PAGE_SIZE = 20;
-
-const thStyle: React.CSSProperties = {
-  padding: '10px 14px',
-  textAlign: 'left',
-  fontSize: '13px',
-  fontWeight: 600,
-  color: '#374151',
-  borderBottom: '2px solid #e5e7eb',
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: '10px 14px',
-  fontSize: '13px',
-  color: '#111827',
-  borderBottom: '1px solid #f3f4f6',
-};
 
 const formatDateTime = (v: string | null) => {
   if (!v) return '-';
@@ -123,50 +121,40 @@ const ExamSessionListPage: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, margin: 0 }}>응시내역</h1>
-        <button
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-[22px] font-bold m-0">응시내역</h1>
+        <Button
           onClick={handleExport}
           disabled={exporting}
-          style={{
-            padding: '8px 18px',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: '#16a34a',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: exporting ? 'not-allowed' : 'pointer',
-            opacity: exporting ? 0.6 : 1,
-          }}
+          className="bg-green-600 hover:bg-green-500 text-white"
         >
           {exporting ? '내보내기 중...' : 'Excel 내보내기'}
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>기간:</label>
-          <input
+      <div className="flex gap-2.5 mb-4 flex-wrap items-center">
+        <div className="flex items-center gap-1.5">
+          <Label className="text-[13px]">기간:</Label>
+          <Input
             type="date"
             value={dateFrom}
             onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-            style={{ padding: '7px 10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px' }}
+            className="w-auto text-[13px]"
           />
-          <span style={{ color: '#9ca3af' }}>~</span>
-          <input
+          <span className="text-gray-400">~</span>
+          <Input
             type="date"
             value={dateTo}
             onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-            style={{ padding: '7px 10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px' }}
+            className="w-auto text-[13px]"
           />
         </div>
 
         <select
           value={examSetFilter}
           onChange={(e) => { setExamSetFilter(e.target.value); setPage(1); }}
-          style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px', backgroundColor: '#fff' }}
+          className="h-8 px-3 rounded-lg border border-input bg-transparent text-[13px]"
         >
           <option value="">전체 시험세트</option>
           {examSets.map((s) => (
@@ -177,7 +165,7 @@ const ExamSessionListPage: React.FC = () => {
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px', backgroundColor: '#fff' }}
+          className="h-8 px-3 rounded-lg border border-input bg-transparent text-[13px]"
         >
           <option value="">전체 상태</option>
           <option value="IN_PROGRESS">진행 중</option>
@@ -188,127 +176,97 @@ const ExamSessionListPage: React.FC = () => {
       </div>
 
       {error && (
-        <div style={{ padding: '12px 16px', marginBottom: '16px', borderRadius: '6px', backgroundColor: '#fee2e2', color: '#991b1b', fontSize: '14px' }}>
+        <div className="px-4 py-3 mb-4 rounded-md bg-red-100 text-red-800 text-sm">
           {error}
         </div>
       )}
 
-      <div style={{ backgroundColor: '#fff', borderRadius: '10px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={thStyle}>ID</th>
-              <th style={thStyle}>성명</th>
-              <th style={thStyle}>세트</th>
-              <th style={thStyle}>시작시간</th>
-              <th style={thStyle}>종료시간</th>
-              <th style={thStyle}>상태</th>
-              <th style={thStyle}>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
-                  불러오는 중...
-                </td>
-              </tr>
-            ) : sessions.length === 0 ? (
-              <tr>
-                <td colSpan={7} style={{ ...tdStyle, textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
-                  데이터가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              sessions.map((s) => (
-                <tr key={s.id}>
-                  <td style={tdStyle}>
-                    <span style={{ fontSize: '12px', color: '#6b7280' }}>{s.examineeLoginId}</span>
-                  </td>
-                  <td style={{ ...tdStyle, fontWeight: 600 }}>{s.examineeName}</td>
-                  <td style={tdStyle}>{s.examSetName}</td>
-                  <td style={{ ...tdStyle, fontSize: '12px', color: '#6b7280' }}>{formatDateTime(s.startedAt)}</td>
-                  <td style={{ ...tdStyle, fontSize: '12px', color: '#6b7280' }}>{formatDateTime(s.endedAt)}</td>
-                  <td style={tdStyle}><StatusBadge status={s.status} type="session" /></td>
-                  <td style={tdStyle}>
-                    <button
-                      onClick={() => setSelectedSessionId(s.id)}
-                      style={{
-                        padding: '4px 12px',
-                        borderRadius: '4px',
-                        border: '1px solid #d1d5db',
-                        backgroundColor: '#fff',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      보기
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>성명</TableHead>
+                <TableHead>세트</TableHead>
+                <TableHead>시작시간</TableHead>
+                <TableHead>종료시간</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>관리</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-10 text-gray-400">
+                    불러오는 중...
+                  </TableCell>
+                </TableRow>
+              ) : sessions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-10 text-gray-400">
+                    데이터가 없습니다.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sessions.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>
+                      <span className="text-xs text-gray-500">{s.examineeLoginId}</span>
+                    </TableCell>
+                    <TableCell className="font-semibold">{s.examineeName}</TableCell>
+                    <TableCell>{s.examSetName}</TableCell>
+                    <TableCell className="text-xs text-gray-500">{formatDateTime(s.startedAt)}</TableCell>
+                    <TableCell className="text-xs text-gray-500">{formatDateTime(s.endedAt)}</TableCell>
+                    <TableCell><StatusBadge status={s.status} type="session" /></TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="xs" onClick={() => setSelectedSessionId(s.id)}>
+                        보기
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '20px' }}>
-          <button
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              backgroundColor: '#fff',
-              fontSize: '13px',
-              cursor: page <= 1 ? 'not-allowed' : 'pointer',
-              opacity: page <= 1 ? 0.5 : 1,
-            }}
-          >
-            이전
-          </button>
-          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
-            const start = Math.max(1, Math.min(page - 4, totalPages - 9));
-            const p = start + i;
-            if (p > totalPages) return null;
-            return (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '4px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: p === page ? '#2563eb' : '#fff',
-                  color: p === page ? '#fff' : '#374151',
-                  fontSize: '13px',
-                  fontWeight: p === page ? 600 : 400,
-                  cursor: 'pointer',
-                }}
-              >
-                {p}
-              </button>
-            );
-          })}
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage(page + 1)}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              backgroundColor: '#fff',
-              fontSize: '13px',
-              cursor: page >= totalPages ? 'not-allowed' : 'pointer',
-              opacity: page >= totalPages ? 0.5 : 1,
-            }}
-          >
-            다음
-          </button>
-        </div>
+        <Pagination className="mt-5">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                text="이전"
+                onClick={() => setPage(page - 1)}
+                className={cn(page <= 1 && 'pointer-events-none opacity-50')}
+              />
+            </PaginationItem>
+            {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => {
+              const start = Math.max(1, Math.min(page - 4, totalPages - 9));
+              const p = start + i;
+              if (p > totalPages) return null;
+              return (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    isActive={p === page}
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            <PaginationItem>
+              <PaginationNext
+                text="다음"
+                onClick={() => setPage(page + 1)}
+                className={cn(page >= totalPages && 'pointer-events-none opacity-50')}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
 
       <ExamSessionDetailModal

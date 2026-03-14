@@ -1,3 +1,5 @@
+import { cn } from '../../lib/utils';
+
 const STEPS = [
   { num: 1, label: 'STEP01', desc: '기본정보입력 단계' },
   { num: 2, label: 'STEP02', desc: '시험장 선택' },
@@ -10,98 +12,50 @@ interface Props {
   onStepClick?: (step: number) => void;
 }
 
-const styles = {
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderBottom: '1px solid #E0E0E0',
-    padding: '0 24px',
-    height: 56,
-    fontFamily: 'sans-serif',
-  },
-  homeIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: '#EEEEEE',
-    marginRight: 12,
-    cursor: 'pointer',
-    fontSize: 16,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#212121',
-    marginRight: 24,
-    whiteSpace: 'nowrap' as const,
-  },
-  stepsRow: {
-    display: 'flex',
-    alignItems: 'center',
-    flex: 1,
-    gap: 0,
-  },
-  step: (_isActive: boolean, isCompleted: boolean) => ({
-    display: 'flex',
-    flexDirection: 'column' as const,
-    padding: '8px 24px',
-    cursor: isCompleted ? 'pointer' : 'default',
-    position: 'relative' as const,
-    flex: 1,
-  }),
-  stepLabel: (isActive: boolean, isCompleted: boolean) => ({
-    fontSize: 11,
-    fontWeight: 600 as const,
-    color: isActive ? '#4CAF50' : isCompleted ? '#4CAF50' : '#9E9E9E',
-    marginBottom: 2,
-  }),
-  stepDesc: (isActive: boolean, isCompleted: boolean) => ({
-    fontSize: 13,
-    fontWeight: isActive ? 700 : 400,
-    color: isActive ? '#4CAF50' : isCompleted ? '#4CAF50' : '#9E9E9E',
-  }),
-  activePrefix: {
-    fontSize: 12,
-    color: '#4CAF50',
-    fontWeight: 600 as const,
-  },
-  arrow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 18,
-    color: '#BDBDBD',
-    padding: '0 4px',
-  },
-};
-
 export default function StepIndicator({ currentStep, onStepClick }: Props) {
   return (
-    <div style={styles.container}>
-      <div style={styles.homeIcon}>🏠</div>
-      <div style={styles.title}>시험접수</div>
-      <div style={styles.stepsRow}>
+    <div className="flex h-14 items-center border-b border-gray-300 bg-gray-100 px-6 font-sans">
+      <div className="mr-3 flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-gray-200 text-base">
+        🏠
+      </div>
+      <div className="mr-6 whitespace-nowrap text-base font-bold text-gray-900">
+        시험접수
+      </div>
+      <div className="flex flex-1 items-center">
         {STEPS.map((step, idx) => {
           const isActive = step.num === currentStep;
           const isCompleted = step.num < currentStep;
           return (
-            <div key={step.num} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <div key={step.num} className="flex flex-1 items-center">
               <div
-                style={styles.step(isActive, isCompleted)}
+                className={cn(
+                  'relative flex flex-1 flex-col px-6 py-2',
+                  isCompleted ? 'cursor-pointer' : 'cursor-default'
+                )}
                 onClick={() => isCompleted && onStepClick?.(step.num)}
               >
-                <span style={styles.stepLabel(isActive, isCompleted)}>
+                <span
+                  className={cn(
+                    'mb-0.5 text-[11px] font-semibold',
+                    isActive || isCompleted ? 'text-green-500' : 'text-gray-400'
+                  )}
+                >
                   {step.label}
                 </span>
-                <span style={styles.stepDesc(isActive, isCompleted)}>
+                <span
+                  className={cn(
+                    'text-[13px]',
+                    isActive ? 'font-bold text-green-500' : isCompleted ? 'font-normal text-green-500' : 'font-normal text-gray-400'
+                  )}
+                >
                   {isActive ? `현재는 ${step.desc}입니다.` : step.desc}
                 </span>
               </div>
-              {idx < STEPS.length - 1 && <div style={styles.arrow}>▷</div>}
+              {idx < STEPS.length - 1 && (
+                <div className="flex items-center justify-center px-1 text-lg text-gray-400">
+                  ▷
+                </div>
+              )}
             </div>
           );
         })}

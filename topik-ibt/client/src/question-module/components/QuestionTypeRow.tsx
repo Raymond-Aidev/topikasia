@@ -1,5 +1,7 @@
 import React from 'react';
 import type { QuestionTypeConfig } from '../config/questionTypes.config';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 interface Props {
   config: QuestionTypeConfig;
@@ -17,38 +19,26 @@ const QuestionTypeRow: React.FC<Props> = ({
   loading,
 }) => {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '10px 16px',
-        borderBottom: '1px solid #f0f0f0',
-        gap: 12,
-      }}
-    >
-      <div style={{ flex: 1, fontSize: 14, fontWeight: 500 }}>{config.name}</div>
-      <div style={{ fontSize: 13, color: '#888', minWidth: 80, textAlign: 'center' }}>
+    <div className="flex items-center px-4 py-2.5 border-b border-gray-100 gap-3">
+      <div className="flex-1 text-sm font-medium">{config.name}</div>
+      <div className="text-[13px] text-gray-400 min-w-[80px] text-center">
         불러온: {loadedCount}
       </div>
-      <div style={{ fontSize: 13, color: '#1a73e8', minWidth: 80, textAlign: 'center' }}>
+      <div className="text-[13px] text-blue-600 min-w-[80px] text-center">
         선택: {selectedCount}
       </div>
-      <button
+      <Button
+        variant="outline"
+        size="sm"
         onClick={onImport}
         disabled={loading}
-        style={{
-          padding: '6px 14px',
-          borderRadius: 6,
-          border: '1px solid #1a73e8',
-          background: loading ? '#e8f0fe' : '#fff',
-          color: '#1a73e8',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          fontSize: 13,
-          whiteSpace: 'nowrap',
-        }}
+        className={cn(
+          'text-blue-600 border-blue-600 whitespace-nowrap',
+          loading && 'bg-blue-50 cursor-not-allowed'
+        )}
       >
         {loading ? '불러오는 중...' : '문제 불러오기'}
-      </button>
+      </Button>
     </div>
   );
 };

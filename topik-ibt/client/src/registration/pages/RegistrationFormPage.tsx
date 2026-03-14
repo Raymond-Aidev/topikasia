@@ -8,253 +8,9 @@ import StepIndicator from '../components/StepIndicator';
 import ExamSelectionPanel from '../components/ExamSelectionPanel';
 import { useRegistrationStore } from '../store/registrationStore';
 import type { ExamVenue } from '../types/registration.types';
-
-// ─── Styles ──────────────────────────────────────────────────────
-const s = {
-  page: {
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  body: {
-    display: 'flex',
-    maxWidth: 1120,
-    margin: '0 auto',
-    padding: '32px 24px',
-    gap: 32,
-  },
-  main: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 32,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 700 as const,
-    color: '#212121',
-    marginBottom: 4,
-  },
-  required: {
-    fontSize: 13,
-    color: '#C62828',
-    marginLeft: 8,
-  },
-  formTable: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    marginTop: 24,
-  },
-  formRow: {
-    borderBottom: '1px solid #F0F0F0',
-  },
-  formLabel: {
-    width: 140,
-    padding: '16px 20px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    color: '#212121',
-    backgroundColor: '#FAFAFA',
-    verticalAlign: 'middle' as const,
-  },
-  formStar: {
-    color: '#C62828',
-    marginLeft: 2,
-  },
-  formValue: {
-    padding: '16px 20px',
-    verticalAlign: 'middle' as const,
-  },
-  input: {
-    padding: '10px 14px',
-    fontSize: 15,
-    border: '1px solid #BDBDBD',
-    borderRadius: 6,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-    width: '100%',
-    maxWidth: 400,
-  },
-  select: {
-    padding: '10px 14px',
-    fontSize: 15,
-    border: '1px solid #BDBDBD',
-    borderRadius: 6,
-    outline: 'none',
-    backgroundColor: '#fff',
-    marginRight: 8,
-    minWidth: 80,
-  },
-  toggleGroup: {
-    display: 'flex',
-    gap: 0,
-  },
-  toggleBtn: (active: boolean) => ({
-    padding: '10px 28px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    border: '1px solid #BDBDBD',
-    backgroundColor: active ? '#4CAF50' : '#fff',
-    color: active ? '#fff' : '#424242',
-    cursor: 'pointer',
-    transition: 'all 0.15s',
-  }),
-  toggleBtnLeft: {
-    borderRadius: '6px 0 0 6px',
-    borderRight: 'none',
-  },
-  toggleBtnRight: {
-    borderRadius: '0 6px 6px 0',
-  },
-  warning: {
-    marginTop: 24,
-    padding: '16px 20px',
-    fontSize: 13,
-    lineHeight: 1.7,
-    color: '#C62828',
-    fontWeight: 500 as const,
-  },
-  checkbox: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 12,
-    fontSize: 14,
-    color: '#4CAF50',
-    fontWeight: 600 as const,
-  },
-  // Step 2
-  regionSelect: {
-    padding: '10px 14px',
-    fontSize: 15,
-    border: '1px solid #BDBDBD',
-    borderRadius: 6,
-    outline: 'none',
-    backgroundColor: '#fff',
-    marginBottom: 16,
-    minWidth: 200,
-  },
-  venueTable: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-  },
-  venueTh: {
-    padding: '12px 16px',
-    backgroundColor: '#F5F5F5',
-    fontWeight: 600 as const,
-    fontSize: 13,
-    color: '#616161',
-    textAlign: 'left' as const,
-    borderBottom: '1px solid #E0E0E0',
-  },
-  venueTd: {
-    padding: '12px 16px',
-    fontSize: 14,
-    color: '#212121',
-    borderBottom: '1px solid #F5F5F5',
-  },
-  venueRow: (selected: boolean) => ({
-    backgroundColor: selected ? '#E8F5E9' : '#fff',
-    cursor: 'pointer',
-  }),
-  selectBtn: (selected: boolean) => ({
-    padding: '6px 20px',
-    fontSize: 13,
-    fontWeight: 600 as const,
-    border: selected ? 'none' : '1px solid #1565C0',
-    borderRadius: 6,
-    backgroundColor: selected ? '#4CAF50' : '#fff',
-    color: selected ? '#fff' : '#1565C0',
-    cursor: 'pointer',
-  }),
-  // Step 3
-  photoArea: {
-    display: 'flex',
-    gap: 20,
-    alignItems: 'flex-start',
-    marginTop: 20,
-  },
-  photoPreview: {
-    width: 120,
-    height: 160,
-    border: '2px dashed #BDBDBD',
-    borderRadius: 8,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FAFAFA',
-    overflow: 'hidden',
-  },
-  photoImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover' as const,
-  },
-  fileBtn: {
-    padding: '10px 24px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    border: '1px solid #1565C0',
-    borderRadius: 6,
-    backgroundColor: '#fff',
-    color: '#1565C0',
-    cursor: 'pointer',
-  },
-  photoHint: {
-    fontSize: 12,
-    color: '#9E9E9E',
-    marginTop: 8,
-    lineHeight: 1.5,
-  },
-  // Step 4
-  summaryTable: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-  },
-  summaryLabel: {
-    width: 140,
-    padding: '14px 20px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    color: '#616161',
-    backgroundColor: '#FAFAFA',
-    borderBottom: '1px solid #F0F0F0',
-  },
-  summaryValue: {
-    padding: '14px 20px',
-    fontSize: 15,
-    color: '#212121',
-    borderBottom: '1px solid #F0F0F0',
-  },
-  submitBtn: {
-    marginTop: 24,
-    padding: '14px 48px',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#fff',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  errorMsg: {
-    marginTop: 12,
-    fontSize: 13,
-    color: '#C62828',
-  },
-  fieldHint: {
-    fontSize: 12,
-    color: '#9E9E9E',
-    marginTop: 4,
-  },
-  fieldError: {
-    fontSize: 12,
-    color: '#C62828',
-    marginTop: 4,
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 // ─── Helpers ─────────────────────────────────────────────────────
 const currentYear = new Date().getFullYear();
@@ -373,36 +129,36 @@ export default function RegistrationFormPage() {
   // ── Render steps ───────────────────────────────────────────────
   const renderStep1 = () => (
     <>
-      <div style={{ display: 'flex', alignItems: 'baseline' }}>
-        <div style={s.sectionTitle}>기본정보 입력</div>
-        <span style={s.required}>* 표시는 필수 항목입니다.</span>
+      <div className="flex items-baseline">
+        <div className="text-[22px] font-bold text-gray-900 mb-1">기본정보 입력</div>
+        <span className="text-[13px] text-red-800 ml-2">* 표시는 필수 항목입니다.</span>
       </div>
 
-      <table style={s.formTable}>
+      <table className="w-full border-collapse mt-6">
         <tbody>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>
-              영문 성명 <span style={s.formStar}>*</span>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">
+              영문 성명 <span className="text-red-800 ml-0.5">*</span>
             </td>
-            <td style={s.formValue}>
-              <input
-                style={{ ...s.input, ...(fieldErrors.englishName ? { borderColor: '#C62828' } : {}) }}
+            <td className="px-5 py-4 align-middle">
+              <Input
+                className={cn('w-full max-w-[400px] px-3.5 py-2.5 text-[15px] rounded-md', fieldErrors.englishName && 'border-red-800')}
                 value={formData.englishName}
                 onChange={(e) => { updateFormData({ englishName: e.target.value.toUpperCase() }); setFieldErrors(prev => ({ ...prev, englishName: '' })); }}
                 placeholder="영문 성명 입력"
               />
-              <div style={fieldErrors.englishName ? s.fieldError : s.fieldHint}>
+              <div className={cn('text-xs mt-1', fieldErrors.englishName ? 'text-red-800' : 'text-gray-400')}>
                 {fieldErrors.englishName || '여권/신분증에 기재된 영문 성명 (대문자 자동 변환)'}
               </div>
             </td>
           </tr>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>
-              생년월일 <span style={s.formStar}>*</span>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">
+              생년월일 <span className="text-red-800 ml-0.5">*</span>
             </td>
-            <td style={s.formValue}>
+            <td className="px-5 py-4 align-middle">
               <select
-                style={s.select}
+                className="px-3.5 py-2.5 text-[15px] border border-gray-300 rounded-md outline-none bg-white mr-2 min-w-[80px]"
                 value={formData.birthYear}
                 onChange={(e) => updateFormData({ birthYear: Number(e.target.value) })}
               >
@@ -411,7 +167,7 @@ export default function RegistrationFormPage() {
                 ))}
               </select>
               <select
-                style={s.select}
+                className="px-3.5 py-2.5 text-[15px] border border-gray-300 rounded-md outline-none bg-white mr-2 min-w-[80px]"
                 value={formData.birthMonth}
                 onChange={(e) => updateFormData({ birthMonth: Number(e.target.value) })}
               >
@@ -420,7 +176,7 @@ export default function RegistrationFormPage() {
                 ))}
               </select>
               <select
-                style={s.select}
+                className="px-3.5 py-2.5 text-[15px] border border-gray-300 rounded-md outline-none bg-white min-w-[80px]"
                 value={formData.birthDay}
                 onChange={(e) => updateFormData({ birthDay: Number(e.target.value) })}
               >
@@ -430,34 +186,40 @@ export default function RegistrationFormPage() {
               </select>
             </td>
           </tr>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>
-              성별 <span style={s.formStar}>*</span>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">
+              성별 <span className="text-red-800 ml-0.5">*</span>
             </td>
-            <td style={s.formValue}>
-              <div style={s.toggleGroup}>
+            <td className="px-5 py-4 align-middle">
+              <div className="flex gap-0">
                 <button
                   type="button"
-                  style={{ ...s.toggleBtn(formData.gender === 'MALE'), ...s.toggleBtnLeft }}
+                  className={cn(
+                    'px-7 py-2.5 text-sm font-semibold border border-gray-300 cursor-pointer transition-all rounded-l-md border-r-0',
+                    formData.gender === 'MALE' ? 'bg-green-500 text-white' : 'bg-white text-gray-700'
+                  )}
                   onClick={() => { updateFormData({ gender: 'MALE' }); setFieldErrors(prev => ({ ...prev, gender: '' })); }}
                 >
                   남자
                 </button>
                 <button
                   type="button"
-                  style={{ ...s.toggleBtn(formData.gender === 'FEMALE'), ...s.toggleBtnRight }}
+                  className={cn(
+                    'px-7 py-2.5 text-sm font-semibold border border-gray-300 cursor-pointer transition-all rounded-r-md',
+                    formData.gender === 'FEMALE' ? 'bg-green-500 text-white' : 'bg-white text-gray-700'
+                  )}
                   onClick={() => { updateFormData({ gender: 'FEMALE' }); setFieldErrors(prev => ({ ...prev, gender: '' })); }}
                 >
                   여자
                 </button>
               </div>
-              {fieldErrors.gender && <div style={s.fieldError}>{fieldErrors.gender}</div>}
+              {fieldErrors.gender && <div className="text-xs text-red-800 mt-1">{fieldErrors.gender}</div>}
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div style={s.warning}>
+      <div className="mt-6 px-5 py-4 text-[13px] leading-[1.7] text-red-800 font-medium">
         1. 영문 성명은 여권, 외국인등록증 등 규정 신분증에 기재된 성명과 동일하게 입력해 주시기 바랍니다. 만약 규정 신분증 영문 성명과 다를 경우 응시가 불가합니다.
         <br />
         2. 한국어능력시험 원서접수 시 작성한 지원자 정보 중 기본정보(영문 성명/생년월일/성별)는 변경이 불가합니다.
@@ -465,7 +227,7 @@ export default function RegistrationFormPage() {
         3. 매크로 프로그램을 사용하여 비정상적이거나 부정한 방법으로 원서를 제출한 것으로 확인된 경우, 해당 회차 접수가 취소될 수 있으며 한국어능력시험 응시에 불이익을 받을 수 있음을 확인합니다.
       </div>
 
-      <label style={s.checkbox}>
+      <label className="flex items-center gap-2 mt-3 text-sm text-green-600 font-semibold cursor-pointer">
         <input
           type="checkbox"
           checked={formData.agreedToTerms}
@@ -473,17 +235,17 @@ export default function RegistrationFormPage() {
         />
         <span>위 내용에 동의합니다</span>
       </label>
-      {fieldErrors.agreedToTerms && <div style={s.fieldError}>{fieldErrors.agreedToTerms}</div>}
+      {fieldErrors.agreedToTerms && <div className="text-xs text-red-800 mt-1">{fieldErrors.agreedToTerms}</div>}
     </>
   );
 
   const renderStep2 = () => (
     <>
-      <div style={s.sectionTitle}>시험장 선택</div>
+      <div className="text-[22px] font-bold text-gray-900 mb-1">시험장 선택</div>
 
-      <div style={{ marginTop: 20 }}>
+      <div className="mt-5">
         <select
-          style={s.regionSelect}
+          className="px-3.5 py-2.5 text-[15px] border border-gray-300 rounded-md outline-none bg-white mb-4 min-w-[200px]"
           value={selectedRegion}
           onChange={(e) => setSelectedRegion(e.target.value)}
         >
@@ -494,29 +256,37 @@ export default function RegistrationFormPage() {
         </select>
       </div>
 
-      <table style={s.venueTable}>
+      <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th style={s.venueTh}>시험장</th>
-            <th style={s.venueTh}>주소</th>
-            <th style={s.venueTh}>잔여석</th>
-            <th style={s.venueTh}>선택</th>
+            <th className="px-4 py-3 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험장</th>
+            <th className="px-4 py-3 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">주소</th>
+            <th className="px-4 py-3 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">잔여석</th>
+            <th className="px-4 py-3 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">선택</th>
           </tr>
         </thead>
         <tbody>
           {filteredVenues.map((v) => (
             <tr
               key={v.id}
-              style={s.venueRow(formData.venueId === v.id)}
+              className={cn(
+                'cursor-pointer',
+                formData.venueId === v.id ? 'bg-green-50' : 'bg-white'
+              )}
               onClick={() => updateFormData({ venueId: v.id, venueName: v.name })}
             >
-              <td style={s.venueTd}>{v.name}</td>
-              <td style={s.venueTd}>{v.address}</td>
-              <td style={s.venueTd}>{v.remainingSeats}/{v.capacity}</td>
-              <td style={s.venueTd}>
+              <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">{v.name}</td>
+              <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">{v.address}</td>
+              <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">{v.remainingSeats}/{v.capacity}</td>
+              <td className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                 <button
                   type="button"
-                  style={s.selectBtn(formData.venueId === v.id)}
+                  className={cn(
+                    'px-5 py-1.5 text-[13px] font-semibold rounded-md cursor-pointer',
+                    formData.venueId === v.id
+                      ? 'bg-green-500 text-white border-none'
+                      : 'bg-white text-[#1565C0] border border-[#1565C0]'
+                  )}
                   onClick={(e) => {
                     e.stopPropagation();
                     updateFormData({ venueId: v.id, venueName: v.name });
@@ -529,60 +299,60 @@ export default function RegistrationFormPage() {
           ))}
           {filteredVenues.length === 0 && (
             <tr>
-              <td style={{ ...s.venueTd, textAlign: 'center', color: '#9E9E9E' }} colSpan={4}>
+              <td className="px-4 py-3 text-sm text-gray-400 text-center border-b border-gray-100" colSpan={4}>
                 해당 지역에 시험장이 없습니다.
               </td>
             </tr>
           )}
         </tbody>
       </table>
-      {fieldErrors.venueId && <div style={{ ...s.fieldError, marginTop: 12 }}>{fieldErrors.venueId}</div>}
+      {fieldErrors.venueId && <div className="text-xs text-red-800 mt-3">{fieldErrors.venueId}</div>}
     </>
   );
 
   const renderStep3 = () => (
     <>
-      <div style={s.sectionTitle}>추가 정보 입력</div>
+      <div className="text-[22px] font-bold text-gray-900 mb-1">추가 정보 입력</div>
 
-      <table style={s.formTable}>
+      <table className="w-full border-collapse mt-6">
         <tbody>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>
-              연락처 <span style={s.formStar}>*</span>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">
+              연락처 <span className="text-red-800 ml-0.5">*</span>
             </td>
-            <td style={s.formValue}>
-              <input
-                style={{ ...s.input, ...(fieldErrors.phone ? { borderColor: '#C62828' } : {}) }}
+            <td className="px-5 py-4 align-middle">
+              <Input
+                className={cn('w-full max-w-[400px] px-3.5 py-2.5 text-[15px] rounded-md', fieldErrors.phone && 'border-red-800')}
                 value={formData.phone}
                 onChange={(e) => { updateFormData({ phone: e.target.value.replace(/[^\d-]/g, '') }); setFieldErrors(prev => ({ ...prev, phone: '' })); }}
                 placeholder="010-1234-5678"
               />
-              <div style={fieldErrors.phone ? s.fieldError : s.fieldHint}>
+              <div className={cn('text-xs mt-1', fieldErrors.phone ? 'text-red-800' : 'text-gray-400')}>
                 {fieldErrors.phone || '숫자와 하이픈(-)만 입력 가능'}
               </div>
             </td>
           </tr>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>
-              주소 <span style={s.formStar}>*</span>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">
+              주소 <span className="text-red-800 ml-0.5">*</span>
             </td>
-            <td style={s.formValue}>
-              <input
-                style={{ ...s.input, ...(fieldErrors.address ? { borderColor: '#C62828' } : {}) }}
+            <td className="px-5 py-4 align-middle">
+              <Input
+                className={cn('w-full max-w-[400px] px-3.5 py-2.5 text-[15px] rounded-md', fieldErrors.address && 'border-red-800')}
                 value={formData.address}
                 onChange={(e) => { updateFormData({ address: e.target.value }); setFieldErrors(prev => ({ ...prev, address: '' })); }}
                 placeholder="주소 입력"
               />
-              {fieldErrors.address && <div style={s.fieldError}>{fieldErrors.address}</div>}
+              {fieldErrors.address && <div className="text-xs text-red-800 mt-1">{fieldErrors.address}</div>}
             </td>
           </tr>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>
-              국적 <span style={s.formStar}>*</span>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">
+              국적 <span className="text-red-800 ml-0.5">*</span>
             </td>
-            <td style={s.formValue}>
+            <td className="px-5 py-4 align-middle">
               <select
-                style={{ ...s.select, ...(fieldErrors.nationality ? { borderColor: '#C62828' } : {}) }}
+                className={cn('px-3.5 py-2.5 text-[15px] border border-gray-300 rounded-md outline-none bg-white mr-2 min-w-[80px]', fieldErrors.nationality && 'border-red-800')}
                 value={formData.nationality}
                 onChange={(e) => { updateFormData({ nationality: e.target.value }); setFieldErrors(prev => ({ ...prev, nationality: '' })); }}
               >
@@ -591,14 +361,14 @@ export default function RegistrationFormPage() {
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
-              {fieldErrors.nationality && <div style={s.fieldError}>{fieldErrors.nationality}</div>}
+              {fieldErrors.nationality && <div className="text-xs text-red-800 mt-1">{fieldErrors.nationality}</div>}
             </td>
           </tr>
-          <tr style={s.formRow}>
-            <td style={s.formLabel}>한국어 학습기간</td>
-            <td style={s.formValue}>
+          <tr className="border-b border-gray-100">
+            <td className="w-[140px] px-5 py-4 text-sm font-semibold text-gray-900 bg-gray-50 align-middle">한국어 학습기간</td>
+            <td className="px-5 py-4 align-middle">
               <select
-                style={s.select}
+                className="px-3.5 py-2.5 text-[15px] border border-gray-300 rounded-md outline-none bg-white mr-2 min-w-[80px]"
                 value={formData.studyPeriod}
                 onChange={(e) => updateFormData({ studyPeriod: e.target.value })}
               >
@@ -612,37 +382,38 @@ export default function RegistrationFormPage() {
         </tbody>
       </table>
 
-      <div style={{ marginTop: 28 }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: '#212121', marginBottom: 8 }}>
+      <div className="mt-7">
+        <div className="text-base font-bold text-gray-900 mb-2">
           사진 업로드
         </div>
-        <div style={{ fontSize: 13, color: '#9E9E9E', marginBottom: 12 }}>
+        <div className="text-[13px] text-gray-400 mb-3">
           3x4cm 규격의 증명사진을 업로드하세요.
         </div>
-        <div style={s.photoArea}>
-          <div style={s.photoPreview}>
+        <div className="flex gap-5 items-start mt-5">
+          <div className="w-[120px] h-[160px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 overflow-hidden">
             {formData.photoPreview ? (
-              <img src={formData.photoPreview} alt="사진 미리보기" style={s.photoImg} />
+              <img src={formData.photoPreview} alt="사진 미리보기" className="w-full h-full object-cover" />
             ) : (
-              <span style={{ fontSize: 12, color: '#BDBDBD' }}>미리보기</span>
+              <span className="text-xs text-gray-300">미리보기</span>
             )}
           </div>
           <div>
-            <button
+            <Button
               type="button"
-              style={s.fileBtn}
+              variant="outline"
+              className="px-6 py-2.5 text-sm font-semibold border-[#1565C0] text-[#1565C0]"
               onClick={() => fileInputRef.current?.click()}
             >
               파일 선택
-            </button>
+            </Button>
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              style={{ display: 'none' }}
+              className="hidden"
               onChange={handlePhotoChange}
             />
-            <div style={s.photoHint}>
+            <div className="text-xs text-gray-400 mt-2 leading-relaxed">
               - JPG, PNG 형식<br />
               - 최대 2MB<br />
               - 최근 6개월 이내 촬영
@@ -655,65 +426,65 @@ export default function RegistrationFormPage() {
 
   const renderStep4 = () => (
     <>
-      <div style={s.sectionTitle}>입력 내용 확인</div>
-      <div style={{ fontSize: 14, color: '#616161', marginTop: 8, marginBottom: 24 }}>
+      <div className="text-[22px] font-bold text-gray-900 mb-1">입력 내용 확인</div>
+      <div className="text-sm text-gray-600 mt-2 mb-6">
         아래 내용을 확인한 후 접수하기 버튼을 눌러주세요.
       </div>
 
-      <table style={s.summaryTable}>
+      <table className="w-full border-collapse">
         <tbody>
           <tr>
-            <td style={s.summaryLabel}>시험</td>
-            <td style={s.summaryValue}>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">시험</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
               {selectedSchedule
                 ? `${selectedSchedule.examName} (${selectedSchedule.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'})`
                 : '-'}
             </td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>영문 성명</td>
-            <td style={s.summaryValue}>{formData.englishName || '-'}</td>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">영문 성명</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.englishName || '-'}</td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>생년월일</td>
-            <td style={s.summaryValue}>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">생년월일</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
               {formData.birthYear}-{String(formData.birthMonth).padStart(2, '0')}-{String(formData.birthDay).padStart(2, '0')}
             </td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>성별</td>
-            <td style={s.summaryValue}>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">성별</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
               {formData.gender === 'MALE' ? '남자' : formData.gender === 'FEMALE' ? '여자' : '-'}
             </td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>시험장</td>
-            <td style={s.summaryValue}>{formData.venueName || '-'}</td>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">시험장</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.venueName || '-'}</td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>연락처</td>
-            <td style={s.summaryValue}>{formData.phone || '-'}</td>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">연락처</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.phone || '-'}</td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>주소</td>
-            <td style={s.summaryValue}>{formData.address || '-'}</td>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">주소</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.address || '-'}</td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>국적</td>
-            <td style={s.summaryValue}>{formData.nationality || '-'}</td>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">국적</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.nationality || '-'}</td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>한국어 학습기간</td>
-            <td style={s.summaryValue}>{formData.studyPeriod || '-'}</td>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">한국어 학습기간</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.studyPeriod || '-'}</td>
           </tr>
           <tr>
-            <td style={s.summaryLabel}>사진</td>
-            <td style={s.summaryValue}>
+            <td className="w-[140px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">사진</td>
+            <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
               {formData.photoPreview ? (
                 <img
                   src={formData.photoPreview}
                   alt="증명사진"
-                  style={{ width: 60, height: 80, objectFit: 'cover', borderRadius: 4 }}
+                  className="w-[60px] h-[80px] object-cover rounded"
                 />
               ) : (
                 '미첨부'
@@ -723,9 +494,12 @@ export default function RegistrationFormPage() {
         </tbody>
       </table>
 
-      <button style={s.submitBtn} onClick={handleNext}>
+      <Button
+        className="mt-6 px-12 py-3.5 text-base font-bold bg-[#1565C0] hover:bg-[#1256A8] text-white rounded-lg"
+        onClick={handleNext}
+      >
         접수하기
-      </button>
+      </Button>
     </>
   );
 
@@ -737,14 +511,17 @@ export default function RegistrationFormPage() {
     (currentStep === 2 && !formData.venueId);
 
   return (
-    <div style={{ ...s.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
       <StepIndicator currentStep={currentStep} onStepClick={handleStepClick} />
 
-      <div style={{ ...s.body, flexDirection: isMobile ? 'column' : 'row', padding: isMobile ? '24px 16px' : '32px 24px' }}>
-        <div style={{ ...s.main, padding: isMobile ? 20 : 32 }}>
+      <div className={cn(
+        'flex max-w-[1120px] mx-auto gap-8',
+        isMobile ? 'flex-col px-4 py-6' : 'flex-row px-6 py-8'
+      )}>
+        <div className={cn('flex-1 bg-white rounded-xl shadow-sm', isMobile ? 'p-5' : 'p-8')}>
           {stepContent[currentStep - 1]()}
-          {error && <div style={s.errorMsg}>{error}</div>}
+          {error && <div className="mt-3 text-[13px] text-red-800">{error}</div>}
         </div>
 
         {!isMobile && <ExamSelectionPanel
@@ -755,13 +532,16 @@ export default function RegistrationFormPage() {
           buttonDisabled={panelButtonDisabled}
         />}
         {isMobile && (
-          <button
-            style={{ ...s.submitBtn, width: '100%', marginTop: 16 }}
+          <Button
+            className={cn(
+              'w-full mt-4 px-12 py-3.5 text-base font-bold rounded-lg',
+              panelButtonDisabled ? 'bg-blue-300 cursor-not-allowed' : 'bg-[#1565C0] hover:bg-[#1256A8] text-white'
+            )}
             onClick={handleNext}
             disabled={panelButtonDisabled}
           >
             {panelButtonLabel}
-          </button>
+          </Button>
         )}
       </div>
       <Footer />

@@ -3,6 +3,8 @@
  * 외부 라이브러리 없이 useState + useEffect 기반 구현
  */
 import { useState, useEffect, useCallback } from 'react';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 export interface BannerSlide {
   id: string;
@@ -19,100 +21,6 @@ interface BannerCarouselProps {
   autoInterval?: number;
   onCtaClick?: (link: string) => void;
 }
-
-const styles = {
-  wrapper: {
-    position: 'relative' as const,
-    overflow: 'hidden' as const,
-    borderRadius: 12,
-  },
-  track: {
-    display: 'flex' as const,
-    transition: 'transform 0.5s ease-in-out',
-  },
-  slide: {
-    minWidth: '100%',
-    display: 'flex' as const,
-    flexDirection: 'column' as const,
-    justifyContent: 'center' as const,
-    padding: '40px 48px',
-    boxSizing: 'border-box' as const,
-    color: '#FFFFFF',
-  },
-  slideTitle: {
-    fontSize: 26,
-    fontWeight: 800 as const,
-    marginBottom: 12,
-    lineHeight: 1.3,
-  },
-  slideSubtitle: {
-    fontSize: 15,
-    opacity: 0.9,
-    lineHeight: 1.6,
-    marginBottom: 20,
-  },
-  ctaBtn: {
-    display: 'inline-block' as const,
-    padding: '10px 28px',
-    backgroundColor: '#FFFFFF',
-    color: '#1565C0',
-    fontSize: 14,
-    fontWeight: 700 as const,
-    borderRadius: 24,
-    border: 'none',
-    cursor: 'pointer',
-    alignSelf: 'flex-start' as const,
-  },
-  arrowBtn: {
-    position: 'absolute' as const,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: 36,
-    height: 36,
-    borderRadius: '50%',
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    color: '#FFFFFF',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: 16,
-    display: 'flex' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    zIndex: 2,
-  },
-  controls: {
-    position: 'absolute' as const,
-    bottom: 16,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-    zIndex: 2,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-  },
-  pauseBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: '50%',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    color: '#FFFFFF',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: 11,
-    display: 'flex' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    marginLeft: 4,
-  },
-};
 
 export default function BannerCarousel({
   slides,
@@ -142,32 +50,28 @@ export default function BannerCarousel({
   if (slides.length === 0) return null;
 
   return (
-    <div style={{ ...styles.wrapper, height }}>
+    <div className="relative overflow-hidden rounded-xl" style={{ height }}>
       {/* Track */}
       <div
-        style={{
-          ...styles.track,
-          transform: `translateX(-${currentIndex * 100}%)`,
-        }}
+        className="flex transition-transform duration-500 ease-in-out"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {slides.map((slide) => (
           <div
             key={slide.id}
-            style={{
-              ...styles.slide,
-              background: slide.bgGradient,
-              height,
-            }}
+            className="min-w-full flex flex-col justify-center px-12 py-10 box-border text-white"
+            style={{ background: slide.bgGradient, height }}
           >
-            <div style={styles.slideTitle}>{slide.title}</div>
-            <div style={styles.slideSubtitle}>{slide.subtitle}</div>
+            <div className="text-[26px] font-extrabold mb-3 leading-tight">{slide.title}</div>
+            <div className="text-[15px] opacity-90 leading-relaxed mb-5">{slide.subtitle}</div>
             {slide.ctaText && (
-              <button
-                style={styles.ctaBtn}
+              <Button
+                variant="outline"
+                className="self-start rounded-full bg-white text-accent border-none font-bold px-7 hover:bg-white/90"
                 onClick={() => onCtaClick?.(slide.ctaLink || '/')}
               >
                 {slide.ctaText}
-              </button>
+              </Button>
             )}
           </div>
         ))}
@@ -177,14 +81,14 @@ export default function BannerCarousel({
       {slides.length > 1 && (
         <>
           <button
-            style={{ ...styles.arrowBtn, left: 12 }}
+            className="absolute top-1/2 left-3 -translate-y-1/2 w-9 h-9 rounded-full bg-black/25 text-white border-none cursor-pointer flex items-center justify-center z-[2] text-base hover:bg-black/40"
             onClick={goPrev}
             aria-label="이전 배너"
           >
             &#10094;
           </button>
           <button
-            style={{ ...styles.arrowBtn, right: 12 }}
+            className="absolute top-1/2 right-3 -translate-y-1/2 w-9 h-9 rounded-full bg-black/25 text-white border-none cursor-pointer flex items-center justify-center z-[2] text-base hover:bg-black/40"
             onClick={goNext}
             aria-label="다음 배너"
           >
@@ -194,20 +98,20 @@ export default function BannerCarousel({
       )}
 
       {/* Dots + Pause */}
-      <div style={styles.controls}>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-[2]">
         {slides.map((_, i) => (
           <button
             key={i}
-            style={{
-              ...styles.dot,
-              backgroundColor: i === currentIndex ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
-            }}
+            className={cn(
+              "w-2 h-2 rounded-full border-none cursor-pointer p-0",
+              i === currentIndex ? "bg-white" : "bg-white/40"
+            )}
             onClick={() => goTo(i)}
             aria-label={`배너 ${i + 1}`}
           />
         ))}
         <button
-          style={styles.pauseBtn}
+          className="w-6 h-6 rounded-full bg-black/30 text-white border-none cursor-pointer text-[11px] flex items-center justify-center ml-1"
           onClick={() => setIsPaused((p) => !p)}
           aria-label={isPaused ? '자동 재생' : '일시 정지'}
         >

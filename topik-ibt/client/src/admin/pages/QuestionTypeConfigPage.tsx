@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { adminApi } from '../../api/adminApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/table';
+import { Switch } from '../../components/ui/switch';
 
 interface QuestionTypeItem {
   code: string;
@@ -69,177 +74,100 @@ const QuestionTypeConfigPage: React.FC = () => {
   if (loading) {
     return (
       <AdminLayout>
-        <div style={{ padding: 40, textAlign: 'center', color: '#888' }}>로딩 중...</div>
+        <div className="py-10 text-center text-gray-400">로딩 중...</div>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ margin: 0, fontSize: 22 }}>문제 유형 설정</h2>
-          <button
+      <div className="max-w-[900px] mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="m-0 text-[22px] font-bold">문제 유형 설정</h2>
+          <Button
             onClick={handleSave}
             disabled={saving}
-            style={{
-              padding: '10px 24px',
-              borderRadius: 6,
-              border: 'none',
-              background: '#1a73e8',
-              color: '#fff',
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-              fontWeight: 600,
-            }}
+            className="bg-blue-600 hover:bg-blue-500 text-white"
           >
             {saving ? '저장 중...' : '저장'}
-          </button>
+          </Button>
         </div>
 
         {error && (
-          <div style={{ padding: '10px 16px', background: '#fce8e6', color: '#d93025', borderRadius: 6, marginBottom: 16, fontSize: 14 }}>
+          <div className="px-4 py-2.5 bg-red-50 text-red-600 rounded-md mb-4 text-sm">
             {error}
           </div>
         )}
         {success && (
-          <div style={{ padding: '10px 16px', background: '#e6f4ea', color: '#137333', borderRadius: 6, marginBottom: 16, fontSize: 14 }}>
+          <div className="px-4 py-2.5 bg-green-50 text-green-700 rounded-md mb-4 text-sm">
             {success}
           </div>
         )}
 
         {/* Section filter */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <div className="flex gap-2 mb-5">
           {SECTION_FILTERS.map((f) => (
-            <button
+            <Button
               key={f}
+              variant={sectionFilter === f ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setSectionFilter(f)}
-              style={{
-                padding: '6px 16px',
-                borderRadius: 20,
-                border: sectionFilter === f ? '2px solid #1a73e8' : '1px solid #ddd',
-                background: sectionFilter === f ? '#e8f0fe' : '#fff',
-                color: sectionFilter === f ? '#1a73e8' : '#333',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: sectionFilter === f ? 600 : 400,
-              }}
+              className={cn(
+                'rounded-full',
+                sectionFilter === f && 'bg-blue-600 hover:bg-blue-500 text-white'
+              )}
             >
               {f === 'ALL' ? '전체' : SECTION_LABELS[f] || f}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Table */}
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            background: '#fff',
-            borderRadius: 8,
-            overflow: 'hidden',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          }}
-        >
-          <thead>
-            <tr style={{ background: '#f8f9fa', textAlign: 'left' }}>
-              <th style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#555' }}>
-                코드
-              </th>
-              <th style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#555' }}>
-                이름
-              </th>
-              <th style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#555' }}>
-                영역
-              </th>
-              <th style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#555', textAlign: 'center' }}>
-                활성
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTypes.map((t) => (
-              <tr
-                key={t.code}
-                style={{ borderTop: '1px solid #eee' }}
-              >
-                <td style={{ padding: '10px 16px', fontSize: 13, fontFamily: 'monospace', color: '#333' }}>
-                  {t.code}
-                </td>
-                <td style={{ padding: '10px 16px', fontSize: 14, color: '#222' }}>
-                  {t.name}
-                </td>
-                <td style={{ padding: '10px 16px', fontSize: 13 }}>
-                  <span
-                    style={{
-                      padding: '2px 10px',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      background:
-                        t.section === 'LISTENING'
-                          ? '#e3f2fd'
-                          : t.section === 'WRITING'
-                          ? '#fff3e0'
-                          : '#e8f5e9',
-                      color:
-                        t.section === 'LISTENING'
-                          ? '#1565c0'
-                          : t.section === 'WRITING'
-                          ? '#e65100'
-                          : '#2e7d32',
-                    }}
-                  >
-                    {SECTION_LABELS[t.section] || t.section}
-                  </span>
-                </td>
-                <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                  <label
-                    style={{
-                      position: 'relative',
-                      display: 'inline-block',
-                      width: 44,
-                      height: 24,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <input
-                      type="checkbox"
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50">
+                <TableHead>코드</TableHead>
+                <TableHead>이름</TableHead>
+                <TableHead>영역</TableHead>
+                <TableHead className="text-center">활성</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredTypes.map((t) => (
+                <TableRow key={t.code}>
+                  <TableCell className="font-mono text-[13px] text-gray-700">
+                    {t.code}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {t.name}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        t.section === 'LISTENING' && 'bg-blue-100 text-blue-800',
+                        t.section === 'WRITING' && 'bg-orange-100 text-orange-800',
+                        t.section === 'READING' && 'bg-green-100 text-green-800'
+                      )}
+                    >
+                      {SECTION_LABELS[t.section] || t.section}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Switch
                       checked={t.isActive}
-                      onChange={() => handleToggle(t.code)}
-                      style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                      onCheckedChange={() => handleToggle(t.code)}
                     />
-                    <span
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        borderRadius: 12,
-                        background: t.isActive ? '#1a73e8' : '#ccc',
-                        transition: 'background 0.2s',
-                      }}
-                    />
-                    <span
-                      style={{
-                        position: 'absolute',
-                        top: 2,
-                        left: t.isActive ? 22 : 2,
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        background: '#fff',
-                        transition: 'left 0.2s',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                      }}
-                    />
-                  </label>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         {filteredTypes.length === 0 && (
-          <div style={{ padding: 40, textAlign: 'center', color: '#888', fontSize: 14 }}>
+          <div className="py-10 text-center text-gray-400 text-sm">
             해당 영역의 문제 유형이 없습니다.
           </div>
         )}

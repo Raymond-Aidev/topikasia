@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { cn } from '../../lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '../../components/ui/dialog';
+import { Button } from '../../components/ui/button';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
 
@@ -10,105 +18,6 @@ interface AllQuestionsPopupProps {
   onClose: () => void;
   onSubmit: () => void;
 }
-
-const styles = {
-  overlay: {
-    position: 'fixed' as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    zIndex: 2000,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  popup: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: '24px 28px',
-    width: '90%',
-    maxWidth: 560,
-    maxHeight: '80vh',
-    overflow: 'auto' as const,
-    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 700 as const,
-    color: '#212121',
-  },
-  countdown: {
-    fontSize: 13,
-    color: '#757575',
-  },
-  closeBtn: {
-    background: 'none',
-    border: 'none',
-    fontSize: 24,
-    cursor: 'pointer',
-    color: '#757575',
-    padding: '0 4px',
-  },
-  tabs: {
-    display: 'flex',
-    gap: 8,
-    marginBottom: 16,
-  },
-  tab: {
-    padding: '8px 16px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    border: '1px solid #E0E0E0',
-    borderRadius: 6,
-    cursor: 'pointer',
-    backgroundColor: '#fff',
-    color: '#757575',
-    transition: 'all 0.15s',
-  },
-  tabActive: {
-    backgroundColor: '#1565C0',
-    color: '#fff',
-    borderColor: '#1565C0',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(10, 1fr)',
-    gap: 6,
-    marginBottom: 20,
-  },
-  cell: {
-    width: '100%',
-    aspectRatio: '1',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 13,
-    fontWeight: 600 as const,
-    borderRadius: 6,
-    cursor: 'pointer',
-    border: '2px solid transparent',
-    transition: 'all 0.15s',
-  },
-  submitBtn: {
-    width: '100%',
-    padding: '14px 0',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    backgroundColor: '#1565C0',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-};
 
 function isAnswered(answer: AnswerValue | undefined): boolean {
   if (!answer) return false;
@@ -167,34 +76,33 @@ export default function AllQuestionsPopup({
   );
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.popup} onClick={(e) => e.stopPropagation()}>
-        <div style={styles.header}>
-          <div>
-            <span style={styles.title}>전체 문제</span>
-            <span style={styles.countdown}> ({countdown}초 후 자동 닫힘)</span>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-[560px] max-h-[80vh] overflow-auto" showCloseButton>
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <DialogTitle className="text-lg font-bold text-gray-900">전체 문제</DialogTitle>
+            <span className="text-[13px] text-gray-500">({countdown}초 후 자동 닫힘)</span>
           </div>
-          <button style={styles.closeBtn} onClick={onClose}>
-            ✕
-          </button>
-        </div>
+        </DialogHeader>
 
-        <div style={styles.tabs}>
-          <button
-            style={{ ...styles.tab, ...(tab === 'all' ? styles.tabActive : {}) }}
+        <div className="mb-4 flex gap-2">
+          <Button
+            variant={tab === 'all' ? 'default' : 'outline'}
+            size="sm"
             onClick={() => setTab('all')}
           >
             전체문제 ({questions.length})
-          </button>
-          <button
-            style={{ ...styles.tab, ...(tab === 'unanswered' ? styles.tabActive : {}) }}
+          </Button>
+          <Button
+            variant={tab === 'unanswered' ? 'default' : 'outline'}
+            size="sm"
             onClick={() => setTab('unanswered')}
           >
             안 푼 문제 ({unansweredCount})
-          </button>
+          </Button>
         </div>
 
-        <div style={styles.grid}>
+        <div className="mb-5 grid grid-cols-10 gap-1.5">
           {filteredQuestions.map((q) => {
             const originalIdx = questions.findIndex((qq) => qq.questionId === q.questionId);
             const answered = isAnswered(answers[q.questionId]);
@@ -203,12 +111,13 @@ export default function AllQuestionsPopup({
             return (
               <div
                 key={q.questionId}
-                style={{
-                  ...styles.cell,
-                  backgroundColor: answered ? '#fff' : '#FFCDD2',
-                  borderColor: isCurrent ? '#1565C0' : 'transparent',
-                  boxShadow: isCurrent ? '0 0 0 1px #1565C0' : 'none',
-                }}
+                className={cn(
+                  'flex aspect-square cursor-pointer items-center justify-center rounded-md text-[13px] font-semibold transition-all',
+                  answered ? 'bg-white' : 'bg-red-200',
+                  isCurrent
+                    ? 'border-2 border-blue-800 shadow-[0_0_0_1px_#1565C0]'
+                    : 'border-2 border-transparent'
+                )}
                 onClick={() => handleCellClick(q)}
                 title={`${q.questionNumber}번 ${answered ? '(답안 작성됨)' : '(미응답)'}`}
               >
@@ -218,10 +127,13 @@ export default function AllQuestionsPopup({
           })}
         </div>
 
-        <button style={styles.submitBtn} onClick={onSubmit}>
+        <Button
+          className="w-full py-3.5 text-base font-bold"
+          onClick={onSubmit}
+        >
           답안 제출 →
-        </button>
-      </div>
-    </div>
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 }

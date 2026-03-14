@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useQuestionTypes } from '../hooks/useQuestionTypes';
 import { useImportedQuestionsStore } from '../store/importedQuestionsStore';
 import QuestionBankImporter from '../components/QuestionBankImporter';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
 
 const SECTIONS = [
   { key: 'LISTENING' as const, label: '듣기' },
@@ -18,9 +20,9 @@ const QuestionBankImportPage: React.FC = () => {
   const totalSelected = getAllSelected().length;
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px' }}>
-      <h2 style={{ margin: '0 0 8px', fontSize: 22 }}>문제 은행 불러오기</h2>
-      <p style={{ margin: '0 0 24px', color: '#666', fontSize: 14 }}>
+    <div className="mx-auto max-w-[900px] px-6 py-8">
+      <h2 className="mb-2 text-[22px] font-bold">문제 은행 불러오기</h2>
+      <p className="mb-6 text-sm text-muted-foreground">
         영역별 문제 유형을 선택하여 문제를 불러옵니다.
       </p>
 
@@ -32,45 +34,29 @@ const QuestionBankImportPage: React.FC = () => {
       })}
 
       {/* Summary footer */}
-      <div
-        style={{
-          marginTop: 24,
-          padding: 20,
-          background: '#f8f9fa',
-          borderRadius: 10,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ fontSize: 14 }}>
-          {SECTIONS.map(({ key, label }) => (
-            <span key={key} style={{ marginRight: 20 }}>
-              <strong>{label}</strong>: {getSelectedBySection(key).length}개
+      <Card className="mt-6">
+        <CardContent className="flex items-center justify-between">
+          <div className="text-sm">
+            {SECTIONS.map(({ key, label }) => (
+              <span key={key} className="mr-5">
+                <strong>{label}</strong>: {getSelectedBySection(key).length}개
+              </span>
+            ))}
+            <span className="ml-2 font-bold">
+              | 총 {totalSelected}개 선택됨
             </span>
-          ))}
-          <span style={{ marginLeft: 8, fontWeight: 700 }}>
-            | 총 {totalSelected}개 선택됨
-          </span>
-        </div>
+          </div>
 
-        <button
-          onClick={() => navigate('/question-module/compose')}
-          disabled={totalSelected === 0}
-          style={{
-            padding: '10px 24px',
-            borderRadius: 8,
-            border: 'none',
-            background: totalSelected > 0 ? '#1a73e8' : '#ccc',
-            color: '#fff',
-            cursor: totalSelected > 0 ? 'pointer' : 'not-allowed',
-            fontSize: 15,
-            fontWeight: 600,
-          }}
-        >
-          세트 구성으로 이동 →
-        </button>
-      </div>
+          <Button
+            onClick={() => navigate('/question-module/compose')}
+            disabled={totalSelected === 0}
+            size="lg"
+            className="text-[15px] font-semibold"
+          >
+            세트 구성으로 이동 →
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

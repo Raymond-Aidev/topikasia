@@ -2,56 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useKoreanCharCount } from '../hooks/useKoreanCharCount';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
+import { Textarea } from '../../components/ui/textarea';
+import { cn } from '../../lib/utils';
 
 interface EssayQuestionProps {
   question: Question;
   answer: AnswerValue | undefined;
   onAnswer: (value: AnswerValue) => void;
 }
-
-const styles = {
-  container: {
-    padding: '0 0 16px 0',
-  },
-  instruction: {
-    fontSize: 16,
-    lineHeight: '1.7',
-    color: '#212121',
-    marginBottom: 16,
-    whiteSpace: 'pre-wrap' as const,
-  },
-  passageBox: {
-    backgroundColor: '#F5F5F5',
-    border: '1px solid #E0E0E0',
-    borderRadius: 8,
-    padding: '20px 24px',
-    marginBottom: 20,
-    fontSize: 15,
-    lineHeight: '1.8',
-    whiteSpace: 'pre-wrap' as const,
-    color: '#333',
-  },
-  textarea: {
-    width: '100%',
-    minHeight: 300,
-    padding: '16px 18px',
-    fontSize: 15,
-    lineHeight: '1.8',
-    border: '2px solid #E0E0E0',
-    borderRadius: 8,
-    outline: 'none',
-    resize: 'vertical' as const,
-    fontFamily: 'inherit',
-    boxSizing: 'border-box' as const,
-    transition: 'border-color 0.2s',
-  },
-  counter: {
-    marginTop: 8,
-    fontSize: 14,
-    fontWeight: 600 as const,
-    textAlign: 'right' as const,
-  },
-};
 
 const DEBOUNCE_MS = 1000;
 
@@ -111,58 +69,58 @@ export default function EssayQuestion({
 
   // Color coding for character count with warning zones
   const getCounterColor = (): string => {
-    if (displayCount < charLimit.min * 0.8) return '#F44336'; // red: well below min
-    if (displayCount < charLimit.min) return '#FF9800'; // orange: approaching minimum
-    if (displayCount <= charLimit.max) return '#4CAF50'; // green: in range
-    if (displayCount <= charLimit.max * 1.1) return '#FF9800'; // orange: approaching maximum
-    return '#F44336'; // red: well above max
+    if (displayCount < charLimit.min * 0.8) return 'text-red-500';
+    if (displayCount < charLimit.min) return 'text-orange-500';
+    if (displayCount <= charLimit.max) return 'text-green-500';
+    if (displayCount <= charLimit.max * 1.1) return 'text-orange-500';
+    return 'text-red-500';
+  };
+
+  const getBarColor = (): string => {
+    if (displayCount < charLimit.min * 0.8) return 'bg-red-500';
+    if (displayCount < charLimit.min) return 'bg-orange-500';
+    if (displayCount <= charLimit.max) return 'bg-green-500';
+    if (displayCount <= charLimit.max * 1.1) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   // Progress bar fill percentage (capped at 100% visually)
   const progressPercent = Math.min((displayCount / charLimit.max) * 100, 100);
-  const progressColor = getCounterColor();
 
   return (
-    <div style={styles.container}>
-      <div style={styles.instruction}>{question.instruction}</div>
+    <div className="pb-4">
+      <div className="mb-4 whitespace-pre-wrap text-base leading-[1.7] text-gray-900">
+        {question.instruction}
+      </div>
 
       {question.passageText && (
-        <div style={styles.passageBox}>{question.passageText}</div>
+        <div className="mb-5 whitespace-pre-wrap rounded-lg border border-gray-300 bg-gray-100 px-6 py-5 text-[15px] leading-[1.8] text-gray-700">
+          {question.passageText}
+        </div>
       )}
 
-      <textarea
+      <Textarea
         ref={textareaRef}
-        style={{
-          ...styles.textarea,
-        }}
+        className="min-h-[300px] w-full resize-y border-2 border-gray-300 px-[18px] py-4 font-inherit text-[15px] leading-[1.8] transition-colors focus-visible:border-blue-800"
         value={text}
         onChange={handleChange}
         onCompositionStart={onCompositionStart}
         onCompositionEnd={onCompositionEnd}
-        onFocus={(e) => {
-          (e.target as HTMLTextAreaElement).style.borderColor = '#1565C0';
-        }}
-        onBlur={(e) => {
-          (e.target as HTMLTextAreaElement).style.borderColor = '#E0E0E0';
-        }}
         placeholder="여기에 작성하세요..."
       />
 
       {/* Progress bar */}
-      <div style={{ width: '100%', height: 6, backgroundColor: '#E0E0E0', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
-        <div style={{
-          width: `${progressPercent}%`,
-          height: '100%',
-          backgroundColor: progressColor,
-          borderRadius: 3,
-          transition: 'width 0.3s ease, background-color 0.3s ease',
-        }} />
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-300">
+        <div
+          className={cn('h-full rounded-full transition-all duration-300', getBarColor())}
+          style={{ width: `${progressPercent}%` }}
+        />
       </div>
 
-      <div style={{ ...styles.counter, color: getCounterColor() }}>
+      <div className={cn('mt-2 text-right text-sm font-semibold', getCounterColor())}>
         {displayCount} / {charLimit.max}자
         {displayCount < charLimit.min && (
-          <span style={{ marginLeft: 8, fontSize: 12, color: getCounterColor() }}>
+          <span className={cn('ml-2 text-xs', getCounterColor())}>
             (최소 {charLimit.min}자)
           </span>
         )}

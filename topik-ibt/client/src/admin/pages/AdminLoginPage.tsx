@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../../api/adminApi';
+import { cn } from '../../lib/utils';
+import { Card, CardContent } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Button } from '../../components/ui/button';
 
 const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,155 +41,82 @@ const AdminLoginPage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f9fafb',
-      }}
-    >
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          width: '100%',
-          maxWidth: '400px',
-          padding: '40px',
-          backgroundColor: '#fff',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 40, objectFit: 'contain' }} />
-        </div>
-        <h1 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
-          관리자
-        </h1>
-        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px', textAlign: 'center' }}>
-          관리자 계정으로 로그인하세요
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Card className="w-full max-w-[400px]">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="text-center mb-1">
+              <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-10 object-contain mx-auto" />
+            </div>
+            <h1 className="text-xl font-bold text-center">관리자</h1>
+            <p className="text-sm text-gray-500 text-center">
+              관리자 계정으로 로그인하세요
+            </p>
 
-        {error && (
-          <div
-            style={{
-              padding: '10px 14px',
-              marginBottom: '16px',
-              borderRadius: '6px',
-              backgroundColor: '#fee2e2',
-              color: '#991b1b',
-              fontSize: '13px',
-            }}
-          >
-            {error}
-          </div>
-        )}
+            {error && (
+              <div className="px-3.5 py-2.5 rounded-md bg-red-100 text-red-800 text-[13px]">
+                {error}
+              </div>
+            )}
 
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>
-            아이디
-          </label>
-          <input
-            type="text"
-            value={loginId}
-            onChange={(e) => setLoginId(e.target.value)}
-            required
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              fontSize: '14px',
-              boxSizing: 'border-box',
-            }}
-          />
-        </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="loginId">아이디</Label>
+              <Input
+                id="loginId"
+                type="text"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                required
+              />
+            </div>
 
-        <div style={{ marginBottom: show2FA ? '16px' : '24px' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>
-            비밀번호
-          </label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                paddingRight: '40px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '4px',
-                color: '#6b7280',
-                fontSize: '14px',
-              }}
-              tabIndex={-1}
+            <div className={cn('space-y-1.5', !show2FA && 'mb-2')}>
+              <Label htmlFor="password">비밀번호</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-16"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 text-gray-500 text-sm"
+                  tabIndex={-1}
+                >
+                  {showPassword ? '숨기기' : '보기'}
+                </button>
+              </div>
+            </div>
+
+            {show2FA && (
+              <div className="space-y-1.5 mb-2">
+                <Label htmlFor="twoFactor">2단계 인증 코드</Label>
+                <Input
+                  id="twoFactor"
+                  type="text"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  placeholder="인증 코드를 입력하세요"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white"
+              size="lg"
             >
-              {showPassword ? '숨기기' : '보기'}
-            </button>
-          </div>
-        </div>
-
-        {show2FA && (
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>
-              2단계 인증 코드
-            </label>
-            <input
-              type="text"
-              value={twoFactorCode}
-              onChange={(e) => setTwoFactorCode(e.target.value)}
-              placeholder="인증 코드를 입력하세요"
-              autoFocus
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '10px 0',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: '#1e293b',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1,
-          }}
-        >
-          {loading ? '로그인 중...' : '로그인'}
-        </button>
-      </form>
+              {loading ? '로그인 중...' : '로그인'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

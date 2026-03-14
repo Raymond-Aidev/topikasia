@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import Footer from '../../shared/components/Footer';
 import { useResponsive } from '../../shared/hooks/useResponsive';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const FEATURES = [
   { icon: '🎯', title: '실전과 동일한 IBT 환경', desc: '공식 TOPIK IBT와 동일한 시험 화면, 타이머, 문항 네비게이션으로 실전 감각을 키울 수 있습니다.' },
@@ -33,101 +35,109 @@ export default function AboutPage() {
   const { isMobile, isTablet } = useResponsive();
   const compact = isMobile || isTablet;
   const topPad = compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT;
-  const px = isMobile ? '16px' : '24px';
 
-  const featureCols = isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)';
-  const examCols = isMobile ? '1fr' : 'repeat(2, 1fr)';
+  const featureCols = isMobile ? 'grid-cols-1' : isTablet ? 'grid-cols-2' : 'grid-cols-4';
+  const examCols = isMobile ? 'grid-cols-1' : 'grid-cols-2';
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif', paddingTop: topPad }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: topPad }}>
       <GlobalNavigationBar />
 
       {/* 히어로 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 50%, #1A237E 100%)',
-        color: '#FFFFFF', textAlign: 'center',
-        padding: isMobile ? '48px 16px' : '80px 24px',
-      }}>
-        <div style={{ fontSize: isMobile ? 28 : 48, fontWeight: 800, marginBottom: 16 }}>TOPIK Asia</div>
-        <div style={{ fontSize: isMobile ? 16 : 20, opacity: 0.9, marginBottom: 8, lineHeight: 1.6 }}>
+      <div className={cn(
+        'bg-gradient-to-br from-[#1565C0] via-[#0D47A1] to-[#1A237E] text-white text-center',
+        isMobile ? 'px-4 py-12' : 'px-6 py-20'
+      )}>
+        <div className={cn('font-extrabold mb-4', isMobile ? 'text-[28px]' : 'text-5xl')}>TOPIK Asia</div>
+        <div className={cn('opacity-90 mb-2 leading-relaxed', isMobile ? 'text-base' : 'text-xl')}>
           한국어능력시험을 준비하는 가장 좋은 모의시험 사이트
         </div>
-        <div style={{ fontSize: isMobile ? 13 : 15, opacity: 0.7, marginBottom: 40 }}>
+        <div className={cn('opacity-70 mb-10', isMobile ? 'text-[13px]' : 'text-[15px]')}>
           공식 TOPIK IBT와 동일한 환경에서 실전 연습하고, AI 분석으로 실력을 향상하세요
         </div>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button
-            style={{ padding: isMobile ? '12px 28px' : '14px 36px', fontSize: isMobile ? 14 : 16, fontWeight: 700, backgroundColor: '#FFFFFF', color: '#1565C0', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+        <div className="flex gap-4 justify-center flex-wrap">
+          <Button
+            className={cn(
+              'font-bold bg-white text-[#1565C0] hover:bg-gray-100 rounded-lg border-none',
+              isMobile ? 'px-7 py-3 text-sm' : 'px-9 py-3.5 text-base'
+            )}
             onClick={() => navigate('/registration/schedules')}
           >
             시험 접수하기
-          </button>
-          <button
-            style={{ padding: isMobile ? '12px 28px' : '14px 36px', fontSize: isMobile ? 14 : 16, fontWeight: 700, backgroundColor: 'transparent', color: '#FFFFFF', border: '2px solid rgba(255,255,255,0.6)', borderRadius: 8, cursor: 'pointer' }}
+          </Button>
+          <Button
+            variant="outline"
+            className={cn(
+              'font-bold bg-transparent text-white border-2 border-white/60 hover:bg-white/10 rounded-lg',
+              isMobile ? 'px-7 py-3 text-sm' : 'px-9 py-3.5 text-base'
+            )}
             onClick={() => navigate('/login')}
           >
             모의시험 체험하기
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* 서비스 소개 카드 */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: `56px ${px}` }}>
-        <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 40 }}>
+      <div className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className={cn('font-extrabold text-gray-900 text-center mb-10', isMobile ? 'text-[22px]' : 'text-[28px]')}>
           왜 TOPIK Asia인가요?
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: featureCols, gap: isMobile ? 16 : 24 }}>
+        <div className={cn('grid gap-6', isMobile ? 'gap-4' : '', featureCols)}>
           {FEATURES.map((f) => (
-            <div key={f.title} style={{ backgroundColor: '#FFFFFF', borderRadius: 16, padding: isMobile ? '28px 20px' : '36px 24px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>{f.icon}</div>
-              <div style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: '#1565C0', marginBottom: 12 }}>{f.title}</div>
-              <div style={{ fontSize: 14, color: '#616161', lineHeight: 1.6 }}>{f.desc}</div>
+            <div key={f.title} className={cn(
+              'bg-white rounded-2xl text-center shadow-sm',
+              isMobile ? 'px-5 py-7' : 'px-6 py-9'
+            )}>
+              <div className="text-[40px] mb-4">{f.icon}</div>
+              <div className={cn('font-bold text-[#1565C0] mb-3', isMobile ? 'text-base' : 'text-lg')}>{f.title}</div>
+              <div className="text-sm text-gray-600 leading-relaxed">{f.desc}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* 시험 구성 안내 */}
-      <div style={{ backgroundColor: '#FFFFFF', padding: `56px ${px}` }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 40 }}>
+      <div className={cn('bg-white', isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className="max-w-[1100px] mx-auto">
+          <div className={cn('font-extrabold text-gray-900 text-center mb-10', isMobile ? 'text-[22px]' : 'text-[28px]')}>
             시험 구성 안내
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: examCols, gap: 24 }}>
+          <div className={cn('grid gap-6', examCols)}>
             {/* TOPIK I */}
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-              <div style={{ padding: '20px 28px', fontWeight: 700, fontSize: 18, color: '#FFFFFF', backgroundColor: '#1976D2' }}>
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-7 py-5 font-bold text-lg text-white bg-[#1976D2]">
                 TOPIK I (초급)
               </div>
-              <div style={{ padding: '24px 28px' }}>
+              <div className="px-7 py-6">
                 {[['듣기', '40분 · 30문항 · 100점'], ['읽기', '60분 · 40문항 · 100점']].map(([l, r]) => (
-                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #F0F0F0', fontSize: 14, color: '#374151' }}>
+                  <div key={l} className="flex justify-between py-2.5 border-b border-gray-100 text-sm text-gray-700">
                     <span>{l}</span><span>{r}</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontSize: 14, color: '#374151', fontWeight: 600 }}>
+                <div className="flex justify-between py-2.5 text-sm text-gray-700 font-semibold">
                   <span>합계</span><span>100분 · 70문항 · 200점 만점</span>
                 </div>
-                <div style={{ marginTop: 16, padding: '12px 16px', backgroundColor: '#E3F2FD', borderRadius: 8, fontSize: 13, color: '#1565C0' }}>
+                <div className="mt-4 px-4 py-3 bg-blue-50 rounded-lg text-[13px] text-[#1565C0]">
                   1급: 80점 이상 &nbsp;|&nbsp; 2급: 140점 이상
                 </div>
               </div>
             </div>
             {/* TOPIK II */}
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-              <div style={{ padding: '20px 28px', fontWeight: 700, fontSize: 18, color: '#FFFFFF', backgroundColor: '#0D47A1' }}>
+            <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-7 py-5 font-bold text-lg text-white bg-[#0D47A1]">
                 TOPIK II (중·고급)
               </div>
-              <div style={{ padding: '24px 28px' }}>
+              <div className="px-7 py-6">
                 {[['듣기', '60분 · 50문항 · 100점'], ['쓰기', '50분 · 4문항 · 100점'], ['읽기', '70분 · 50문항 · 100점']].map(([l, r]) => (
-                  <div key={l} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #F0F0F0', fontSize: 14, color: '#374151' }}>
+                  <div key={l} className="flex justify-between py-2.5 border-b border-gray-100 text-sm text-gray-700">
                     <span>{l}</span><span>{r}</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontSize: 14, color: '#374151', fontWeight: 600 }}>
+                <div className="flex justify-between py-2.5 text-sm text-gray-700 font-semibold">
                   <span>합계</span><span>180분 · 104문항 · 300점 만점</span>
                 </div>
-                <div style={{ marginTop: 16, padding: '12px 16px', backgroundColor: '#E8EAF6', borderRadius: 8, fontSize: 13, color: '#1A237E' }}>
+                <div className="mt-4 px-4 py-3 bg-indigo-50 rounded-lg text-[13px] text-[#1A237E]">
                   3급: 120점+ | 4급: 150점+ | 5급: 190점+ | 6급: 230점+
                 </div>
               </div>
@@ -137,66 +147,53 @@ export default function AboutPage() {
       </div>
 
       {/* 특장점 */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: `56px ${px}` }}>
-        <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 40 }}>
+      <div className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className={cn('font-extrabold text-gray-900 text-center mb-10', isMobile ? 'text-[22px]' : 'text-[28px]')}>
           TOPIK Asia만의 특장점
         </div>
         {SELLING_POINTS.map((sp, i) => (
-          <div key={i} style={{ backgroundColor: '#FFFFFF', borderRadius: 12, padding: isMobile ? '20px 16px' : '28px 32px', marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 28, height: 28, borderRadius: '50%', backgroundColor: '#1565C0', color: '#FFF',
-                fontSize: 14, fontWeight: 700, marginRight: 14,
-              }}>{i + 1}</span>
+          <div key={i} className={cn(
+            'bg-white rounded-xl shadow-sm mb-4',
+            isMobile ? 'px-4 py-5' : 'px-8 py-7'
+          )}>
+            <div className={cn('font-bold text-gray-900 mb-2', isMobile ? 'text-[15px]' : 'text-[17px]')}>
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#1565C0] text-white text-sm font-bold mr-3.5">{i + 1}</span>
               {sp.title}
             </div>
-            <div style={{ fontSize: 14, color: '#616161', lineHeight: 1.6, marginLeft: isMobile ? 0 : 42 }}>{sp.desc}</div>
+            <div className={cn('text-sm text-gray-600 leading-relaxed', isMobile ? '' : 'ml-[42px]')}>{sp.desc}</div>
           </div>
         ))}
       </div>
 
       {/* 이용 방법 */}
-      <div style={{ backgroundColor: '#FFFFFF', padding: `56px ${px}` }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 40 }}>
+      <div className={cn('bg-white', isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className="max-w-[1100px] mx-auto">
+          <div className={cn('font-extrabold text-gray-900 text-center mb-10', isMobile ? 'text-[22px]' : 'text-[28px]')}>
             이용 방법
           </div>
-          <div style={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'center' : 'flex-start',
-            justifyContent: 'center',
-            gap: 12,
-          }}>
+          <div className={cn(
+            'flex justify-center gap-3',
+            isMobile ? 'flex-col items-center' : 'flex-row items-start'
+          )}>
             {STEPS.map((step, i) => (
-              <div key={step.num} style={{
-                display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: isMobile ? 'center' : 'flex-start',
-              }}>
-                <div style={{
-                  width: isMobile ? '100%' : 220, maxWidth: 220,
-                  textAlign: 'center', padding: '32px 16px',
-                  backgroundColor: '#FFFFFF', borderRadius: 16,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                }}>
-                  <div style={{ fontSize: 36, marginBottom: 12 }}>{step.icon}</div>
-                  <div style={{
-                    fontSize: 12, fontWeight: 700, color: '#1565C0',
-                    backgroundColor: '#E3F2FD', borderRadius: 12, padding: '2px 12px',
-                    display: 'inline-block', marginBottom: 8,
-                  }}>STEP {step.num}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 4 }}>{step.title}</div>
-                  <div style={{ fontSize: 13, color: '#9E9E9E' }}>{step.desc}</div>
+              <div key={step.num} className={cn(
+                'flex items-center',
+                isMobile ? 'flex-col' : 'flex-row'
+              )}>
+                <div className={cn(
+                  'text-center px-4 py-8 bg-white rounded-2xl shadow-sm',
+                  isMobile ? 'w-full max-w-[220px]' : 'w-[220px]'
+                )}>
+                  <div className="text-4xl mb-3">{step.icon}</div>
+                  <div className="text-xs font-bold text-[#1565C0] bg-blue-50 rounded-xl px-3 py-0.5 inline-block mb-2">STEP {step.num}</div>
+                  <div className="text-base font-bold text-gray-900 mb-1">{step.title}</div>
+                  <div className="text-[13px] text-gray-400">{step.desc}</div>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center',
-                    padding: isMobile ? '8px 0' : '48px 0 0 0',
-                    fontSize: 24, color: '#BDBDBD',
-                    transform: isMobile ? 'rotate(90deg)' : 'none',
-                  }}>→</div>
+                  <div className={cn(
+                    'flex items-center text-2xl text-gray-300',
+                    isMobile ? 'py-2 rotate-90' : 'pt-12'
+                  )}>→</div>
                 )}
               </div>
             ))}
@@ -205,31 +202,29 @@ export default function AboutPage() {
       </div>
 
       {/* CTA 배너 */}
-      <div style={{ padding: `56px ${px}` }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #1565C0, #0D47A1)',
-          color: '#FFFFFF', textAlign: 'center',
-          padding: isMobile ? '40px 20px' : '56px 24px',
-          borderRadius: 20, maxWidth: 1100, margin: '0 auto',
-        }}>
-          <div style={{ fontSize: isMobile ? 20 : 28, fontWeight: 800, marginBottom: 12 }}>
+      <div className={cn(isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className="bg-gradient-to-br from-[#1565C0] to-[#0D47A1] text-white text-center rounded-[20px] max-w-[1100px] mx-auto px-6 py-14">
+          <div className={cn('font-extrabold mb-3', isMobile ? 'text-xl' : 'text-[28px]')}>
             지금 바로 TOPIK 모의시험을 시작하세요!
           </div>
-          <div style={{ fontSize: isMobile ? 14 : 16, opacity: 0.85, marginBottom: 32 }}>
+          <div className={cn('opacity-85 mb-8', isMobile ? 'text-sm' : 'text-base')}>
             실전과 동일한 환경에서 연습하고, AI 분석으로 실력을 향상하세요
           </div>
-          <button
-            style={{ padding: isMobile ? '12px 28px' : '14px 36px', fontSize: isMobile ? 14 : 16, fontWeight: 700, backgroundColor: '#FFFFFF', color: '#1565C0', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+          <Button
+            className={cn(
+              'font-bold bg-white text-[#1565C0] hover:bg-gray-100 rounded-lg border-none',
+              isMobile ? 'px-7 py-3 text-sm' : 'px-9 py-3.5 text-base'
+            )}
             onClick={() => navigate('/registration/schedules')}
           >
             시험 접수하기
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* 앵커: 응시 규정 */}
-      <div id="rules" style={{ maxWidth: 1100, margin: '0 auto', padding: `48px ${px}` }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 20, paddingBottom: 12, borderBottom: '2px solid #E0E0E0' }}>
+      <div id="rules" className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-12' : 'px-6 py-12')}>
+        <div className="text-[22px] font-bold text-gray-900 mb-5 pb-3 border-b-2 border-gray-200">
           응시 규정
         </div>
         {[
@@ -239,13 +234,13 @@ export default function AboutPage() {
           '시험 진행 중 브라우저를 이탈하면 경고 메시지가 표시됩니다.',
           '네트워크 오류 발생 시 답안은 로컬에 임시 저장되며, 재접속 시 자동 동기화됩니다.',
         ].map((text, i) => (
-          <div key={i} style={{ fontSize: 15, color: '#374151', lineHeight: 1.8, marginBottom: 8, paddingLeft: 20 }}>• {text}</div>
+          <div key={i} className="text-[15px] text-gray-700 leading-[1.8] mb-2 pl-5">• {text}</div>
         ))}
       </div>
 
       {/* 앵커: 시험 신청 방법 */}
-      <div id="how-to-apply" style={{ maxWidth: 1100, margin: '0 auto', padding: `48px ${px}` }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 20, paddingBottom: 12, borderBottom: '2px solid #E0E0E0' }}>
+      <div id="how-to-apply" className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-12' : 'px-6 py-12')}>
+        <div className="text-[22px] font-bold text-gray-900 mb-5 pb-3 border-b-2 border-gray-200">
           시험 신청 방법
         </div>
         {[
@@ -255,7 +250,7 @@ export default function AboutPage() {
           '접수 내용을 확인한 후 최종 제출합니다.',
           '마이페이지에서 접수 상태를 확인하고 수험표를 다운로드할 수 있습니다.',
         ].map((text, i) => (
-          <div key={i} style={{ fontSize: 15, color: '#374151', lineHeight: 1.8, marginBottom: 8, paddingLeft: 20 }}>{i + 1}. {text}</div>
+          <div key={i} className="text-[15px] text-gray-700 leading-[1.8] mb-2 pl-5">{i + 1}. {text}</div>
         ))}
       </div>
 

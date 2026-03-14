@@ -48,24 +48,6 @@ const MOCK_WRITING_QUESTIONS: Question[] = [
   },
 ];
 
-// ─── Styles ─────────────────────────────────────────────────────
-const styles = {
-  page: {
-    paddingTop: 72,
-    paddingBottom: 80,
-    maxWidth: 800,
-    margin: '0 auto',
-    padding: '72px 24px 80px',
-    fontFamily: 'sans-serif',
-  },
-  questionIndicator: {
-    fontSize: 14,
-    color: '#757575',
-    marginBottom: 12,
-    fontWeight: 500 as const,
-  },
-};
-
 export default function WritingScreen() {
   const navigate = useNavigate();
   const { saveAnswer } = useAutoSave();
@@ -158,8 +140,8 @@ export default function WritingScreen() {
       />
       <NetworkStatusBanner />
 
-      <div style={styles.page}>
-        <div style={styles.questionIndicator}>
+      <div className="max-w-[800px] mx-auto px-6 pt-[72px] pb-20 font-sans">
+        <div className="text-sm text-gray-500 mb-3 font-medium">
           {question.questionNumber} / {questions.length}
         </div>
 

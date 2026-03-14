@@ -5,119 +5,11 @@ import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { verifyEmail, resendCode } from '../api/registrationApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 const TIMER_SECONDS = 180; // 3분
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  card: {
-    width: 440,
-    padding: 40,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-    textAlign: 'center' as const,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 800 as const,
-    color: '#1565C0',
-    marginBottom: 12,
-  },
-  desc: {
-    fontSize: 14,
-    color: '#616161',
-    lineHeight: 1.6,
-    marginBottom: 32,
-  },
-  email: {
-    fontWeight: 700 as const,
-    color: '#212121',
-  },
-  codeRow: {
-    display: 'flex',
-    gap: 8,
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  codeInput: {
-    width: 44,
-    height: 52,
-    textAlign: 'center' as const,
-    fontSize: 22,
-    fontWeight: 700 as const,
-    border: '2px solid #BDBDBD',
-    borderRadius: 8,
-    outline: 'none',
-    fontFamily: 'monospace',
-  },
-  codeInputFocused: {
-    borderColor: '#1565C0',
-  },
-  timer: (expired: boolean) => ({
-    fontSize: 20,
-    fontWeight: 700 as const,
-    color: expired ? '#C62828' : '#4CAF50',
-    marginBottom: 24,
-    fontVariantNumeric: 'tabular-nums' as const,
-  }),
-  button: {
-    width: '100%',
-    padding: '14px 0',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#fff',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-    marginBottom: 12,
-  },
-  buttonDisabled: {
-    backgroundColor: '#90CAF9',
-    cursor: 'not-allowed' as const,
-  },
-  resendBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#1565C0',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    cursor: 'pointer',
-    textDecoration: 'underline',
-  },
-  resendDisabled: {
-    color: '#BDBDBD',
-    cursor: 'not-allowed' as const,
-    textDecoration: 'none',
-  },
-  error: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #FFCDD2',
-  },
-  success: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#E8F5E9',
-    color: '#2E7D32',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #C8E6C9',
-  },
-};
 
 export default function EmailVerifyPage() {
   const { isMobile, isTablet } = useResponsive();
@@ -218,27 +110,32 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif',
-      display: 'flex', flexDirection: 'column',
-      paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT,
-    }}>
+    <div
+      className="min-h-screen bg-gray-100 font-sans flex flex-col"
+      style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}
+    >
       <GlobalNavigationBar />
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '32px 0' : '48px 0' }}>
-      <form style={{ ...styles.card, width: isMobile ? '90%' : 440, maxWidth: 440, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
-        <div style={styles.title}>이메일 인증</div>
-        <div style={styles.desc}>
-          <span style={styles.email}>{email}</span> 으로
+      <div className={cn('flex-1 flex items-center justify-center', isMobile ? 'py-8' : 'py-12')}>
+      <form
+        className={cn(
+          'bg-white rounded-2xl shadow-lg text-center box-border',
+          isMobile ? 'w-[90%] max-w-[440px] p-6' : 'w-[440px] p-10'
+        )}
+        onSubmit={handleSubmit}
+      >
+        <div className="text-2xl font-extrabold text-[#1565C0] mb-3">이메일 인증</div>
+        <div className="text-sm text-gray-600 leading-relaxed mb-8">
+          <span className="font-bold text-gray-900">{email}</span> 으로
           <br />
           인증 코드를 발송했습니다.
         </div>
 
-        <div style={styles.codeRow}>
+        <div className="flex gap-2 justify-center mb-4">
           {digits.map((d, i) => (
             <input
               key={i}
               ref={(el) => { inputRefs.current[i] = el; }}
-              style={styles.codeInput}
+              className="w-11 h-[52px] text-center text-[22px] font-bold border-2 border-gray-300 rounded-lg outline-none font-mono focus:border-[#1565C0]"
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -250,28 +147,41 @@ export default function EmailVerifyPage() {
           ))}
         </div>
 
-        <div style={styles.timer(seconds <= 0)}>
+        <div className={cn(
+          'text-xl font-bold mb-6 tabular-nums',
+          seconds <= 0 ? 'text-red-800' : 'text-green-600'
+        )}>
           남은 시간: {formatTimer(seconds)}
         </div>
 
-        <button
+        <Button
           type="submit"
-          style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
+          className={cn(
+            'w-full py-3.5 text-base font-bold rounded-lg mb-3',
+            loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-[#1565C0] hover:bg-[#1256A8] text-white'
+          )}
           disabled={loading}
         >
           {loading ? '확인 중...' : '인증 확인'}
-        </button>
+        </Button>
 
         <button
           type="button"
-          style={{ ...styles.resendBtn, ...(canResend ? {} : styles.resendDisabled) }}
+          className={cn(
+            'bg-transparent border-none text-sm font-semibold',
+            canResend ? 'text-[#1565C0] cursor-pointer underline' : 'text-gray-300 cursor-not-allowed no-underline'
+          )}
           onClick={handleResend}
           disabled={!canResend}
         >
           {canResend ? '인증코드 재전송' : '재전송 (시간 만료 후 가능)'}
         </button>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && (
+          <Alert variant="destructive" className="mt-4 bg-red-50 border-red-200">
+            <AlertDescription className="text-red-800 text-[13px]">{error}</AlertDescription>
+          </Alert>
+        )}
       </form>
       </div>
       <Footer />

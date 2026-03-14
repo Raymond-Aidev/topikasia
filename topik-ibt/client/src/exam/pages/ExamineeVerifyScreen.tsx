@@ -1,87 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useExamStore } from '../../store/examStore';
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-  },
-  card: {
-    width: 420,
-    padding: 40,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-    textAlign: 'center' as const,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 700 as const,
-    color: '#1565C0',
-    marginBottom: 32,
-  },
-  photo: {
-    width: 120,
-    height: 120,
-    borderRadius: '50%',
-    objectFit: 'cover' as const,
-    border: '3px solid #1565C0',
-    marginBottom: 20,
-  },
-  photoPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: '50%',
-    backgroundColor: '#E0E0E0',
-    border: '3px solid #1565C0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 48,
-    color: '#9E9E9E',
-    margin: '0 auto 20px',
-  },
-  infoRow: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: 32,
-    marginBottom: 12,
-  },
-  infoItem: {
-    textAlign: 'center' as const,
-  },
-  label: {
-    fontSize: 12,
-    color: '#757575',
-    marginBottom: 2,
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: 700 as const,
-    color: '#212121',
-  },
-  message: {
-    fontSize: 14,
-    color: '#424242',
-    margin: '24px 0',
-    lineHeight: 1.6,
-  },
-  button: {
-    width: '100%',
-    padding: '14px 0',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#fff',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-};
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
 
 export default function ExamineeVerifyScreen() {
   const navigate = useNavigate();
@@ -93,35 +13,46 @@ export default function ExamineeVerifyScreen() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.title}>본인 확인</div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 font-sans">
+      <Card className="w-[420px] p-10 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-center">
+        <CardContent className="p-0">
+          <div className="text-[22px] font-bold text-blue-800 mb-8">본인 확인</div>
 
-        {examinee.photoUrl ? (
-          <img src={examinee.photoUrl} alt="응시자 사진" style={styles.photo} />
-        ) : (
-          <div style={styles.photoPlaceholder}>👤</div>
-        )}
+          {examinee.photoUrl ? (
+            <img
+              src={examinee.photoUrl}
+              alt="응시자 사진"
+              className="w-[120px] h-[120px] rounded-full object-cover border-[3px] border-blue-800 mb-5 mx-auto"
+            />
+          ) : (
+            <div className="w-[120px] h-[120px] rounded-full bg-gray-200 border-[3px] border-blue-800 flex items-center justify-center text-5xl text-gray-400 mx-auto mb-5">
+              👤
+            </div>
+          )}
 
-        <div style={styles.infoRow}>
-          <div style={styles.infoItem}>
-            <div style={styles.label}>수험번호</div>
-            <div style={styles.value}>{examinee.registrationNumber}</div>
+          <div className="flex justify-center gap-8 mb-3">
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-0.5">수험번호</div>
+              <div className="text-lg font-bold text-gray-900">{examinee.registrationNumber}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-0.5">이름</div>
+              <div className="text-lg font-bold text-gray-900">{examinee.name}</div>
+            </div>
           </div>
-          <div style={styles.infoItem}>
-            <div style={styles.label}>이름</div>
-            <div style={styles.value}>{examinee.name}</div>
+
+          <div className="text-sm text-gray-700 my-6 leading-relaxed">
+            본인이 맞으면 아래에서 시험을 선택하세요.
           </div>
-        </div>
 
-        <div style={styles.message}>
-          본인이 맞으면 아래에서 시험을 선택하세요.
-        </div>
-
-        <button style={styles.button} onClick={() => navigate('/exam/select-set')}>
-          시험 선택하기
-        </button>
-      </div>
+          <Button
+            className="w-full py-3.5 text-base font-bold bg-blue-800 hover:bg-blue-900 rounded-lg h-auto"
+            onClick={() => navigate('/exam/select-set')}
+          >
+            시험 선택하기
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { adminApi } from '../../api/adminApi';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
 
 interface ExamSchedule {
   id: string;
@@ -42,25 +48,11 @@ const EMPTY_FORM: ScheduleForm = {
   status: 'OPEN',
 };
 
-const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }> = {
-  OPEN: { bg: '#dcfce7', color: '#166534', label: '접수중' },
-  CLOSED: { bg: '#fee2e2', color: '#991b1b', label: '마감' },
-  UPCOMING: { bg: '#dbeafe', color: '#1e40af', label: '예정' },
-  COMPLETED: { bg: '#f3f4f6', color: '#6b7280', label: '완료' },
-};
-
-const thStyle: React.CSSProperties = {
-  padding: '10px 16px', textAlign: 'left', fontSize: '13px', fontWeight: 600, color: '#374151',
-};
-const tdStyle: React.CSSProperties = {
-  padding: '10px 16px', fontSize: '14px',
-};
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 4, color: '#374151',
-};
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #d1d5db',
-  fontSize: 14, boxSizing: 'border-box' as const,
+const STATUS_MAP: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string; className?: string }> = {
+  OPEN: { variant: 'default', label: '접수중', className: 'bg-green-600' },
+  CLOSED: { variant: 'destructive', label: '마감' },
+  UPCOMING: { variant: 'secondary', label: '예정', className: 'bg-blue-100 text-blue-800' },
+  COMPLETED: { variant: 'outline', label: '완료' },
 };
 
 const ExamScheduleManagePage: React.FC = () => {
@@ -155,9 +147,9 @@ const ExamScheduleManagePage: React.FC = () => {
     }
   };
 
-  const StatusBadge = ({ status }: { status: string }) => {
-    const s = STATUS_COLORS[status] || { bg: '#f3f4f6', color: '#6b7280', label: status };
-    return <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, backgroundColor: s.bg, color: s.color }}>{s.label}</span>;
+  const StatusBadgeLocal = ({ status }: { status: string }) => {
+    const s = STATUS_MAP[status] || { variant: 'outline' as const, label: status };
+    return <Badge variant={s.variant} className={s.className}>{s.label}</Badge>;
   };
 
   const updateField = (field: keyof ScheduleForm, value: any) => {
@@ -166,161 +158,157 @@ const ExamScheduleManagePage: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>시험 일정 관리</h1>
-        <button onClick={openCreate}
-          style={{ padding: '8px 20px', borderRadius: 6, border: 'none', backgroundColor: '#2563eb', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-[22px] font-bold m-0">시험 일정 관리</h1>
+        <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-500 text-white">
           + 새 일정 등록
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div style={{ padding: '12px 16px', marginBottom: 16, borderRadius: 6, backgroundColor: '#fee2e2', color: '#991b1b', fontSize: 14 }}>{error}</div>
+        <div className="px-4 py-3 mb-4 rounded-md bg-red-100 text-red-800 text-sm">{error}</div>
       )}
 
       {loading ? (
-        <p style={{ color: '#6b7280' }}>로딩 중...</p>
+        <p className="text-gray-500">로딩 중...</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f9fafb' }}>
-              <th style={thStyle}>시험명</th>
-              <th style={thStyle}>회차</th>
-              <th style={thStyle}>유형</th>
-              <th style={thStyle}>시험일</th>
-              <th style={thStyle}>접수기간</th>
-              <th style={thStyle}>정원</th>
-              <th style={thStyle}>접수</th>
-              <th style={thStyle}>상태</th>
-              <th style={thStyle}>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules.length === 0 ? (
-              <tr><td colSpan={9} style={{ ...tdStyle, textAlign: 'center', color: '#9ca3af', padding: 40 }}>등록된 시험 일정이 없습니다.</td></tr>
-            ) : (
-              schedules.map(s => (
-                <tr key={s.id} style={{ borderTop: '1px solid #f3f4f6' }}>
-                  <td style={tdStyle}>
-                    <button onClick={() => openEdit(s)} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontWeight: 500, fontSize: 14, padding: 0 }}>
-                      {s.examName}
-                    </button>
-                  </td>
-                  <td style={{ ...tdStyle, color: '#6b7280' }}>{s.examRound || '-'}</td>
-                  <td style={tdStyle}>{s.examType}</td>
-                  <td style={{ ...tdStyle, fontSize: 13 }}>{new Date(s.examDate).toLocaleDateString('ko')}</td>
-                  <td style={{ ...tdStyle, fontSize: 12, color: '#6b7280' }}>
-                    {new Date(s.registrationStartAt).toLocaleDateString('ko')} ~ {new Date(s.registrationEndAt).toLocaleDateString('ko')}
-                  </td>
-                  <td style={tdStyle}>{s.maxCapacity === 9999 ? '무제한' : s.maxCapacity.toLocaleString()}</td>
-                  <td style={tdStyle}>{s.currentCount}</td>
-                  <td style={tdStyle}><StatusBadge status={s.status} /></td>
-                  <td style={tdStyle}>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button onClick={() => openEdit(s)}
-                        style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid #d1d5db', backgroundColor: '#fff', color: '#374151', fontSize: 12, cursor: 'pointer' }}>
-                        수정
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50">
+                <TableHead>시험명</TableHead>
+                <TableHead>회차</TableHead>
+                <TableHead>유형</TableHead>
+                <TableHead>시험일</TableHead>
+                <TableHead>접수기간</TableHead>
+                <TableHead>정원</TableHead>
+                <TableHead>접수</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>관리</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {schedules.length === 0 ? (
+                <TableRow><TableCell colSpan={9} className="text-center text-gray-400 py-10">등록된 시험 일정이 없습니다.</TableCell></TableRow>
+              ) : (
+                schedules.map(s => (
+                  <TableRow key={s.id}>
+                    <TableCell>
+                      <button onClick={() => openEdit(s)} className="bg-transparent border-none text-blue-600 cursor-pointer font-medium text-sm p-0">
+                        {s.examName}
                       </button>
-                      <button onClick={() => handleDelete(s.id, s.examName)}
-                        style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid #fca5a5', backgroundColor: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer' }}>
-                        삭제
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                    </TableCell>
+                    <TableCell className="text-gray-500">{s.examRound || '-'}</TableCell>
+                    <TableCell>{s.examType}</TableCell>
+                    <TableCell className="text-[13px]">{new Date(s.examDate).toLocaleDateString('ko')}</TableCell>
+                    <TableCell className="text-xs text-gray-500">
+                      {new Date(s.registrationStartAt).toLocaleDateString('ko')} ~ {new Date(s.registrationEndAt).toLocaleDateString('ko')}
+                    </TableCell>
+                    <TableCell>{s.maxCapacity === 9999 ? '무제한' : s.maxCapacity.toLocaleString()}</TableCell>
+                    <TableCell>{s.currentCount}</TableCell>
+                    <TableCell><StatusBadgeLocal status={s.status} /></TableCell>
+                    <TableCell>
+                      <div className="flex gap-1.5">
+                        <Button variant="outline" size="xs" onClick={() => openEdit(s)}>
+                          수정
+                        </Button>
+                        <Button variant="outline" size="xs" onClick={() => handleDelete(s.id, s.examName)}
+                          className="border-red-300 text-red-600">
+                          삭제
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       {/* Create / Edit Modal */}
-      {showModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ width: '100%', maxWidth: 560, padding: 32, backgroundColor: '#fff', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxHeight: '85vh', overflowY: 'auto' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginTop: 0, marginBottom: 20 }}>
-              {editId ? '시험 일정 수정' : '새 시험 일정 등록'}
-            </h2>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-[560px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editId ? '시험 일정 수정' : '새 시험 일정 등록'}</DialogTitle>
+          </DialogHeader>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label style={labelStyle}>시험명 *</label>
-                <input value={form.examName} onChange={e => updateField('examName', e.target.value)}
-                  placeholder="예: 제106회 TOPIK" style={inputStyle} />
+          <div className="flex flex-col gap-4">
+            <div className="space-y-1">
+              <Label>시험명 *</Label>
+              <Input value={form.examName} onChange={e => updateField('examName', e.target.value)}
+                placeholder="예: 제106회 TOPIK" />
+            </div>
+
+            <div className="flex gap-3">
+              <div className="flex-1 space-y-1">
+                <Label>회차</Label>
+                <Input type="number" value={form.examRound} onChange={e => updateField('examRound', parseInt(e.target.value) || 0)} />
               </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>회차</label>
-                  <input type="number" value={form.examRound} onChange={e => updateField('examRound', parseInt(e.target.value) || 0)}
-                    style={inputStyle} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>시험유형 *</label>
-                  <select value={form.examType} onChange={e => updateField('examType', e.target.value)} style={inputStyle}>
-                    <option value="TOPIK_I">TOPIK I</option>
-                    <option value="TOPIK_II">TOPIK II</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label style={labelStyle}>시험일 *</label>
-                <input type="datetime-local" value={form.examDate} onChange={e => updateField('examDate', e.target.value)}
-                  style={inputStyle} />
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>접수 시작일</label>
-                  <input type="datetime-local" value={form.registrationStartAt}
-                    onChange={e => updateField('registrationStartAt', e.target.value)} style={inputStyle} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>접수 마감일</label>
-                  <input type="datetime-local" value={form.registrationEndAt}
-                    onChange={e => updateField('registrationEndAt', e.target.value)} style={inputStyle} />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>정원</label>
-                  <input type="number" value={form.maxCapacity} onChange={e => updateField('maxCapacity', parseInt(e.target.value) || 0)}
-                    style={inputStyle} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>상태</label>
-                  <select value={form.status} onChange={e => updateField('status', e.target.value)} style={inputStyle}>
-                    <option value="OPEN">접수중</option>
-                    <option value="CLOSED">마감</option>
-                    <option value="UPCOMING">예정</option>
-                    <option value="COMPLETED">완료</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label style={labelStyle}>시험장 (JSON)</label>
-                <textarea value={form.venues} onChange={e => updateField('venues', e.target.value)}
-                  placeholder='[{"name": "서울시험장", "address": "..."}]'
-                  style={{ ...inputStyle, minHeight: 80, resize: 'vertical', fontFamily: 'monospace', fontSize: 13 }} />
+              <div className="flex-1 space-y-1">
+                <Label>시험유형 *</Label>
+                <select value={form.examType} onChange={e => updateField('examType', e.target.value)}
+                  className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm">
+                  <option value="TOPIK_I">TOPIK I</option>
+                  <option value="TOPIK_II">TOPIK II</option>
+                </select>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, marginTop: 24 }}>
-              <button onClick={handleSave} disabled={saving}
-                style={{ flex: 1, padding: '10px 0', borderRadius: 6, border: 'none', backgroundColor: '#2563eb', color: '#fff', fontSize: 14, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
-                {saving ? '저장 중...' : (editId ? '수정' : '등록')}
-              </button>
-              <button onClick={() => setShowModal(false)}
-                style={{ flex: 1, padding: '10px 0', borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: 14, cursor: 'pointer' }}>
-                취소
-              </button>
+            <div className="space-y-1">
+              <Label>시험일 *</Label>
+              <Input type="datetime-local" value={form.examDate} onChange={e => updateField('examDate', e.target.value)} />
+            </div>
+
+            <div className="flex gap-3">
+              <div className="flex-1 space-y-1">
+                <Label>접수 시작일</Label>
+                <Input type="datetime-local" value={form.registrationStartAt}
+                  onChange={e => updateField('registrationStartAt', e.target.value)} />
+              </div>
+              <div className="flex-1 space-y-1">
+                <Label>접수 마감일</Label>
+                <Input type="datetime-local" value={form.registrationEndAt}
+                  onChange={e => updateField('registrationEndAt', e.target.value)} />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <div className="flex-1 space-y-1">
+                <Label>정원</Label>
+                <Input type="number" value={form.maxCapacity} onChange={e => updateField('maxCapacity', parseInt(e.target.value) || 0)} />
+              </div>
+              <div className="flex-1 space-y-1">
+                <Label>상태</Label>
+                <select value={form.status} onChange={e => updateField('status', e.target.value)}
+                  className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm">
+                  <option value="OPEN">접수중</option>
+                  <option value="CLOSED">마감</option>
+                  <option value="UPCOMING">예정</option>
+                  <option value="COMPLETED">완료</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label>시험장 (JSON)</Label>
+              <textarea value={form.venues} onChange={e => updateField('venues', e.target.value)}
+                placeholder='[{"name": "서울시험장", "address": "..."}]'
+                className="w-full px-3 py-2 rounded-md border border-input text-sm min-h-[80px] resize-y font-mono text-[13px]" />
             </div>
           </div>
-        </div>
-      )}
+
+          <DialogFooter>
+            <Button onClick={handleSave} disabled={saving}
+              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white">
+              {saving ? '저장 중...' : (editId ? '수정' : '등록')}
+            </Button>
+            <Button variant="outline" className="flex-1" onClick={() => setShowModal(false)}>
+              취소
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

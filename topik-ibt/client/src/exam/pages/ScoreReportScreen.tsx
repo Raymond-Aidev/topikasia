@@ -8,6 +8,8 @@ import { examApi } from '../../api/examApi';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 interface SectionScore {
   raw: number;
@@ -62,9 +64,11 @@ export default function ScoreReportScreen() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+      <div className={cn('min-h-screen', compact ? `pt-[${GNB_HEIGHT_MOBILE}px]` : `pt-[${GNB_HEIGHT}px]`)}
+        style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
         <GlobalNavigationBar />
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)`, color: '#9ca3af' }}>
+        <div className="flex justify-center items-center text-gray-400"
+          style={{ height: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)` }}>
           불러오는 중...
         </div>
         <Footer />
@@ -74,17 +78,19 @@ export default function ScoreReportScreen() {
 
   if (error || scores.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+      <div className="min-h-screen bg-gray-50"
+        style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
         <GlobalNavigationBar />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)` }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>-</div>
-          <div style={{ fontSize: 18, color: '#6b7280', marginBottom: 24 }}>{error || '공개된 성적이 없습니다'}</div>
-          <button
+        <div className="flex flex-col items-center justify-center"
+          style={{ minHeight: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)` }}>
+          <div className="text-5xl mb-4">-</div>
+          <div className="text-lg text-gray-500 mb-6">{error || '공개된 성적이 없습니다'}</div>
+          <Button
             onClick={() => navigate('/registration')}
-            style={{ padding: '10px 24px', borderRadius: 8, border: 'none', backgroundColor: '#2563eb', color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+            className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-[15px] font-semibold h-auto"
           >
             돌아가기
-          </button>
+          </Button>
         </div>
         <Footer />
       </div>
@@ -92,46 +98,42 @@ export default function ScoreReportScreen() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div className="min-h-screen bg-[#f0f4f8]"
+      style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
       {scores.map(score => (
-        <div key={score.id} style={{
-          maxWidth: 600, margin: '0 auto 32px', backgroundColor: '#fff', borderRadius: 16,
-          boxShadow: '0 2px 12px rgba(0,0,0,0.08)', overflow: 'hidden',
-        }}>
+        <div key={score.id} className="max-w-[600px] mx-auto mb-8 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] overflow-hidden">
           {/* Header */}
-          <div style={{
-            backgroundColor: '#1565C0', color: '#fff', padding: isMobile ? '20px 16px' : '28px 32px', textAlign: 'center',
-          }}>
-            <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 4 }}>한국어능력시험</div>
-            <div style={{ fontSize: 24, fontWeight: 800 }}>TOPIK 성적표</div>
-            <div style={{ fontSize: 13, marginTop: 8, opacity: 0.7 }}>
+          <div className={cn('bg-blue-800 text-white text-center', isMobile ? 'px-4 py-5' : 'px-8 py-7')}>
+            <div className="text-sm opacity-80 mb-1">한국어능력시험</div>
+            <div className="text-2xl font-extrabold">TOPIK 성적표</div>
+            <div className="text-[13px] mt-2 opacity-70">
               Test of Proficiency in Korean
             </div>
           </div>
 
           {/* Exam Info */}
-          <div style={{ padding: isMobile ? '16px' : '24px 32px', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px 24px', fontSize: 14 }}>
+          <div className={cn('border-b border-gray-200', isMobile ? 'p-4' : 'px-8 py-6')}>
+            <div className={cn('grid gap-3 text-sm', isMobile ? 'grid-cols-1 gap-y-3' : 'grid-cols-2 gap-x-6')}>
               <div>
-                <span style={{ color: '#6b7280' }}>시험명</span>
-                <div style={{ fontWeight: 600, marginTop: 2 }}>{score.examSetName}</div>
+                <span className="text-gray-500">시험명</span>
+                <div className="font-semibold mt-0.5">{score.examSetName}</div>
               </div>
               <div>
-                <span style={{ color: '#6b7280' }}>시험유형</span>
-                <div style={{ fontWeight: 600, marginTop: 2 }}>
+                <span className="text-gray-500">시험유형</span>
+                <div className="font-semibold mt-0.5">
                   {score.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#6b7280' }}>시험일</span>
-                <div style={{ fontWeight: 600, marginTop: 2 }}>
+                <span className="text-gray-500">시험일</span>
+                <div className="font-semibold mt-0.5">
                   {new Date(score.examDate).toLocaleDateString('ko-KR')}
                 </div>
               </div>
               <div>
-                <span style={{ color: '#6b7280' }}>성적공개일</span>
-                <div style={{ fontWeight: 600, marginTop: 2 }}>
+                <span className="text-gray-500">성적공개일</span>
+                <div className="font-semibold mt-0.5">
                   {new Date(score.publishedAt).toLocaleDateString('ko-KR')}
                 </div>
               </div>
@@ -139,17 +141,17 @@ export default function ScoreReportScreen() {
           </div>
 
           {/* Section Scores */}
-          <div style={{ padding: isMobile ? '16px' : '24px 32px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
+          <div className={cn(isMobile ? 'p-4' : 'px-8 py-6')}>
+            <table className="w-full border-collapse mb-5">
               <thead>
                 <tr>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#374151', borderBottom: '2px solid #e5e7eb' }}>
+                  <th className="px-3 py-2.5 text-left text-[13px] font-semibold text-gray-700 border-b-2 border-gray-200">
                     영역
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#374151', borderBottom: '2px solid #e5e7eb' }}>
+                  <th className="px-3 py-2.5 text-center text-[13px] font-semibold text-gray-700 border-b-2 border-gray-200">
                     점수
                   </th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#374151', borderBottom: '2px solid #e5e7eb' }}>
+                  <th className="px-3 py-2.5 text-center text-[13px] font-semibold text-gray-700 border-b-2 border-gray-200">
                     만점
                   </th>
                 </tr>
@@ -157,13 +159,13 @@ export default function ScoreReportScreen() {
               <tbody>
                 {Object.entries(score.sectionScores).map(([section, data]) => (
                   <tr key={section}>
-                    <td style={{ padding: '12px', fontSize: 15, fontWeight: 500, borderBottom: '1px solid #f3f4f6' }}>
+                    <td className="p-3 text-[15px] font-medium border-b border-gray-100">
                       {SECTION_LABELS[section] || section}
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center', fontSize: 18, fontWeight: 700, color: '#1565C0', borderBottom: '1px solid #f3f4f6' }}>
+                    <td className="p-3 text-center text-lg font-bold text-blue-800 border-b border-gray-100">
                       {data.raw}
                     </td>
-                    <td style={{ padding: '12px', textAlign: 'center', fontSize: 14, color: '#9ca3af', borderBottom: '1px solid #f3f4f6' }}>
+                    <td className="p-3 text-center text-sm text-gray-400 border-b border-gray-100">
                       {data.maxScore}
                     </td>
                   </tr>
@@ -172,23 +174,20 @@ export default function ScoreReportScreen() {
             </table>
 
             {/* Total & Grade */}
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '16px 20px', backgroundColor: '#f0f4f8', borderRadius: 12,
-            }}>
+            <div className="flex justify-between items-center px-5 py-4 bg-[#f0f4f8] rounded-xl">
               <div>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>총점</div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#111827' }}>
+                <div className="text-[13px] text-gray-500">총점</div>
+                <div className="text-[28px] font-extrabold text-gray-900">
                   {score.totalScore}
-                  <span style={{ fontSize: 16, fontWeight: 400, color: '#9ca3af' }}>/{score.maxTotalScore}</span>
+                  <span className="text-base font-normal text-gray-400">/{score.maxTotalScore}</span>
                 </div>
               </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 13, color: '#6b7280' }}>TOPIK 등급</div>
-                <div style={{
-                  fontSize: 32, fontWeight: 800,
-                  color: score.grade ? '#1565C0' : '#d1d5db',
-                }}>
+              <div className="text-center">
+                <div className="text-[13px] text-gray-500">TOPIK 등급</div>
+                <div className={cn(
+                  'text-[32px] font-extrabold',
+                  score.grade ? 'text-blue-800' : 'text-gray-300'
+                )}>
                   {score.grade ? GRADE_LABELS[score.grade] : '미달'}
                 </div>
               </div>
@@ -198,25 +197,20 @@ export default function ScoreReportScreen() {
       ))}
 
       {/* Actions */}
-      <div style={{ maxWidth: 600, margin: '0 auto', display: 'flex', gap: 12, justifyContent: 'center' }}>
-        <button
+      <div className="max-w-[600px] mx-auto flex gap-3 justify-center">
+        <Button
           onClick={handlePrint}
-          style={{
-            padding: '12px 32px', borderRadius: 8, border: 'none',
-            backgroundColor: '#1565C0', color: '#fff', fontSize: 15, fontWeight: 600, cursor: 'pointer',
-          }}
+          className="px-8 py-3 rounded-lg bg-blue-800 hover:bg-blue-900 text-[15px] font-semibold h-auto"
         >
           인쇄하기
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => navigate('/login')}
-          style={{
-            padding: '12px 32px', borderRadius: 8, border: '1px solid #d1d5db',
-            backgroundColor: '#fff', color: '#374151', fontSize: 15, fontWeight: 600, cursor: 'pointer',
-          }}
+          className="px-8 py-3 rounded-lg border-gray-300 text-gray-700 text-[15px] font-semibold h-auto"
         >
           돌아가기
-        </button>
+        </Button>
       </div>
       <Footer />
     </div>

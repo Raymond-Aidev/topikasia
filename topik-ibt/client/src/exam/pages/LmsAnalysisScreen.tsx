@@ -4,6 +4,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface TypeStats {
@@ -32,7 +36,7 @@ export default function LmsAnalysisScreen() {
       .finally(() => setLoading(false));
   }, [sessionId, navigate]);
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#9ca3af' }}>분석 중...</div>;
+  if (loading) return <div className="flex justify-center items-center h-screen text-gray-400">분석 중...</div>;
   if (!data) return null;
 
   const entries = Object.entries(data.typeBreakdown).sort((a, b) => b[1].accuracy - a[1].accuracy);
@@ -46,85 +50,109 @@ export default function LmsAnalysisScreen() {
     return '#dc2626';
   };
 
+  const getAccuracyTextClass = (accuracy: number) => {
+    if (accuracy >= 70) return 'text-green-600';
+    if (accuracy >= 50) return 'text-amber-500';
+    return 'text-red-600';
+  };
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', fontFamily: 'sans-serif' }}>
+    <div className="min-h-screen bg-slate-100 font-sans">
       {/* Header */}
-      <div style={{ backgroundColor: '#1565C0', color: '#fff', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 16, fontWeight: 700 }}>강점/약점 분석</div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => navigate(`/lms/review/${sessionId}`)} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)', backgroundColor: 'transparent', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+      <div className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
+        <div className="text-base font-bold">강점/약점 분석</div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-white/40 bg-transparent text-white hover:bg-white/10"
+            onClick={() => navigate(`/lms/review/${sessionId}`)}
+          >
             복습으로
-          </button>
-          <button onClick={() => navigate('/lms')} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)', backgroundColor: 'transparent', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-white/40 bg-transparent text-white hover:bg-white/10"
+            onClick={() => navigate('/lms')}
+          >
             목록으로
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 20px' }}>
+      <div className="max-w-[800px] mx-auto px-5 py-8">
         {/* Overall score */}
-        <div style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, marginBottom: 24, textAlign: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 4 }}>전체 정답률</div>
-          <div style={{ fontSize: 48, fontWeight: 800, color: getAccuracyColor(overallAccuracy) }}>
-            {overallAccuracy}%
-          </div>
-          <div style={{ fontSize: 14, color: '#9ca3af' }}>
-            {overallCorrect} / {overallTotal} 문항 정답
-          </div>
-        </div>
+        <Card className="mb-6 text-center shadow-sm">
+          <CardContent>
+            <div className="text-[13px] text-gray-500 mb-1">전체 정답률</div>
+            <div className={cn('text-5xl font-extrabold', getAccuracyTextClass(overallAccuracy))}>
+              {overallAccuracy}%
+            </div>
+            <div className="text-sm text-gray-400">
+              {overallCorrect} / {overallTotal} 문항 정답
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Strengths & Weaknesses */}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-          <div style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#16a34a', marginBottom: 12 }}>강점 유형 (70%+)</div>
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1 bg-green-50 rounded-xl p-5">
+            <div className="text-sm font-bold text-green-600 mb-3">강점 유형 (70%+)</div>
             {data.strengths.length > 0 ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div className="flex flex-wrap gap-2">
                 {data.strengths.map(s => (
-                  <span key={s} style={{ padding: '4px 12px', borderRadius: 20, backgroundColor: '#dcfce7', color: '#16a34a', fontSize: 13, fontWeight: 600 }}>{s}</span>
+                  <Badge key={s} variant="secondary" className="bg-green-100 text-green-600 font-semibold">
+                    {s}
+                  </Badge>
                 ))}
               </div>
             ) : (
-              <div style={{ fontSize: 13, color: '#9ca3af' }}>해당 유형이 없습니다</div>
+              <div className="text-[13px] text-gray-400">해당 유형이 없습니다</div>
             )}
           </div>
-          <div style={{ flex: 1, backgroundColor: '#fef2f2', borderRadius: 12, padding: 20 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#dc2626', marginBottom: 12 }}>약점 유형 (50% 미만)</div>
+          <div className="flex-1 bg-red-50 rounded-xl p-5">
+            <div className="text-sm font-bold text-red-600 mb-3">약점 유형 (50% 미만)</div>
             {data.weaknesses.length > 0 ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div className="flex flex-wrap gap-2">
                 {data.weaknesses.map(w => (
-                  <span key={w} style={{ padding: '4px 12px', borderRadius: 20, backgroundColor: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600 }}>{w}</span>
+                  <Badge key={w} variant="secondary" className="bg-red-50 text-red-600 font-semibold">
+                    {w}
+                  </Badge>
                 ))}
               </div>
             ) : (
-              <div style={{ fontSize: 13, color: '#9ca3af' }}>해당 유형이 없습니다</div>
+              <div className="text-[13px] text-gray-400">해당 유형이 없습니다</div>
             )}
           </div>
         </div>
 
         {/* Type breakdown chart */}
-        <div style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 20 }}>유형별 정답률</div>
-          {entries.length === 0 ? (
-            <div style={{ fontSize: 14, color: '#9ca3af', textAlign: 'center', padding: 20 }}>분석할 데이터가 없습니다</div>
-          ) : (
-            <ResponsiveContainer width="100%" height={entries.length * 50 + 20}>
-              <BarChart
-                data={entries.map(([type, stats]) => ({ name: type, accuracy: stats.accuracy, correct: stats.correct, total: stats.total }))}
-                layout="vertical"
-                margin={{ top: 0, right: 40, left: 0, bottom: 0 }}
-              >
-                <XAxis type="number" domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} fontSize={12} />
-                <YAxis type="category" dataKey="name" width={120} fontSize={13} tick={{ fill: '#374151', fontWeight: 600 }} />
-                <Tooltip formatter={(value: any, _name: any, props: any) => [`${value}% (${props.payload.correct}/${props.payload.total})`, '정답률']} />
-                <Bar dataKey="accuracy" barSize={20} radius={[0, 4, 4, 0]} label={{ position: 'right', formatter: (v: any) => `${v}%`, fontSize: 12, fill: '#374151' }}>
-                  {entries.map(([type, stats]) => (
-                    <Cell key={type} fill={getAccuracyColor(stats.accuracy)} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+        <Card className="shadow-sm">
+          <CardContent>
+            <div className="text-base font-bold text-gray-900 mb-5">유형별 정답률</div>
+            {entries.length === 0 ? (
+              <div className="text-sm text-gray-400 text-center py-5">분석할 데이터가 없습니다</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={entries.length * 50 + 20}>
+                <BarChart
+                  data={entries.map(([type, stats]) => ({ name: type, accuracy: stats.accuracy, correct: stats.correct, total: stats.total }))}
+                  layout="vertical"
+                  margin={{ top: 0, right: 40, left: 0, bottom: 0 }}
+                >
+                  <XAxis type="number" domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} fontSize={12} />
+                  <YAxis type="category" dataKey="name" width={120} fontSize={13} tick={{ fill: '#374151', fontWeight: 600 }} />
+                  <Tooltip formatter={(value: any, _name: any, props: any) => [`${value}% (${props.payload.correct}/${props.payload.total})`, '정답률']} />
+                  <Bar dataKey="accuracy" barSize={20} radius={[0, 4, 4, 0]} label={{ position: 'right', formatter: (v: any) => `${v}%`, fontSize: 12, fill: '#374151' }}>
+                    {entries.map(([type, stats]) => (
+                      <Cell key={type} fill={getAccuracyColor(stats.accuracy)} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

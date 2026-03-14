@@ -10,6 +10,8 @@
  */
 import { useState, useEffect } from 'react';
 import { useResponsive } from '../hooks/useResponsive';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 import LegalModal from './LegalModal';
 
 const CONSENT_KEY = 'cookieConsent';
@@ -42,44 +44,23 @@ export default function CookieConsent() {
 
   return (
     <>
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1500,
-        backgroundColor: '#1A237E', color: '#FFFFFF',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.2)',
-        fontFamily: 'sans-serif',
-        animation: 'slideUp 0.3s ease-out',
-      }}>
-        <style>{`
-          @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-          }
-        `}</style>
-
-        <div style={{
-          maxWidth: 1200, margin: '0 auto',
-          padding: isMobile ? '20px 16px' : '20px 24px',
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'stretch' : 'center',
-          gap: isMobile ? 16 : 24,
-        }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[1500] bg-primary text-primary-foreground shadow-[0_-4px_20px_rgba(0,0,0,0.2)] animate-in slide-in-from-bottom duration-300">
+        <div className={cn(
+          "max-w-[1200px] mx-auto flex",
+          isMobile ? "flex-col items-stretch gap-4 px-4 py-5" : "flex-row items-center gap-6 px-6 py-5"
+        )}>
           {/* 안내 텍스트 */}
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: isMobile ? 14 : 15, fontWeight: 700, marginBottom: 6 }}>
+          <div className="flex-1">
+            <div className={cn("font-bold mb-1.5", isMobile ? "text-sm" : "text-[15px]")}>
               쿠키 사용 안내
             </div>
-            <div style={{ fontSize: isMobile ? 12 : 13, color: '#B0BEC5', lineHeight: 1.6 }}>
+            <div className={cn("text-primary-foreground/70 leading-relaxed", isMobile ? "text-xs" : "text-[13px]")}>
               TOPIK Asia는 서비스 이용 편의와 로그인 세션 유지를 위해 필수 쿠키를 사용하며,
               서비스 개선을 위한 분석 쿠키를 선택적으로 사용합니다.
               자세한 내용은{' '}
               <button
                 onClick={() => setModalType('privacy')}
-                style={{
-                  color: '#90CAF9', background: 'none', border: 'none',
-                  padding: 0, cursor: 'pointer', textDecoration: 'underline',
-                  fontSize: 'inherit', fontFamily: 'inherit',
-                }}
+                className="text-accent/80 bg-transparent border-none p-0 cursor-pointer underline text-inherit"
               >
                 개인정보처리방침
               </button>
@@ -88,35 +69,20 @@ export default function CookieConsent() {
           </div>
 
           {/* 버튼 영역 */}
-          <div style={{
-            display: 'flex', gap: 10, flexShrink: 0,
-            flexDirection: isMobile ? 'column' : 'row',
-          }}>
-            <button
+          <div className={cn("flex gap-2.5 shrink-0", isMobile ? "flex-col" : "flex-row")}>
+            <Button
+              variant="outline"
+              className="border-white/30 bg-transparent text-white hover:bg-white/10 whitespace-nowrap"
               onClick={handleAcceptEssential}
-              style={{
-                padding: isMobile ? '10px 16px' : '10px 20px',
-                borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.3)',
-                backgroundColor: 'transparent', color: '#FFFFFF',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
             >
               필수만 허용
-            </button>
-            <button
+            </Button>
+            <Button
+              className="bg-white text-primary hover:bg-white/90 font-bold whitespace-nowrap"
               onClick={handleAcceptAll}
-              style={{
-                padding: isMobile ? '10px 16px' : '10px 20px',
-                borderRadius: 8, border: 'none',
-                backgroundColor: '#FFFFFF', color: '#1A237E',
-                fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
             >
               모두 허용
-            </button>
+            </Button>
           </div>
         </div>
       </div>

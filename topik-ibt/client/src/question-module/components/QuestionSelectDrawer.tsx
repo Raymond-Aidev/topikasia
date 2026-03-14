@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import type { QuestionBankItem } from '../api/questionBankApi';
 import { fetchQuestionsFromBank } from '../api/questionBankMock';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Checkbox } from '../../components/ui/checkbox';
 import QuestionPreview from './QuestionPreview';
 
 interface Props {
@@ -55,7 +58,6 @@ const QuestionSelectDrawer: React.FC<Props> = ({
   };
 
   const handleConfirm = () => {
-    // 선택된 항목 중 현재 로드된 아이템 + 이전에 선택했지만 필터에 걸린 항목 유지
     const allItems = [...items, ...initialSelected];
     const uniqueMap = new Map(allItems.map((q) => [q.bankId, q]));
     const selected = Array.from(selectedIds)
@@ -67,50 +69,24 @@ const QuestionSelectDrawer: React.FC<Props> = ({
   return (
     <>
       <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1000,
-          display: 'flex',
-          justifyContent: 'flex-end',
-          background: 'rgba(0,0,0,0.35)',
-        }}
+        className="fixed inset-0 z-[1000] flex justify-end bg-black/35"
         onClick={onCancel}
       >
         <div
-          style={{
-            width: 520,
-            height: '100%',
-            background: '#fff',
-            boxShadow: '-4px 0 24px rgba(0,0,0,0.12)',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
+          className="w-[520px] h-full bg-white shadow-[-4px_0_24px_rgba(0,0,0,0.12)] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div style={{ padding: '20px 24px 12px', borderBottom: '1px solid #e0e0e0' }}>
-            <h3 style={{ margin: 0, fontSize: 18 }}>{typeName} 문제 선택</h3>
+          <div className="px-6 pt-5 pb-3 border-b border-gray-300">
+            <h3 className="m-0 text-lg">{typeName} 문제 선택</h3>
           </div>
 
           {/* Filters */}
-          <div
-            style={{
-              padding: '12px 24px',
-              display: 'flex',
-              gap: 10,
-              borderBottom: '1px solid #f0f0f0',
-            }}
-          >
+          <div className="px-6 py-3 flex gap-2.5 border-b border-gray-100">
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              style={{
-                padding: '6px 10px',
-                borderRadius: 6,
-                border: '1px solid #ccc',
-                fontSize: 14,
-              }}
+              className="px-2.5 py-1.5 rounded-md border border-gray-300 text-sm"
             >
               {DIFFICULTY_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -118,52 +94,39 @@ const QuestionSelectDrawer: React.FC<Props> = ({
                 </option>
               ))}
             </select>
-            <input
+            <Input
               type="text"
               placeholder="키워드 검색..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              style={{
-                flex: 1,
-                padding: '6px 10px',
-                borderRadius: 6,
-                border: '1px solid #ccc',
-                fontSize: 14,
-              }}
+              className="flex-1"
             />
           </div>
 
           {/* List */}
-          <div style={{ flex: 1, overflow: 'auto', padding: '8px 24px' }}>
+          <div className="flex-1 overflow-auto px-6 py-2">
             {loading ? (
-              <p style={{ color: '#888', textAlign: 'center', marginTop: 40 }}>
+              <p className="text-gray-400 text-center mt-10">
                 불러오는 중...
               </p>
             ) : items.length === 0 ? (
-              <p style={{ color: '#888', textAlign: 'center', marginTop: 40 }}>
+              <p className="text-gray-400 text-center mt-10">
                 문제가 없습니다.
               </p>
             ) : (
               items.map((item) => (
                 <div
                   key={item.bankId}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 10,
-                    padding: '10px 0',
-                    borderBottom: '1px solid #f5f5f5',
-                  }}
+                  className="flex items-start gap-2.5 py-2.5 border-b border-gray-100"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selectedIds.has(item.bankId)}
-                    onChange={() => toggle(item.bankId)}
-                    style={{ marginTop: 3 }}
+                    onCheckedChange={() => toggle(item.bankId)}
+                    className="mt-0.5"
                   />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, lineHeight: 1.5 }}>{item.previewText}</div>
-                    <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                  <div className="flex-1">
+                    <div className="text-sm leading-relaxed">{item.previewText}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">
                       난이도:{' '}
                       {item.difficulty === 'EASY'
                         ? '하'
@@ -173,66 +136,30 @@ const QuestionSelectDrawer: React.FC<Props> = ({
                       | {item.tags.join(', ')}
                     </div>
                   </div>
-                  <button
+                  <Button
+                    variant="outline"
+                    size="xs"
                     onClick={() => setPreviewId(item.bankId)}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: 4,
-                      border: '1px solid #ccc',
-                      background: '#fff',
-                      fontSize: 12,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                    }}
                   >
                     미리보기
-                  </button>
+                  </Button>
                 </div>
               ))
             )}
           </div>
 
           {/* Footer */}
-          <div
-            style={{
-              padding: '16px 24px',
-              borderTop: '1px solid #e0e0e0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <span style={{ fontSize: 14, color: '#555' }}>
+          <div className="px-6 py-4 border-t border-gray-300 flex items-center justify-between">
+            <span className="text-sm text-gray-500">
               {items.length}개 중 {selectedIds.size}개 선택됨
             </span>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                onClick={onCancel}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: 6,
-                  border: '1px solid #ccc',
-                  background: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                }}
-              >
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onCancel}>
                 취소
-              </button>
-              <button
-                onClick={handleConfirm}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: 6,
-                  border: 'none',
-                  background: '#1a73e8',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                }}
-              >
+              </Button>
+              <Button onClick={handleConfirm}>
                 선택 완료
-              </button>
+              </Button>
             </div>
           </div>
         </div>

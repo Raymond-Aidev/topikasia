@@ -17,6 +17,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { QuestionBankItem } from '../api/questionBankApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
 
 // ─── SortableItem ────────────────────────────────────────────
 
@@ -34,83 +37,47 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, index, onRemove, onMo
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.bankId });
 
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '8px 12px',
-    marginBottom: 4,
-    background: '#fff',
-    border: '1px solid #e0e0e0',
-    borderRadius: 6,
-    fontSize: 13,
-  };
-
   return (
-    <div ref={setNodeRef} style={style}>
-      <span {...attributes} {...listeners} style={{ cursor: 'grab', userSelect: 'none' }}>
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'flex items-center gap-2 px-3 py-2 mb-1 bg-white border border-gray-300 rounded-md text-[13px]',
+        isDragging && 'opacity-50'
+      )}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+    >
+      <span {...attributes} {...listeners} className="cursor-grab select-none">
         ⠿
       </span>
-      <span style={{ color: '#888', minWidth: 24 }}>{index + 1}</span>
-      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span className="text-gray-400 min-w-[24px]">{index + 1}</span>
+      <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
         {item.previewText}
       </span>
-      <span
-        style={{
-          fontSize: 11,
-          padding: '2px 6px',
-          borderRadius: 4,
-          background: '#f0f0f0',
-          color: '#666',
-        }}
-      >
+      <Badge variant="secondary" className="text-[11px] bg-gray-100 text-gray-500">
         {item.typeName}
-      </span>
+      </Badge>
       {hasModelAnswer && (
-        <span
-          style={{
-            fontSize: 10,
-            padding: '2px 6px',
-            borderRadius: 4,
-            background: '#e6f4ea',
-            color: '#137333',
-            fontWeight: 600,
-          }}
-        >
+        <Badge variant="secondary" className="text-[10px] bg-green-50 text-green-700 font-semibold">
           모범답안
-        </span>
+        </Badge>
       )}
       {onModelAnswer && WRITING_TYPES.includes(item.typeCode) && (
-        <button
+        <Button
+          variant="outline"
+          size="xs"
           onClick={(e) => { e.stopPropagation(); onModelAnswer(item); }}
-          style={{
-            padding: '2px 8px',
-            borderRadius: 4,
-            border: '1px solid #7c4dff',
-            background: hasModelAnswer ? '#ede7f6' : '#fff',
-            color: '#7c4dff',
-            cursor: 'pointer',
-            fontSize: 11,
-            whiteSpace: 'nowrap',
-          }}
+          className={cn(
+            'text-[11px] border-purple-500 text-purple-500 whitespace-nowrap',
+            hasModelAnswer && 'bg-purple-50'
+          )}
           title="모범답안 설정"
         >
           모범답안
-        </button>
+        </Button>
       )}
       <button
         onClick={onRemove}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: '#d93025',
-          cursor: 'pointer',
-          fontSize: 16,
-          padding: '0 4px',
-        }}
+        className="bg-transparent border-none text-red-600 cursor-pointer text-base px-1"
         title="제거"
       >
         ×
@@ -172,31 +139,22 @@ const ExamSetComposer: React.FC<Props> = ({
   const available = poolItems.filter((q) => !setItemIds.has(q.bankId));
 
   return (
-    <div style={{ marginBottom: 32 }}>
-      <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>
+    <div className="mb-8">
+      <h3 className="m-0 mb-3 text-base">
         {sectionLabel}{' '}
-        <span style={{ fontWeight: 400, fontSize: 14, color: '#555' }}>
+        <span className="font-normal text-sm text-gray-500">
           현재: {setItems.length} / {targetCount} 문항
         </span>
       </h3>
 
-      <div style={{ display: 'flex', gap: 16 }}>
+      <div className="flex gap-4">
         {/* Left: set items (sortable) */}
-        <div
-          style={{
-            flex: 1,
-            border: '1px solid #e0e0e0',
-            borderRadius: 8,
-            padding: 12,
-            minHeight: 200,
-            background: '#fafafa',
-          }}
-        >
-          <h4 style={{ margin: '0 0 8px', fontSize: 13, color: '#555' }}>
+        <div className="flex-1 border border-gray-300 rounded-lg p-3 min-h-[200px] bg-gray-50">
+          <h4 className="m-0 mb-2 text-[13px] text-gray-500">
             세트 문항 (드래그하여 순서 변경)
           </h4>
           {setItems.length === 0 ? (
-            <p style={{ color: '#aaa', fontSize: 13, textAlign: 'center', marginTop: 40 }}>
+            <p className="text-gray-400 text-[13px] text-center mt-10">
               오른쪽에서 문항을 추가하세요
             </p>
           ) : (
@@ -225,65 +183,31 @@ const ExamSetComposer: React.FC<Props> = ({
         </div>
 
         {/* Right: pool */}
-        <div
-          style={{
-            flex: 1,
-            border: '1px solid #e0e0e0',
-            borderRadius: 8,
-            padding: 12,
-            minHeight: 200,
-            background: '#fff',
-            maxHeight: 400,
-            overflow: 'auto',
-          }}
-        >
-          <h4 style={{ margin: '0 0 8px', fontSize: 13, color: '#555' }}>
+        <div className="flex-1 border border-gray-300 rounded-lg p-3 min-h-[200px] bg-white max-h-[400px] overflow-auto">
+          <h4 className="m-0 mb-2 text-[13px] text-gray-500">
             가져온 문항 풀 ({available.length}개)
           </h4>
           {available.length === 0 ? (
-            <p style={{ color: '#aaa', fontSize: 13, textAlign: 'center', marginTop: 40 }}>
+            <p className="text-gray-400 text-[13px] text-center mt-10">
               가져온 문항이 없습니다
             </p>
           ) : (
             available.map((item) => (
               <div
                 key={item.bankId}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '6px 10px',
-                  marginBottom: 4,
-                  border: '1px solid #f0f0f0',
-                  borderRadius: 6,
-                  fontSize: 13,
-                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 mb-1 border border-gray-100 rounded-md text-[13px]"
               >
-                <span
-                  style={{
-                    flex: 1,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                   {item.previewText}
                 </span>
-                <button
+                <Button
+                  variant="outline"
+                  size="xs"
                   onClick={() => addToSet(item)}
-                  style={{
-                    padding: '3px 10px',
-                    borderRadius: 4,
-                    border: '1px solid #1a73e8',
-                    background: '#e8f0fe',
-                    color: '#1a73e8',
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    whiteSpace: 'nowrap',
-                  }}
+                  className="text-blue-600 border-blue-600 bg-blue-50 whitespace-nowrap"
                 >
                   + 추가
-                </button>
+                </Button>
               </div>
             ))
           )}

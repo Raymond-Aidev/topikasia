@@ -9,6 +9,8 @@ import Footer from '../../shared/components/Footer';
 import { fetchSchedules, fetchMyRegistrations, checkEligibility } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
 import type { ExamSchedule } from '../types/registration.types';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const STATUS_LABELS: Record<string, string> = {
   UPCOMING: '예정',
@@ -18,10 +20,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  OPEN: '#4CAF50',
-  CLOSED: '#9E9E9E',
-  UPCOMING: '#E0E0E0',
-  COMPLETED: '#BDBDBD',
+  OPEN: 'bg-green-500',
+  CLOSED: 'bg-gray-400',
+  UPCOMING: 'bg-gray-200',
+  COMPLETED: 'bg-gray-300',
 };
 
 const EXAM_INFO = [
@@ -33,7 +35,6 @@ export default function ExamSchedulePage() {
   const { isMobile, isTablet } = useResponsive();
   const compact = isMobile || isTablet;
   const topPad = compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT;
-  const px = isMobile ? '16px' : '24px';
   const navigate = useNavigate();
   const selectSchedule = useRegistrationStore((s) => s.selectSchedule);
   const isLoggedIn = useRegistrationStore((s) => s.isLoggedIn);
@@ -86,80 +87,70 @@ export default function ExamSchedulePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif', paddingTop: topPad }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: topPad }}>
       <GlobalNavigationBar />
 
       {/* 히어로 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 60%, #1A237E 100%)',
-        color: '#FFFFFF', textAlign: 'center',
-        padding: isMobile ? '48px 16px' : '64px 24px',
-      }}>
-        <div style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 12 }}>시험별 안내</div>
-        <div style={{ fontSize: isMobile ? 14 : 18, opacity: 0.9, lineHeight: 1.6 }}>
+      <div className={cn(
+        'bg-gradient-to-br from-[#1565C0] via-[#0D47A1] to-[#1A237E] text-white text-center',
+        isMobile ? 'px-4 py-12' : 'px-6 py-16'
+      )}>
+        <div className={cn('font-extrabold mb-3', isMobile ? 'text-[28px]' : 'text-[40px]')}>시험별 안내</div>
+        <div className={cn('opacity-90 leading-relaxed', isMobile ? 'text-sm' : 'text-lg')}>
           TOPIK I · TOPIK II 시험 일정을 확인하고 접수하세요
         </div>
       </div>
 
       {/* 시험 유형 소개 카드 */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: `48px ${px}` }}>
-        <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', textAlign: 'center', marginBottom: 32 }}>
+      <div className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-12' : 'px-6 py-12')}>
+        <div className={cn('font-extrabold text-gray-900 text-center mb-8', isMobile ? 'text-[22px]' : 'text-[28px]')}>
           시험 유형
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 24 }}>
+        <div className={cn('grid gap-6', isMobile ? 'grid-cols-1' : 'grid-cols-2')}>
           {EXAM_INFO.map((info) => (
-            <div key={info.title} style={{
-              backgroundColor: '#FFFFFF', borderRadius: 16, padding: isMobile ? '24px 20px' : '32px 28px',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-            }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>{info.icon}</div>
-              <div style={{ fontSize: isMobile ? 18 : 20, fontWeight: 700, color: '#1565C0', marginBottom: 8 }}>{info.title}</div>
-              <div style={{ fontSize: 14, color: '#616161', lineHeight: 1.6, marginBottom: 12 }}>{info.desc}</div>
-              <div style={{
-                display: 'inline-block', padding: '4px 14px', borderRadius: 12,
-                fontSize: 13, fontWeight: 600, backgroundColor: '#E3F2FD', color: '#1565C0',
-              }}>
+            <div key={info.title} className={cn(
+              'bg-white rounded-2xl shadow-sm',
+              isMobile ? 'px-5 py-6' : 'px-7 py-8'
+            )}>
+              <div className="text-4xl mb-3">{info.icon}</div>
+              <div className={cn('font-bold text-[#1565C0] mb-2', isMobile ? 'text-lg' : 'text-xl')}>{info.title}</div>
+              <div className="text-sm text-gray-600 leading-relaxed mb-3">{info.desc}</div>
+              <span className="inline-block px-3.5 py-1 rounded-xl text-[13px] font-semibold bg-blue-50 text-[#1565C0]">
                 {info.level}
-              </div>
+              </span>
             </div>
           ))}
         </div>
       </div>
 
       {/* 시험 일정 테이블 */}
-      <div style={{ backgroundColor: '#FFFFFF', padding: `56px ${px}` }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', marginBottom: 32 }}>
+      <div className={cn('bg-white', isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className="max-w-[1100px] mx-auto">
+          <div className={cn('font-extrabold text-gray-900 mb-8', isMobile ? 'text-[22px]' : 'text-[28px]')}>
             시험 일정
           </div>
 
           {loading && (
-            <div style={{ textAlign: 'center', padding: 40, color: '#9E9E9E', fontSize: 15 }}>불러오는 중...</div>
+            <div className="text-center p-10 text-gray-400 text-[15px]">불러오는 중...</div>
           )}
 
           {!loading && schedules.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 60, color: '#9E9E9E', fontSize: 15 }}>
+            <div className="text-center p-16 text-gray-400 text-[15px]">
               등록된 시험 일정이 없습니다.
             </div>
           )}
 
           {!loading && schedules.length > 0 && (
             <>
-              <div style={{ overflowX: isMobile ? 'auto' : undefined }}>
-                <table style={{
-                  width: '100%', borderCollapse: 'collapse',
-                  backgroundColor: '#fff', borderRadius: 12,
-                  overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-                  minWidth: isMobile ? 600 : undefined,
-                }}>
+              <div className={cn(isMobile && 'overflow-x-auto')}>
+                <table className={cn(
+                  'w-full border-collapse bg-white rounded-xl overflow-hidden shadow-sm',
+                  isMobile && 'min-w-[600px]'
+                )}>
                   <thead>
                     <tr>
                       {['회차', '시험유형', '시험일', '접수마감', '잔여석', '상태'].map((h) => (
-                        <th key={h} style={{
-                          padding: '14px 16px', backgroundColor: '#F5F5F5',
-                          fontWeight: 600, fontSize: 13, color: '#616161',
-                          textAlign: 'left', borderBottom: '1px solid #E0E0E0',
-                        }}>{h}</th>
+                        <th key={h} className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -170,29 +161,28 @@ export default function ExamSchedulePage() {
                       return (
                         <tr
                           key={sch.id}
-                          style={{
-                            backgroundColor: selectedId === sch.id ? '#E3F2FD' : '#fff',
-                            cursor: sch.status === 'OPEN' ? 'pointer' : 'default',
-                            transition: 'background-color 0.15s',
-                          }}
+                          className={cn(
+                            'transition-colors duration-150',
+                            selectedId === sch.id ? 'bg-blue-50' : 'bg-white',
+                            sch.status === 'OPEN' ? 'cursor-pointer' : 'cursor-default'
+                          )}
                           onClick={() => handleRowClick(sch)}
                         >
-                          <td style={{ padding: '14px 16px', fontSize: 14, color: '#212121', borderBottom: '1px solid #F5F5F5' }}>제{sch.examNumber}회</td>
-                          <td style={{ padding: '14px 16px', fontSize: 14, color: '#212121', borderBottom: '1px solid #F5F5F5' }}>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">제{sch.examNumber}회</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                             {sch.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'}
                           </td>
-                          <td style={{ padding: '14px 16px', fontSize: 14, color: '#212121', borderBottom: '1px solid #F5F5F5' }}>{sch.examDate}</td>
-                          <td style={{ padding: '14px 16px', fontSize: 14, color: '#212121', borderBottom: '1px solid #F5F5F5' }}>{sch.registrationEndDate}</td>
-                          <td style={{ padding: '14px 16px', fontSize: 14, color: '#212121', borderBottom: '1px solid #F5F5F5' }}>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{sch.examDate}</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{sch.registrationEndDate}</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                             {sch.status === 'OPEN' ? `${remaining}/${totalSeats}` : '-'}
                           </td>
-                          <td style={{ padding: '14px 16px', fontSize: 14, borderBottom: '1px solid #F5F5F5' }}>
-                            <span style={{
-                              display: 'inline-block', padding: '4px 12px', borderRadius: 12,
-                              fontSize: 12, fontWeight: 600,
-                              color: sch.status === 'OPEN' || sch.status === 'CLOSED' ? '#fff' : '#757575',
-                              backgroundColor: STATUS_COLORS[sch.status] || '#E0E0E0',
-                            }}>
+                          <td className="px-4 py-3.5 text-sm border-b border-gray-100">
+                            <span className={cn(
+                              'inline-block px-3 py-1 rounded-xl text-xs font-semibold',
+                              STATUS_COLORS[sch.status] || 'bg-gray-200',
+                              (sch.status === 'OPEN' || sch.status === 'CLOSED') ? 'text-white' : 'text-gray-500'
+                            )}>
                               {STATUS_LABELS[sch.status] || sch.status}
                             </span>
                           </td>
@@ -203,19 +193,17 @@ export default function ExamSchedulePage() {
                 </table>
               </div>
 
-              <div style={{ textAlign: 'center', marginTop: 32 }}>
-                <button
-                  style={{
-                    padding: '14px 48px', fontSize: 16, fontWeight: 700,
-                    color: '#fff', backgroundColor: selectedId ? '#1565C0' : '#90CAF9',
-                    border: 'none', borderRadius: 8,
-                    cursor: selectedId ? 'pointer' : 'not-allowed',
-                  }}
+              <div className="text-center mt-8">
+                <Button
+                  className={cn(
+                    'px-12 py-3.5 text-base font-bold rounded-lg',
+                    selectedId ? 'bg-[#1565C0] hover:bg-[#1256A8] text-white cursor-pointer' : 'bg-blue-300 text-white cursor-not-allowed'
+                  )}
                   onClick={handleApply}
                   disabled={!selectedId}
                 >
                   접수하기
-                </button>
+                </Button>
               </div>
             </>
           )}
@@ -223,8 +211,8 @@ export default function ExamSchedulePage() {
       </div>
 
       {/* 접수 안내 */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: `48px ${px}` }}>
-        <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', marginBottom: 24 }}>
+      <div className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-12' : 'px-6 py-12')}>
+        <div className={cn('font-extrabold text-gray-900 mb-6', isMobile ? 'text-[22px]' : 'text-[28px]')}>
           접수 안내
         </div>
         {[
@@ -233,17 +221,11 @@ export default function ExamSchedulePage() {
           '접수 완료 후 마이페이지에서 수험표를 다운로드할 수 있습니다.',
           '접수 취소는 시험일 3일 전까지 가능합니다.',
         ].map((text, i) => (
-          <div key={i} style={{
-            backgroundColor: '#FFFFFF', borderRadius: 12,
-            padding: isMobile ? '16px' : '20px 28px',
-            marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-            fontSize: 15, color: '#374151', lineHeight: 1.6,
-          }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 24, height: 24, borderRadius: '50%', backgroundColor: '#1565C0', color: '#FFF',
-              fontSize: 12, fontWeight: 700, marginRight: 12,
-            }}>{i + 1}</span>
+          <div key={i} className={cn(
+            'bg-white rounded-xl shadow-sm mb-3 text-[15px] text-gray-700 leading-relaxed',
+            isMobile ? 'p-4' : 'px-7 py-5'
+          )}>
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#1565C0] text-white text-xs font-bold mr-3">{i + 1}</span>
             {text}
           </div>
         ))}

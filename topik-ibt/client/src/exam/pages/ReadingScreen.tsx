@@ -14,24 +14,6 @@ import AllQuestionsPopup from '../components/AllQuestionsPopup';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { examApi } from '../../api/examApi';
 
-// ─── Styles ─────────────────────────────────────────────────────
-const styles = {
-  page: {
-    paddingTop: 72,
-    paddingBottom: 80,
-    maxWidth: 800,
-    margin: '0 auto',
-    padding: '72px 24px 80px',
-    fontFamily: 'sans-serif',
-  },
-  questionIndicator: {
-    fontSize: 14,
-    color: '#757575',
-    marginBottom: 12,
-    fontWeight: 500 as const,
-  },
-};
-
 export default function ReadingScreen() {
   const navigate = useNavigate();
   const { saveAnswer } = useAutoSave();
@@ -177,8 +159,8 @@ export default function ReadingScreen() {
           timerMode="countdown"
           remainingSeconds={remainingSeconds}
         />
-        <div style={{ ...styles.page, textAlign: 'center' as const, paddingTop: 160 }}>
-          <div style={{ fontSize: 18, color: '#757575' }}>문제를 불러오는 중...</div>
+        <div className="max-w-[800px] mx-auto px-6 pt-40 pb-20 font-sans text-center">
+          <div className="text-lg text-gray-500">문제를 불러오는 중...</div>
         </div>
       </>
     );
@@ -193,8 +175,8 @@ export default function ReadingScreen() {
           timerMode="countdown"
           remainingSeconds={remainingSeconds}
         />
-        <div style={{ ...styles.page, textAlign: 'center' as const, paddingTop: 160 }}>
-          <div style={{ fontSize: 18, color: '#C62828' }}>
+        <div className="max-w-[800px] mx-auto px-6 pt-40 pb-20 font-sans text-center">
+          <div className="text-lg text-red-800">
             {fetchError || '문제 데이터가 없습니다.'}
           </div>
         </div>
@@ -212,8 +194,8 @@ export default function ReadingScreen() {
       />
       <NetworkStatusBanner />
 
-      <div style={styles.page}>
-        <div style={styles.questionIndicator}>
+      <div className="max-w-[800px] mx-auto px-6 pt-[72px] pb-20 font-sans">
+        <div className="text-sm text-gray-500 mb-3 font-medium">
           {question.questionNumber} / {questions.length}
         </div>
 

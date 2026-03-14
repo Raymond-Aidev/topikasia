@@ -8,113 +8,49 @@ interface ExamineeCardProps {
   showSignature?: boolean;
 }
 
-const styles = {
-  card: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 16,
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-    border: '1px solid #E0E0E0',
-  },
-  photo: {
-    width: 72,
-    height: 72,
-    borderRadius: '50%',
-    objectFit: 'cover' as const,
-    backgroundColor: '#E0E0E0',
-    border: '2px solid #1565C0',
-    flexShrink: 0,
-  },
-  photoPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: '50%',
-    backgroundColor: '#E0E0E0',
-    border: '2px solid #1565C0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 28,
-    color: '#9E9E9E',
-    flexShrink: 0,
-  },
-  info: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 4,
-  },
-  label: {
-    fontSize: 12,
-    color: '#757575',
-  },
-  value: {
-    fontSize: 15,
-    fontWeight: 600 as const,
-    color: '#212121',
-  },
-  seat: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: '#1565C0',
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    flexShrink: 0,
-  },
-  signatureArea: {
-    marginTop: 8,
-    width: 180,
-    height: 48,
-    border: '1px dashed #BDBDBD',
-    borderRadius: 6,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 12,
-    color: '#9E9E9E',
-  },
-};
-
 export default function ExamineeCard({ seatNumber, photoUrl, registrationNumber, name, institutionName, examRoomName, showSignature = false }: ExamineeCardProps) {
   return (
-    <div style={styles.card}>
-      {seatNumber != null && <div style={styles.seat}>{seatNumber}</div>}
-
-      {photoUrl ? (
-        <img src={photoUrl} alt="응시자 사진" style={styles.photo} />
-      ) : (
-        <div style={styles.photoPlaceholder}>👤</div>
+    <div className="flex items-center gap-4 p-5 bg-white rounded-xl shadow-sm border border-gray-300">
+      {seatNumber != null && (
+        <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-800 text-white text-base font-bold shrink-0">
+          {seatNumber}
+        </div>
       )}
 
-      <div style={styles.info}>
+      {photoUrl ? (
+        <img src={photoUrl} alt="응시자 사진" className="w-[72px] h-[72px] rounded-full object-cover bg-gray-300 border-2 border-blue-800 shrink-0" />
+      ) : (
+        <div className="w-[72px] h-[72px] rounded-full bg-gray-300 border-2 border-blue-800 flex items-center justify-center text-[28px] text-gray-400 shrink-0">
+          👤
+        </div>
+      )}
+
+      <div className="flex flex-col gap-1">
         <div>
-          <span style={styles.label}>수험번호</span>
-          <div style={styles.value}>{registrationNumber || '-'}</div>
+          <span className="text-xs text-gray-500">수험번호</span>
+          <div className="text-[15px] font-semibold text-gray-900">{registrationNumber || '-'}</div>
         </div>
         <div>
-          <span style={styles.label}>이름</span>
-          <div style={styles.value}>{name || '-'}</div>
+          <span className="text-xs text-gray-500">이름</span>
+          <div className="text-[15px] font-semibold text-gray-900">{name || '-'}</div>
         </div>
         {institutionName && (
           <div>
-            <span style={styles.label}>시험기관</span>
-            <div style={styles.value}>{institutionName}</div>
+            <span className="text-xs text-gray-500">시험기관</span>
+            <div className="text-[15px] font-semibold text-gray-900">{institutionName}</div>
           </div>
         )}
         {examRoomName && (
           <div>
-            <span style={styles.label}>시험실</span>
-            <div style={styles.value}>{examRoomName}</div>
+            <span className="text-xs text-gray-500">시험실</span>
+            <div className="text-[15px] font-semibold text-gray-900">{examRoomName}</div>
           </div>
         )}
-        {showSignature && <div style={styles.signatureArea}>서명 영역</div>}
+        {showSignature && (
+          <div className="mt-2 w-[180px] h-12 border border-dashed border-gray-400 rounded-md flex items-center justify-center text-xs text-gray-400">
+            서명 영역
+          </div>
+        )}
       </div>
     </div>
   );

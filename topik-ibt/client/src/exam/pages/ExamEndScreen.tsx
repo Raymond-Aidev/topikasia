@@ -4,67 +4,10 @@ import { io, Socket } from 'socket.io-client';
 import { useExamStore } from '../../store/examStore';
 import ExamHeader from '../../shared/components/ExamHeader';
 import ExamineeCard from '../../shared/components/ExamineeCard';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-const styles = {
-  page: {
-    paddingTop: 72,
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-  },
-  content: {
-    maxWidth: 500,
-    margin: '0 auto',
-    padding: '40px 16px',
-    textAlign: 'center' as const,
-  },
-  icon: {
-    fontSize: 56,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 700 as const,
-    color: '#1565C0',
-    marginBottom: 12,
-  },
-  message: {
-    fontSize: 15,
-    color: '#616161',
-    lineHeight: 1.7,
-    marginBottom: 32,
-  },
-  button: {
-    padding: '14px 48px',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-    transition: 'background-color 0.2s, opacity 0.2s',
-  },
-  buttonEnabled: {
-    backgroundColor: '#1565C0',
-    color: '#fff',
-  },
-  buttonDisabled: {
-    backgroundColor: '#BDBDBD',
-    color: '#fff',
-    cursor: 'not-allowed' as const,
-  },
-  timer: {
-    fontSize: 13,
-    color: '#9E9E9E',
-    marginTop: 12,
-  },
-  cardWrapper: {
-    marginBottom: 32,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-};
 
 export default function ExamEndScreen() {
   const navigate = useNavigate();
@@ -124,9 +67,9 @@ export default function ExamEndScreen() {
         timerMode="clock"
       />
 
-      <div style={styles.page}>
-        <div style={styles.content}>
-          <div style={styles.cardWrapper}>
+      <div className="pt-[72px] min-h-screen bg-gray-100 font-sans">
+        <div className="max-w-[500px] mx-auto px-4 py-10 text-center">
+          <div className="mb-8 flex justify-center">
             <ExamineeCard
               seatNumber={examinee?.seatNumber}
               photoUrl={examinee?.photoUrl}
@@ -135,26 +78,28 @@ export default function ExamEndScreen() {
             />
           </div>
 
-          <div style={styles.icon}>✅</div>
-          <div style={styles.title}>모든 시험이 종료되었습니다</div>
-          <div style={styles.message}>
+          <div className="text-[56px] mb-4">✅</div>
+          <div className="text-2xl font-bold text-blue-800 mb-3">모든 시험이 종료되었습니다</div>
+          <div className="text-[15px] text-gray-500 leading-[1.7] mb-8">
             수고하셨습니다.<br />
             감독관의 안내에 따라 퇴실하세요.
           </div>
 
-          <button
-            style={{
-              ...styles.button,
-              ...(canExit ? styles.buttonEnabled : styles.buttonDisabled),
-            }}
+          <Button
+            className={cn(
+              'px-12 py-3.5 text-base font-bold rounded-lg transition-all h-auto',
+              canExit
+                ? 'bg-blue-800 hover:bg-blue-900 text-white'
+                : 'bg-gray-400 text-white cursor-not-allowed'
+            )}
             onClick={handleExit}
             disabled={!canExit}
           >
             시험 종료
-          </button>
+          </Button>
 
           {!canExit && (
-            <div style={styles.timer}>
+            <div className="text-[13px] text-gray-400 mt-3">
               {waitSeconds}초 후 버튼이 활성화됩니다
             </div>
           )}

@@ -5,6 +5,20 @@ import type { QuestionBankItem } from '../api/questionBankApi';
 import { createExamSet, updateExamSet, getExamSet, updateModelAnswer } from '../api/examSetApi';
 import type { ExamSetPayload } from '../api/examSetApi';
 import ExamSetComposer from '../components/ExamSetComposer';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
+import { Card, CardContent } from '../../components/ui/card';
+import { Separator } from '../../components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '../../components/ui/dialog';
 
 interface SectionState {
   duration: number;
@@ -61,116 +75,55 @@ const ModelAnswerModal: React.FC<ModelAnswerModalProps> = ({
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 12,
-          padding: 28,
-          width: 560,
-          maxWidth: '90vw',
-          maxHeight: '80vh',
-          overflow: 'auto',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 style={{ margin: '0 0 4px', fontSize: 18 }}>모범답안 설정</h3>
-        <p style={{ margin: '0 0 20px', fontSize: 13, color: '#666' }}>
-          {item.previewText}
-        </p>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-[560px]">
+        <DialogHeader>
+          <DialogTitle>모범답안 설정</DialogTitle>
+          <DialogDescription>{item.previewText}</DialogDescription>
+        </DialogHeader>
 
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-            모범 답안
-          </label>
-          <textarea
-            value={modelAnswer}
-            onChange={(e) => setModelAnswer(e.target.value)}
-            rows={6}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              borderRadius: 6,
-              border: '1px solid #ccc',
-              fontSize: 14,
-              resize: 'vertical',
-              boxSizing: 'border-box',
-              fontFamily: 'inherit',
-            }}
-            placeholder="모범 답안을 입력하세요..."
-          />
+        <div className="space-y-4">
+          <div>
+            <Label className="mb-1.5 text-[13px]">모범 답안</Label>
+            <Textarea
+              value={modelAnswer}
+              onChange={(e) => setModelAnswer(e.target.value)}
+              rows={6}
+              className="resize-y font-[inherit]"
+              placeholder="모범 답안을 입력하세요..."
+            />
+          </div>
+
+          <div>
+            <Label className="mb-1.5 text-[13px]">채점 기준</Label>
+            <Textarea
+              value={scoringCriteria}
+              onChange={(e) => setScoringCriteria(e.target.value)}
+              rows={6}
+              className="resize-y font-[inherit]"
+              placeholder="채점 기준을 입력하세요..."
+            />
+          </div>
+
+          {error && (
+            <p className="text-[13px] text-destructive">{error}</p>
+          )}
         </div>
 
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-            채점 기준
-          </label>
-          <textarea
-            value={scoringCriteria}
-            onChange={(e) => setScoringCriteria(e.target.value)}
-            rows={6}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              borderRadius: 6,
-              border: '1px solid #ccc',
-              fontSize: 14,
-              resize: 'vertical',
-              boxSizing: 'border-box',
-              fontFamily: 'inherit',
-            }}
-            placeholder="채점 기준을 입력하세요..."
-          />
-        </div>
-
-        {error && (
-          <p style={{ color: '#d93025', fontSize: 13, marginBottom: 12 }}>{error}</p>
-        )}
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '8px 20px',
-              borderRadius: 6,
-              border: '1px solid #ccc',
-              background: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
-          >
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
             취소
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSave}
             disabled={saving}
-            style={{
-              padding: '8px 20px',
-              borderRadius: 6,
-              border: 'none',
-              background: '#7c4dff',
-              color: '#fff',
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-            }}
+            className="bg-violet-500 hover:bg-violet-600"
           >
             {saving ? '저장 중...' : '저장'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -323,130 +276,74 @@ const ExamSetComposePage: React.FC = () => {
   );
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px' }}>
-      <h2 style={{ margin: '0 0 24px', fontSize: 22 }}>
+    <div className="mx-auto max-w-[1100px] px-6 py-8">
+      <h2 className="mb-6 text-[22px] font-bold">
         {id ? '시험 세트 편집' : '새 시험 세트 구성'}
       </h2>
 
       {/* 기본 정보 */}
-      <div
-        style={{
-          background: '#f8f9fa',
-          padding: 20,
-          borderRadius: 10,
-          marginBottom: 28,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
-          <div style={{ flex: 2, minWidth: 200 }}>
-            <label style={{ display: 'block', fontSize: 13, color: '#555', marginBottom: 4 }}>
-              세트 이름
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="예: 2026년 제1회 TOPIK II 모의시험"
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 6,
-                border: '1px solid #ccc',
-                fontSize: 14,
-                boxSizing: 'border-box',
-              }}
+      <Card className="mb-7">
+        <CardContent>
+          <div className="mb-3 flex flex-wrap gap-4">
+            <div className="min-w-[200px] flex-[2]">
+              <Label className="mb-1 text-[13px] text-muted-foreground">세트 이름</Label>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="예: 2026년 제1회 TOPIK II 모의시험"
+              />
+            </div>
+            <div className="min-w-[160px]">
+              <Label className="mb-1 text-[13px] text-muted-foreground">시험 유형</Label>
+              <select
+                value={examType}
+                onChange={(e) => setExamType(e.target.value as 'TOPIK_I' | 'TOPIK_II')}
+                className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <option value="TOPIK_I">TOPIK I</option>
+                <option value="TOPIK_II">TOPIK II</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <Label className="mb-1 text-[13px] text-muted-foreground">설명</Label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+              className="resize-y"
             />
           </div>
-          <div style={{ minWidth: 160 }}>
-            <label style={{ display: 'block', fontSize: 13, color: '#555', marginBottom: 4 }}>
-              시험 유형
-            </label>
-            <select
-              value={examType}
-              onChange={(e) => setExamType(e.target.value as 'TOPIK_I' | 'TOPIK_II')}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                borderRadius: 6,
-                border: '1px solid #ccc',
-                fontSize: 14,
-              }}
-            >
-              <option value="TOPIK_I">TOPIK I</option>
-              <option value="TOPIK_II">TOPIK II</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label style={{ display: 'block', fontSize: 13, color: '#555', marginBottom: 4 }}>
-            설명
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: 6,
-              border: '1px solid #ccc',
-              fontSize: 14,
-              resize: 'vertical',
-              boxSizing: 'border-box',
-            }}
-          />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* 영역별 설정 & 구성 */}
       {SECTION_DEFS.map((s) => (
         <div key={s.key}>
-          <div
-            style={{
-              display: 'flex',
-              gap: 16,
-              marginBottom: 12,
-              alignItems: 'center',
-            }}
-          >
+          <div className="mb-3 flex items-center gap-4">
             <div>
-              <label style={{ fontSize: 13, color: '#555' }}>시간(분)</label>
-              <input
+              <Label className="text-[13px] text-muted-foreground">시간(분)</Label>
+              <Input
                 type="number"
                 value={sections[s.key].duration}
                 onChange={(e) =>
                   updateSectionField(s.key, 'duration', Number(e.target.value))
                 }
                 min={1}
-                style={{
-                  display: 'block',
-                  width: 80,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  border: '1px solid #ccc',
-                  fontSize: 14,
-                  marginTop: 2,
-                }}
+                className="mt-0.5 w-20"
               />
             </div>
             <div>
-              <label style={{ fontSize: 13, color: '#555' }}>목표 문항수</label>
-              <input
+              <Label className="text-[13px] text-muted-foreground">목표 문항수</Label>
+              <Input
                 type="number"
                 value={sections[s.key].targetCount}
                 onChange={(e) =>
                   updateSectionField(s.key, 'targetCount', Number(e.target.value))
                 }
                 min={1}
-                style={{
-                  display: 'block',
-                  width: 80,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  border: '1px solid #ccc',
-                  fontSize: 14,
-                  marginTop: 2,
-                }}
+                className="mt-0.5 w-20"
               />
             </div>
           </div>
@@ -466,66 +363,35 @@ const ExamSetComposePage: React.FC = () => {
 
       {/* Footer */}
       {error && (
-        <p style={{ color: '#d93025', fontSize: 14, marginBottom: 12 }}>{error}</p>
+        <p className="mb-3 text-sm text-destructive">{error}</p>
       )}
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: 16,
-          padding: '16px 0',
-          borderTop: '1px solid #e0e0e0',
-        }}
-      >
-        <span style={{ fontSize: 14, color: '#555' }}>
+      <Separator className="mt-4" />
+
+      <div className="flex items-center justify-between py-4">
+        <span className="text-sm text-muted-foreground">
           총 {totalQuestions}개 문항 구성됨
         </span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
             onClick={() => navigate('/question-module/sets')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: 6,
-              border: '1px solid #ccc',
-              background: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
           >
             목록으로
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => handleSave('DRAFT')}
             disabled={saving}
-            style={{
-              padding: '10px 20px',
-              borderRadius: 6,
-              border: 'none',
-              background: '#5f6368',
-              color: '#fff',
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-            }}
           >
             {saving ? '저장 중...' : '임시 저장'}
-          </button>
+          </Button>
           {id && (
-            <button
+            <Button
               onClick={() => navigate(`/question-module/upload/${id}`)}
-              style={{
-                padding: '10px 20px',
-                borderRadius: 6,
-                border: 'none',
-                background: '#1a73e8',
-                color: '#fff',
-                cursor: 'pointer',
-                fontSize: 14,
-              }}
             >
               업로드
-            </button>
+            </Button>
           )}
         </div>
       </div>

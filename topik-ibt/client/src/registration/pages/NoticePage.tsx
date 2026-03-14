@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import Footer from '../../shared/components/Footer';
 import { useResponsive } from '../../shared/hooks/useResponsive';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 interface Notice {
   id: string;
@@ -158,9 +160,9 @@ const FAQ_ITEMS = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  '공지': '#1565C0',
-  '안내': '#4CAF50',
-  '업데이트': '#FF9800',
+  '공지': 'bg-[#1565C0]',
+  '안내': 'bg-green-500',
+  '업데이트': 'bg-orange-500',
 };
 
 export default function NoticePage() {
@@ -168,7 +170,6 @@ export default function NoticePage() {
   const { isMobile, isTablet } = useResponsive();
   const compact = isMobile || isTablet;
   const topPad = compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT;
-  const px = isMobile ? '16px' : '24px';
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleNotice = (id: string) => {
@@ -176,66 +177,61 @@ export default function NoticePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif', paddingTop: topPad }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: topPad }}>
       <GlobalNavigationBar />
 
       {/* 히어로 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #00695C 0%, #004D40 60%, #1A237E 100%)',
-        color: '#FFFFFF', textAlign: 'center',
-        padding: isMobile ? '48px 16px' : '64px 24px',
-      }}>
-        <div style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 12 }}>알림·소통</div>
-        <div style={{ fontSize: isMobile ? 14 : 18, opacity: 0.9, lineHeight: 1.6 }}>
+      <div className={cn(
+        'bg-gradient-to-br from-[#00695C] via-[#004D40] to-[#1A237E] text-white text-center',
+        isMobile ? 'px-4 py-12' : 'px-6 py-16'
+      )}>
+        <div className={cn('font-extrabold mb-3', isMobile ? 'text-[28px]' : 'text-[40px]')}>알림·소통</div>
+        <div className={cn('opacity-90 leading-relaxed', isMobile ? 'text-sm' : 'text-lg')}>
           TOPIK Asia의 최신 소식과 자주 묻는 질문을 확인하세요
         </div>
       </div>
 
       {/* 공지사항 */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: `48px ${px}` }}>
-        <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', marginBottom: 32 }}>
+      <div className={cn('max-w-[1100px] mx-auto', isMobile ? 'px-4 py-12' : 'px-6 py-12')}>
+        <div className={cn('font-extrabold text-gray-900 mb-8', isMobile ? 'text-[22px]' : 'text-[28px]')}>
           공지사항
         </div>
-        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           {NOTICES.map((notice, i) => {
             const isOpen = expandedId === notice.id;
             return (
               <div key={notice.id}>
                 {/* 제목 행 */}
                 <div
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: isMobile ? '16px' : '20px 28px',
-                    borderBottom: (isOpen || i < NOTICES.length - 1) ? '1px solid #F0F0F0' : 'none',
-                    cursor: 'pointer', gap: 12,
-                    backgroundColor: isOpen ? '#F8FAFC' : '#FFFFFF',
-                    transition: 'background-color 0.15s',
-                  }}
+                  className={cn(
+                    'flex items-center justify-between gap-3 cursor-pointer transition-colors duration-150',
+                    isMobile ? 'p-4' : 'px-7 py-5',
+                    (isOpen || i < NOTICES.length - 1) && 'border-b border-gray-100',
+                    isOpen ? 'bg-gray-50' : 'bg-white'
+                  )}
                   onClick={() => toggleNotice(notice.id)}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                    <span style={{
-                      display: 'inline-block', padding: '3px 10px', borderRadius: 12,
-                      fontSize: 11, fontWeight: 600, color: '#FFFFFF', flexShrink: 0,
-                      backgroundColor: CATEGORY_COLORS[notice.category] || '#9E9E9E',
-                    }}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={cn(
+                      'inline-block px-2.5 py-[3px] rounded-xl text-[11px] font-semibold text-white shrink-0',
+                      CATEGORY_COLORS[notice.category] || 'bg-gray-400'
+                    )}>
                       {notice.category}
                     </span>
-                    <span style={{
-                      fontSize: isMobile ? 14 : 15, color: '#374151', fontWeight: isOpen ? 700 : 500,
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
+                    <span className={cn(
+                      'text-gray-700 overflow-hidden text-ellipsis whitespace-nowrap',
+                      isMobile ? 'text-sm' : 'text-[15px]',
+                      isOpen ? 'font-bold' : 'font-medium'
+                    )}>
                       {notice.title}
                     </span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-                    <span style={{ fontSize: 13, color: '#9E9E9E' }}>{notice.date}</span>
-                    <span style={{
-                      fontSize: 12, color: '#9E9E9E',
-                      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s',
-                      display: 'inline-block',
-                    }}>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-[13px] text-gray-400">{notice.date}</span>
+                    <span className={cn(
+                      'text-xs text-gray-400 inline-block transition-transform duration-200',
+                      isOpen && 'rotate-180'
+                    )}>
                       ▼
                     </span>
                   </div>
@@ -243,15 +239,12 @@ export default function NoticePage() {
 
                 {/* 본문 (펼침) */}
                 {isOpen && (
-                  <div style={{
-                    padding: isMobile ? '20px 16px' : '24px 28px',
-                    backgroundColor: '#FAFBFC',
-                    borderBottom: i < NOTICES.length - 1 ? '1px solid #F0F0F0' : 'none',
-                  }}>
-                    <div style={{
-                      fontSize: 14, color: '#374151', lineHeight: 1.8,
-                      whiteSpace: 'pre-wrap', wordBreak: 'keep-all',
-                    }}>
+                  <div className={cn(
+                    'bg-[#FAFBFC]',
+                    isMobile ? 'px-4 py-5' : 'px-7 py-6',
+                    i < NOTICES.length - 1 && 'border-b border-gray-100'
+                  )}>
+                    <div className="text-sm text-gray-700 leading-[1.8] whitespace-pre-wrap break-keep">
                       {notice.content}
                     </div>
                   </div>
@@ -263,23 +256,22 @@ export default function NoticePage() {
       </div>
 
       {/* FAQ */}
-      <div style={{ backgroundColor: '#FFFFFF', padding: `56px ${px}` }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#111827', marginBottom: 32 }}>
+      <div className={cn('bg-white', isMobile ? 'px-4 py-14' : 'px-6 py-14')}>
+        <div className="max-w-[1100px] mx-auto">
+          <div className={cn('font-extrabold text-gray-900 mb-8', isMobile ? 'text-[22px]' : 'text-[28px]')}>
             자주 묻는 질문 (FAQ)
           </div>
           {FAQ_ITEMS.map((item, i) => (
-            <div key={i} style={{
-              backgroundColor: '#F9FAFB', borderRadius: 12,
-              padding: isMobile ? '20px 16px' : '24px 28px',
-              marginBottom: 16,
-            }}>
-              <div style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: '#111827', marginBottom: 10 }}>
-                <span style={{ color: '#1565C0', marginRight: 8 }}>Q.</span>
+            <div key={i} className={cn(
+              'bg-gray-50 rounded-xl mb-4',
+              isMobile ? 'px-4 py-5' : 'px-7 py-6'
+            )}>
+              <div className={cn('font-bold text-gray-900 mb-2.5', isMobile ? 'text-[15px]' : 'text-[17px]')}>
+                <span className="text-[#1565C0] mr-2">Q.</span>
                 {item.q}
               </div>
-              <div style={{ fontSize: 14, color: '#616161', lineHeight: 1.7, paddingLeft: isMobile ? 0 : 24 }}>
-                <span style={{ color: '#4CAF50', fontWeight: 600, marginRight: 8 }}>A.</span>
+              <div className={cn('text-sm text-gray-600 leading-[1.7]', isMobile ? '' : 'pl-6')}>
+                <span className="text-green-500 font-semibold mr-2">A.</span>
                 {item.a}
               </div>
             </div>
@@ -288,30 +280,23 @@ export default function NoticePage() {
       </div>
 
       {/* 문의 CTA */}
-      <div style={{ padding: `48px ${px}` }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #00695C, #004D40)',
-          color: '#FFFFFF', textAlign: 'center',
-          padding: isMobile ? '40px 20px' : '48px 24px',
-          borderRadius: 20, maxWidth: 1100, margin: '0 auto',
-        }}>
-          <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 800, marginBottom: 12 }}>
+      <div className={cn(isMobile ? 'px-4 py-12' : 'px-6 py-12')}>
+        <div className="bg-gradient-to-br from-[#00695C] to-[#004D40] text-white text-center rounded-[20px] max-w-[1100px] mx-auto px-6 py-12">
+          <div className={cn('font-extrabold mb-3', isMobile ? 'text-xl' : 'text-2xl')}>
             찾으시는 답변이 없으신가요?
           </div>
-          <div style={{ fontSize: isMobile ? 14 : 16, opacity: 0.85, marginBottom: 28 }}>
+          <div className={cn('opacity-85 mb-7', isMobile ? 'text-sm' : 'text-base')}>
             고객센터로 문의해 주시면 빠르게 안내해 드리겠습니다
           </div>
-          <button
-            style={{
-              padding: isMobile ? '12px 28px' : '14px 36px',
-              fontSize: isMobile ? 14 : 16, fontWeight: 700,
-              backgroundColor: '#FFFFFF', color: '#00695C',
-              border: 'none', borderRadius: 8, cursor: 'pointer',
-            }}
+          <Button
+            className={cn(
+              'font-bold bg-white text-[#00695C] hover:bg-gray-100 rounded-lg border-none',
+              isMobile ? 'px-7 py-3 text-sm' : 'px-9 py-3.5 text-base'
+            )}
             onClick={() => navigate('/about')}
           >
             고객센터 바로가기
-          </button>
+          </Button>
         </div>
       </div>
 

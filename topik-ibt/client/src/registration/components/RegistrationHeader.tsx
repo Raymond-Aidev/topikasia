@@ -1,88 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRegistrationStore } from '../store/registrationStore';
+import { Button } from '../../components/ui/button';
+import { Separator } from '../../components/ui/separator';
 
 interface Props {
   showTimer?: boolean;
   showUserMenu?: boolean;
 }
-
-const styles = {
-  header: {
-    position: 'fixed' as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 56,
-    backgroundColor: '#FFFFFF',
-    borderBottom: '1px solid #E0E0E0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 24px',
-    fontFamily: 'sans-serif',
-    zIndex: 1000,
-  },
-  logo: {
-    fontSize: 22,
-    fontWeight: 800 as const,
-    color: '#1565C0',
-    cursor: 'pointer',
-    letterSpacing: -0.5,
-  },
-  rightSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 16,
-    fontSize: 14,
-  },
-  userName: {
-    color: '#212121',
-    fontWeight: 600 as const,
-  },
-  timer: {
-    color: '#4CAF50',
-    fontWeight: 700 as const,
-    fontSize: 16,
-    fontVariantNumeric: 'tabular-nums' as const,
-  },
-  extendBtn: {
-    padding: '4px 12px',
-    fontSize: 12,
-    border: '1px solid #4CAF50',
-    borderRadius: 4,
-    backgroundColor: '#fff',
-    color: '#4CAF50',
-    cursor: 'pointer',
-    fontWeight: 600 as const,
-  },
-  divider: {
-    width: 1,
-    height: 20,
-    backgroundColor: '#E0E0E0',
-  },
-  menuBtn: {
-    background: 'none',
-    border: 'none',
-    fontSize: 14,
-    color: '#616161',
-    cursor: 'pointer',
-    padding: '4px 8px',
-    fontWeight: 500 as const,
-  },
-  langSelect: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-    padding: '4px 12px',
-    border: '1px solid #E0E0E0',
-    borderRadius: 20,
-    fontSize: 13,
-    color: '#424242',
-    cursor: 'pointer',
-    backgroundColor: '#fff',
-  },
-};
 
 export default function RegistrationHeader({ showTimer = false, showUserMenu = true }: Props) {
   const navigate = useNavigate();
@@ -123,49 +48,49 @@ export default function RegistrationHeader({ showTimer = false, showUserMenu = t
   };
 
   return (
-    <header style={styles.header}>
-      <div style={styles.logo} onClick={() => navigate('/registration')}>
-        <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 36, objectFit: 'contain' as const }} />
+    <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-300 flex items-center justify-between px-6 font-sans z-[1000]">
+      <div className="text-[22px] font-extrabold text-blue-800 cursor-pointer tracking-tight" onClick={() => navigate('/registration')}>
+        <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-9 object-contain" />
       </div>
 
-      <div style={styles.rightSection}>
+      <div className="flex items-center gap-4 text-sm">
         {isLoggedIn && user && showUserMenu && (
           <>
-            <span style={styles.userName}>{user.name} 님</span>
+            <span className="text-gray-900 font-semibold">{user.name} 님</span>
             {showTimer && (
               <>
-                <span style={styles.timer}>{formatTime(sessionSeconds)}</span>
-                <button style={styles.extendBtn} onClick={handleExtend}>
+                <span className="text-green-600 font-bold text-base tabular-nums">{formatTime(sessionSeconds)}</span>
+                <Button variant="outline" size="sm" className="border-green-600 text-green-600" onClick={handleExtend}>
                   연장
-                </button>
+                </Button>
               </>
             )}
-            <div style={styles.divider} />
-            <button style={styles.menuBtn} onClick={handleLogout}>
+            <Separator orientation="vertical" className="h-5" />
+            <Button variant="ghost" size="sm" className="text-gray-500 font-medium" onClick={handleLogout}>
               로그아웃
-            </button>
-            <div style={styles.divider} />
-            <button style={styles.menuBtn} onClick={() => navigate('/registration/mypage')}>
+            </Button>
+            <Separator orientation="vertical" className="h-5" />
+            <Button variant="ghost" size="sm" className="text-gray-500 font-medium" onClick={() => navigate('/registration/mypage')}>
               마이페이지
-            </button>
+            </Button>
           </>
         )}
         {!isLoggedIn && showUserMenu && (
           <>
-            <button style={styles.menuBtn} onClick={() => navigate('/registration/login')}>
+            <Button variant="ghost" size="sm" className="text-gray-500 font-medium" onClick={() => navigate('/registration/login')}>
               로그인
-            </button>
-            <div style={styles.divider} />
-            <button style={styles.menuBtn} onClick={() => navigate('/registration/signup')}>
+            </Button>
+            <Separator orientation="vertical" className="h-5" />
+            <Button variant="ghost" size="sm" className="text-gray-500 font-medium" onClick={() => navigate('/registration/signup')}>
               회원가입
-            </button>
+            </Button>
           </>
         )}
-        <div style={styles.divider} />
-        <button style={styles.langSelect}>
+        <Separator orientation="vertical" className="h-5" />
+        <Button variant="outline" size="sm" className="rounded-full text-[13px] text-gray-700">
           <span>🌐</span>
           <span>한국어</span>
-        </button>
+        </Button>
       </div>
     </header>
   );

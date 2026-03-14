@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../api/adminApi';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
 interface ExamSet {
   id: string;
@@ -21,7 +22,6 @@ const ExamSetSelector: React.FC<ExamSetSelectorProps> = ({
   onChange,
   disabled = false,
   placeholder = '시험세트 선택',
-  style,
 }) => {
   const [examSets, setExamSets] = useState<ExamSet[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,26 +42,22 @@ const ExamSetSelector: React.FC<ExamSetSelectorProps> = ({
   }, []);
 
   return (
-    <select
+    <Select
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onValueChange={(val) => { if (val) onChange(val); }}
       disabled={disabled || loading}
-      style={{
-        padding: '8px 12px',
-        borderRadius: '6px',
-        border: '1px solid #d1d5db',
-        fontSize: '14px',
-        backgroundColor: '#fff',
-        ...style,
-      }}
     >
-      <option value="">{loading ? '불러오는 중...' : placeholder}</option>
-      {examSets.map((set) => (
-        <option key={set.id} value={set.id}>
-          [{set.examSetNumber}] {set.name} ({set.examType})
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder={loading ? '불러오는 중...' : placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {examSets.map((set) => (
+          <SelectItem key={set.id} value={set.id}>
+            [{set.examSetNumber}] {set.name} ({set.examType})
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

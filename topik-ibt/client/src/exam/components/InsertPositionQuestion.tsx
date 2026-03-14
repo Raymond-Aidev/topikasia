@@ -1,3 +1,5 @@
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
 
@@ -21,85 +23,41 @@ export default function InsertPositionQuestion({ question, answer, onAnswer }: I
   const circleLabels = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ'];
 
   return (
-    <div style={{ padding: '0 0 16px 0' }}>
-      <div style={{
-        fontSize: 16,
-        lineHeight: '1.7',
-        color: '#212121',
-        marginBottom: 16,
-        whiteSpace: 'pre-wrap',
-      }}>
+    <div className="pb-4">
+      <div className="mb-4 whitespace-pre-wrap text-base leading-[1.7] text-gray-900">
         {question.instruction}
       </div>
 
       {question.sentenceToInsert && (
-        <div style={{
-          backgroundColor: '#FFF3E0',
-          border: '2px solid #FF9800',
-          borderRadius: 8,
-          padding: '14px 20px',
-          marginBottom: 16,
-          fontSize: 15,
-          lineHeight: '1.7',
-          color: '#E65100',
-          fontWeight: 500,
-        }}>
+        <div className="mb-4 rounded-lg border-2 border-orange-500 bg-orange-50 px-5 py-3.5 text-[15px] font-medium leading-[1.7] text-orange-900">
           삽입할 문장: {question.sentenceToInsert}
         </div>
       )}
 
-      <div style={{
-        backgroundColor: '#FAFAFA',
-        border: '1px solid #E0E0E0',
-        borderRadius: 8,
-        padding: '20px 24px',
-        marginBottom: 16,
-        fontSize: 15,
-        lineHeight: '2.2',
-        color: '#333',
-      }}>
+      <div className="mb-4 rounded-lg border border-gray-300 bg-gray-50 px-6 py-5 text-[15px] leading-[2.2] text-gray-700">
         {parts.map((part, idx) => (
           <span key={idx}>
-            <span style={{ whiteSpace: 'pre-wrap' }}>{part}</span>
+            <span className="whitespace-pre-wrap">{part}</span>
             {idx < insertCount && (
-              <button
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => handleSelect(idx)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  border: selectedPosition === idx
-                    ? '2px solid #1565C0'
-                    : '2px solid #BDBDBD',
-                  backgroundColor: selectedPosition === idx
-                    ? '#1565C0'
-                    : '#fff',
-                  color: selectedPosition === idx
-                    ? '#fff'
-                    : '#757575',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  margin: '0 4px',
-                  verticalAlign: 'middle',
-                  transition: 'all 0.15s',
-                }}
+                className={cn(
+                  'mx-1 inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold align-middle transition-all',
+                  selectedPosition === idx
+                    ? 'border-2 border-blue-800 bg-blue-800 text-white hover:bg-blue-800'
+                    : 'border-2 border-gray-400 bg-white text-gray-500 hover:bg-gray-100'
+                )}
               >
                 {circleLabels[idx] || idx + 1}
-              </button>
+              </Button>
             )}
           </span>
         ))}
       </div>
 
-      <div style={{
-        fontSize: 13,
-        color: '#757575',
-        marginTop: 8,
-      }}>
+      <div className="mt-2 text-[13px] text-gray-500">
         위 글에서 문장이 들어갈 가장 알맞은 곳을 선택하세요
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { cn } from '../../lib/utils';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
 
@@ -7,64 +8,6 @@ interface DropdownQuestionProps {
   answer: AnswerValue | undefined;
   onAnswer: (value: AnswerValue) => void;
 }
-
-const styles = {
-  container: {
-    padding: '0 0 16px 0',
-  },
-  instruction: {
-    fontSize: 16,
-    lineHeight: '1.7',
-    color: '#212121',
-    marginBottom: 16,
-    whiteSpace: 'pre-wrap' as const,
-  },
-  passage: {
-    backgroundColor: '#FAFAFA',
-    border: '1px solid #E0E0E0',
-    borderRadius: 8,
-    padding: '16px 20px',
-    marginBottom: 16,
-    fontSize: 15,
-    lineHeight: '2.2',
-    whiteSpace: 'pre-wrap' as const,
-    color: '#333',
-  },
-  dropdown: {
-    display: 'inline-block',
-    position: 'relative' as const,
-  },
-  dropdownButton: {
-    padding: '4px 12px',
-    fontSize: 14,
-    border: '2px solid #1565C0',
-    borderRadius: 6,
-    backgroundColor: '#E3F2FD',
-    color: '#1565C0',
-    cursor: 'pointer',
-    minWidth: 80,
-    fontWeight: 600 as const,
-  },
-  dropdownMenu: {
-    position: 'absolute' as const,
-    top: '100%',
-    left: 0,
-    zIndex: 100,
-    backgroundColor: '#fff',
-    border: '1px solid #E0E0E0',
-    borderRadius: 6,
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-    minWidth: 160,
-    marginTop: 4,
-  },
-  dropdownItem: {
-    padding: '10px 16px',
-    fontSize: 14,
-    cursor: 'pointer',
-    borderBottom: '1px solid #F5F5F5',
-    transition: 'background-color 0.1s',
-  },
-};
 
 const circleNumbers = ['①', '②', '③', '④', '⑤', '⑥'];
 
@@ -81,9 +24,9 @@ function DropdownSelect({
   const selectedOpt = options.find((o) => o.id === selectedId);
 
   return (
-    <span style={styles.dropdown}>
+    <span className="relative inline-block">
       <button
-        style={styles.dropdownButton}
+        className="min-w-[80px] rounded-md border-2 border-blue-800 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-800"
         onClick={() => setOpen(!open)}
         type="button"
       >
@@ -93,21 +36,14 @@ function DropdownSelect({
         {' ▾'}
       </button>
       {open && (
-        <div style={styles.dropdownMenu}>
+        <div className="absolute left-0 top-full z-[100] mt-1 min-w-[160px] rounded-md border border-gray-300 bg-white shadow-lg">
           {options.map((opt, idx) => (
             <div
               key={opt.id}
-              style={{
-                ...styles.dropdownItem,
-                backgroundColor: opt.id === selectedId ? '#E3F2FD' : '#fff',
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLDivElement).style.backgroundColor = '#F5F5F5';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLDivElement).style.backgroundColor =
-                  opt.id === selectedId ? '#E3F2FD' : '#fff';
-              }}
+              className={cn(
+                'cursor-pointer border-b border-gray-100 px-4 py-2.5 text-sm transition-colors hover:bg-gray-100',
+                opt.id === selectedId && 'bg-blue-50'
+              )}
               onClick={() => {
                 onSelect(opt.id);
                 setOpen(false);
@@ -139,10 +75,12 @@ export default function DropdownQuestion({
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.instruction}>{question.instruction}</div>
+    <div className="pb-4">
+      <div className="mb-4 whitespace-pre-wrap text-base leading-[1.7] text-gray-900">
+        {question.instruction}
+      </div>
 
-      <div style={styles.passage}>
+      <div className="mb-4 whitespace-pre-wrap rounded-lg border border-gray-300 bg-gray-50 px-5 py-4 text-[15px] leading-[2.2] text-gray-700">
         {parts.map((part, idx) => (
           <span key={idx}>
             {part}

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../api/adminApi';
 import AdminLayout from '../components/AdminLayout';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 
 interface LlmSettings {
   provider: string;
@@ -57,7 +60,7 @@ const LlmSettingsPage: React.FC = () => {
   if (loading) {
     return (
       <AdminLayout>
-        <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>불러오는 중...</div>
+        <div className="py-10 text-center text-gray-500">불러오는 중...</div>
       </AdminLayout>
     );
   }
@@ -65,172 +68,107 @@ const LlmSettingsPage: React.FC = () => {
   if (error) {
     return (
       <AdminLayout>
-        <div style={{ padding: '40px', textAlign: 'center', color: '#dc2626' }}>{error}</div>
+        <div className="py-10 text-center text-red-600">{error}</div>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#111827' }}>LLM 설정</h1>
-        <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900">LLM 설정</h1>
+        <p className="text-sm text-gray-500 mt-1">
           해설 생성에 사용되는 LLM 설정을 확인합니다.
         </p>
       </div>
 
       {/* 설정 정보 패널 */}
-      <div
-        style={{
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb',
-          padding: '24px',
-          marginBottom: '24px',
-        }}
-      >
-        <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px', color: '#111827' }}>
-          현재 설정
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-          <div
-            style={{
-              padding: '16px',
-              backgroundColor: '#f9fafb',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-            }}
-          >
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase' }}>
-              Provider
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>현재 설정</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-xs font-semibold text-gray-500 mb-1 uppercase">Provider</div>
+              <div className="text-lg font-bold text-gray-900">
+                {settings?.provider === 'anthropic' ? 'Anthropic' : 'OpenAI'}
+              </div>
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>
-              {settings?.provider === 'anthropic' ? 'Anthropic' : 'OpenAI'}
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-xs font-semibold text-gray-500 mb-1 uppercase">Model</div>
+              <div className="text-lg font-bold text-gray-900">
+                {settings?.model}
+              </div>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-xs font-semibold text-gray-500 mb-1 uppercase">API Key</div>
+              <div className={cn('text-lg font-bold', settings?.hasApiKey ? 'text-emerald-600' : 'text-red-600')}>
+                {settings?.hasApiKey ? '설정됨' : '미설정'}
+              </div>
             </div>
           </div>
-          <div
-            style={{
-              padding: '16px',
-              backgroundColor: '#f9fafb',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-            }}
-          >
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase' }}>
-              Model
-            </div>
-            <div style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>
-              {settings?.model}
-            </div>
-          </div>
-          <div
-            style={{
-              padding: '16px',
-              backgroundColor: '#f9fafb',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-            }}
-          >
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase' }}>
-              API Key
-            </div>
-            <div style={{ fontSize: '18px', fontWeight: 700, color: settings?.hasApiKey ? '#059669' : '#dc2626' }}>
-              {settings?.hasApiKey ? '설정됨' : '미설정'}
-            </div>
-          </div>
-        </div>
 
-        <div
-          style={{
-            marginTop: '16px',
-            padding: '12px 16px',
-            backgroundColor: '#eff6ff',
-            borderRadius: '6px',
-            border: '1px solid #bfdbfe',
-            fontSize: '13px',
-            color: '#1e40af',
-            lineHeight: '1.5',
-          }}
-        >
-          LLM 설정은 서버 환경변수(LLM_PROVIDER, LLM_MODEL, LLM_API_KEY)를 통해 구성됩니다.
-          설정을 변경하려면 서버 환경변수를 수정한 후 재시작하세요.
-        </div>
-      </div>
+          <div className="mt-4 px-4 py-3 bg-blue-50 rounded-md border border-blue-200 text-[13px] text-blue-800 leading-relaxed">
+            LLM 설정은 서버 환경변수(LLM_PROVIDER, LLM_MODEL, LLM_API_KEY)를 통해 구성됩니다.
+            설정을 변경하려면 서버 환경변수를 수정한 후 재시작하세요.
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 해설 테스트 */}
-      <div
-        style={{
-          backgroundColor: '#fff',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb',
-          padding: '24px',
-        }}
-      >
-        <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px', color: '#111827' }}>
-          해설 테스트
-        </h2>
-        <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
-          LLM API 연결 상태를 확인하고 테스트 해설을 생성합니다.
-        </p>
-        <button
-          onClick={handleTest}
-          disabled={testing || !settings?.hasApiKey}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: !settings?.hasApiKey ? '#d1d5db' : '#1e293b',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: testing || !settings?.hasApiKey ? 'not-allowed' : 'pointer',
-            opacity: testing ? 0.6 : 1,
-          }}
-        >
-          {testing ? '생성 중...' : '해설 테스트'}
-        </button>
-
-        {!settings?.hasApiKey && (
-          <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '8px' }}>
-            API 키가 설정되지 않아 테스트를 실행할 수 없습니다.
+      <Card>
+        <CardHeader>
+          <CardTitle>해설 테스트</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-[13px] text-gray-500 mb-4">
+            LLM API 연결 상태를 확인하고 테스트 해설을 생성합니다.
           </p>
-        )}
-
-        {testResult && (
-          <div
-            style={{
-              marginTop: '16px',
-              padding: '16px',
-              borderRadius: '8px',
-              border: '1px solid',
-              borderColor: testResult.result === 'ok' ? '#a7f3d0' : '#fecaca',
-              backgroundColor: testResult.result === 'ok' ? '#ecfdf5' : '#fef2f2',
-            }}
-          >
-            {testResult.result === 'ok' ? (
-              <>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#065f46', marginBottom: '8px' }}>
-                  테스트 성공 (모델: {testResult.model})
-                </div>
-                <div
-                  style={{
-                    fontSize: '13px',
-                    color: '#374151',
-                    lineHeight: '1.6',
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {testResult.explanation}
-                </div>
-              </>
-            ) : (
-              <div style={{ fontSize: '13px', color: '#991b1b' }}>
-                {testResult.message}
-              </div>
+          <Button
+            onClick={handleTest}
+            disabled={testing || !settings?.hasApiKey}
+            className={cn(
+              'text-white',
+              !settings?.hasApiKey ? 'bg-gray-300' : 'bg-slate-800 hover:bg-slate-700'
             )}
-          </div>
-        )}
-      </div>
+          >
+            {testing ? '생성 중...' : '해설 테스트'}
+          </Button>
+
+          {!settings?.hasApiKey && (
+            <p className="text-xs text-red-600 mt-2">
+              API 키가 설정되지 않아 테스트를 실행할 수 없습니다.
+            </p>
+          )}
+
+          {testResult && (
+            <div
+              className={cn(
+                'mt-4 p-4 rounded-lg border',
+                testResult.result === 'ok'
+                  ? 'border-green-300 bg-green-50'
+                  : 'border-red-300 bg-red-50'
+              )}
+            >
+              {testResult.result === 'ok' ? (
+                <>
+                  <div className="text-[13px] font-semibold text-green-800 mb-2">
+                    테스트 성공 (모델: {testResult.model})
+                  </div>
+                  <div className="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {testResult.explanation}
+                  </div>
+                </>
+              ) : (
+                <div className="text-[13px] text-red-800">
+                  {testResult.message}
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </AdminLayout>
   );
 };

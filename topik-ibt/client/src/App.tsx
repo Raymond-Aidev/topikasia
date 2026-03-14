@@ -54,7 +54,7 @@ const RegistrationConfirmPage = lazy(() => import('./registration/pages/Registra
 const RegistrationCompletePage = lazy(() => import('./registration/pages/RegistrationCompletePage'));
 const MyPage = lazy(() => import('./registration/pages/MyPage'));
 
-const Loading = () => <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>로딩 중...</div>;
+const Loading = () => <div className="flex justify-center items-center h-screen">로딩 중...</div>;
 
 function App() {
   return (

@@ -6,107 +6,21 @@ import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { fetchMyRegistrations, downloadTicket } from '../api/registrationApi';
 import type { Registration } from '../types/registration.types';
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  content: {
-    maxWidth: 1000,
-    margin: '0 auto',
-    padding: '32px 24px',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 700 as const,
-    color: '#212121',
-    marginBottom: 24,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-    overflow: 'hidden',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-  },
-  th: {
-    padding: '14px 16px',
-    backgroundColor: '#F5F5F5',
-    fontWeight: 600 as const,
-    fontSize: 13,
-    color: '#616161',
-    textAlign: 'left' as const,
-    borderBottom: '1px solid #E0E0E0',
-  },
-  td: {
-    padding: '14px 16px',
-    fontSize: 14,
-    color: '#212121',
-    borderBottom: '1px solid #F5F5F5',
-  },
-  statusBadge: (status: string) => ({
-    display: 'inline-block',
-    padding: '4px 12px',
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: 600 as const,
-    color: '#fff',
-    backgroundColor:
-      status === 'APPROVED'
-        ? '#4CAF50'
-        : status === 'PENDING'
-          ? '#FF9800'
-          : status === 'REJECTED'
-            ? '#E53935'
-            : '#9E9E9E',
-  }),
-  ticketBtn: {
-    padding: '6px 16px',
-    fontSize: 12,
-    fontWeight: 600 as const,
-    color: '#1565C0',
-    backgroundColor: '#E3F2FD',
-    border: 'none',
-    borderRadius: 6,
-    cursor: 'pointer',
-    marginLeft: 8,
-  },
-  newBtn: {
-    marginTop: 24,
-    padding: '12px 32px',
-    fontSize: 15,
-    fontWeight: 700 as const,
-    color: '#FFFFFF',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  loading: {
-    textAlign: 'center' as const,
-    padding: 40,
-    color: '#9E9E9E',
-    fontSize: 15,
-  },
-  empty: {
-    textAlign: 'center' as const,
-    padding: 60,
-    color: '#9E9E9E',
-    fontSize: 15,
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: '접수대기',
   APPROVED: '접수완료',
   REJECTED: '반려',
   CANCELLED: '취소됨',
+};
+
+const STATUS_BG: Record<string, string> = {
+  APPROVED: 'bg-green-500',
+  PENDING: 'bg-orange-500',
+  REJECTED: 'bg-red-500',
+  CANCELLED: 'bg-gray-400',
 };
 
 export default function MyPage() {
@@ -148,58 +62,62 @@ export default function MyPage() {
   };
 
   return (
-    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={{ ...styles.content, padding: isMobile ? '24px 16px' : '32px 24px' }}>
-        <div style={styles.title}>내 접수 내역</div>
+      <div className={cn('max-w-[1000px] mx-auto', isMobile ? 'px-4 py-6' : 'px-6 py-8')}>
+        <div className="text-2xl font-bold text-gray-900 mb-6">내 접수 내역</div>
 
-        {loading && <div style={styles.loading}>불러오는 중...</div>}
+        {loading && <div className="text-center p-10 text-gray-400 text-[15px]">불러오는 중...</div>}
 
         {!loading && registrations.length === 0 && (
-          <div style={styles.empty}>접수 내역이 없습니다.</div>
+          <div className="text-center p-16 text-gray-400 text-[15px]">접수 내역이 없습니다.</div>
         )}
 
         {!loading && registrations.length > 0 && (
-          <div style={styles.card}>
-            <div style={{ overflowX: isMobile ? 'auto' : undefined }}>
-            <table style={{ ...styles.table, minWidth: isMobile ? 700 : undefined }}>
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className={cn(isMobile && 'overflow-x-auto')}>
+            <table className={cn('w-full border-collapse', isMobile && 'min-w-[700px]')}>
               <thead>
                 <tr>
-                  <th style={styles.th}>접수번호</th>
-                  <th style={styles.th}>시험</th>
-                  <th style={styles.th}>시험일</th>
-                  <th style={styles.th}>시험장</th>
-                  <th style={styles.th}>영문 성명</th>
-                  <th style={styles.th}>상태</th>
-                  <th style={styles.th}></th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">접수번호</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험일</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험장</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">영문 성명</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">상태</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200"></th>
                 </tr>
               </thead>
               <tbody>
                 {registrations.map((reg) => (
                   <tr key={reg.id}>
-                    <td style={styles.td}>{reg.registrationNumber}</td>
-                    <td style={styles.td}>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.registrationNumber}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                       {reg.examSchedule
                         ? `${reg.examSchedule.examName}`
                         : '-'}
                     </td>
-                    <td style={styles.td}>{reg.examSchedule?.examDate || '-'}</td>
-                    <td style={styles.td}>{reg.venue?.name || '-'}</td>
-                    <td style={styles.td}>{reg.englishName}</td>
-                    <td style={styles.td}>
-                      <span style={styles.statusBadge(reg.status)}>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.examSchedule?.examDate || '-'}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.venue?.name || '-'}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.englishName}</td>
+                    <td className="px-4 py-3.5 text-sm border-b border-gray-100">
+                      <span className={cn(
+                        'inline-block px-3 py-1 rounded-xl text-xs font-semibold text-white',
+                        STATUS_BG[reg.status] || 'bg-gray-400'
+                      )}>
                         {STATUS_LABELS[reg.status] || reg.status}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td className="px-4 py-3.5 text-sm border-b border-gray-100">
                       {reg.status === 'APPROVED' && (
-                        <button
-                          style={styles.ticketBtn}
+                        <Button
+                          variant="secondary"
+                          className="px-4 py-1.5 text-xs font-semibold text-[#1565C0] bg-blue-50 hover:bg-blue-100 rounded-md ml-2"
                           onClick={() => handleDownload(reg)}
                         >
                           수험표
-                        </button>
+                        </Button>
                       )}
                     </td>
                   </tr>
@@ -210,9 +128,12 @@ export default function MyPage() {
           </div>
         )}
 
-        <button style={styles.newBtn} onClick={handleNewRegistration}>
+        <Button
+          className="mt-6 px-8 py-3 text-[15px] font-bold bg-[#1565C0] hover:bg-[#1256A8] text-white rounded-lg"
+          onClick={handleNewRegistration}
+        >
           새 시험 접수하기
-        </button>
+        </Button>
       </div>
       <Footer />
     </div>

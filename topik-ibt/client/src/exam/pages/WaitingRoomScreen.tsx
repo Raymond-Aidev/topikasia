@@ -6,6 +6,8 @@ import { useExamStore } from '../../store/examStore';
 import ExamHeader from '../../shared/components/ExamHeader';
 import ExamineeCard from '../../shared/components/ExamineeCard';
 import CountdownOverlay from '../../shared/components/CountdownOverlay';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const WS_URL = import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -13,75 +15,6 @@ const SECTION_LABEL: Record<string, string> = {
   LISTENING: '듣기',
   WRITING: '쓰기',
   READING: '읽기',
-};
-
-const styles = {
-  page: {
-    paddingTop: 72,
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-  },
-  content: {
-    maxWidth: 600,
-    margin: '0 auto',
-    padding: '24px 16px',
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: 700 as const,
-    color: '#1565C0',
-    marginBottom: 20,
-    textAlign: 'center' as const,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 600 as const,
-    color: '#424242',
-    margin: '24px 0 12px',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden' as const,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-  },
-  th: {
-    padding: '12px 14px',
-    backgroundColor: '#E3F2FD',
-    fontSize: 13,
-    fontWeight: 600 as const,
-    color: '#1565C0',
-    textAlign: 'left' as const,
-    borderBottom: '1px solid #BBDEFB',
-  },
-  td: {
-    padding: '12px 14px',
-    fontSize: 14,
-    color: '#424242',
-    borderBottom: '1px solid #F5F5F5',
-  },
-  status: {
-    marginTop: 24,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    textAlign: 'center' as const,
-    fontSize: 15,
-    color: '#616161',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-  },
-  dot: {
-    display: 'inline-block',
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
-    backgroundColor: '#4CAF50',
-    marginRight: 8,
-    animation: 'pulse 1.5s infinite',
-  },
 };
 
 export default function WaitingRoomScreen() {
@@ -163,9 +96,11 @@ export default function WaitingRoomScreen() {
 
   if (!examinee || !assignedExamSet) {
     return (
-      <div style={styles.page}>
-        <div style={styles.content}>
-          <div style={styles.status}>시험 정보를 불러올 수 없습니다.</div>
+      <div className="pt-[72px] min-h-screen bg-gray-100 font-sans">
+        <div className="max-w-[600px] mx-auto px-4 py-6">
+          <div className="mt-6 p-4 bg-white rounded-lg text-center text-[15px] text-gray-500 shadow-[0_1px_4px_rgba(0,0,0,0.08)]">
+            시험 정보를 불러올 수 없습니다.
+          </div>
         </div>
       </div>
     );
@@ -183,9 +118,9 @@ export default function WaitingRoomScreen() {
         timerMode="clock"
       />
 
-      <div style={styles.page}>
-        <div style={styles.content}>
-          <div style={styles.heading}>대기실</div>
+      <div className="pt-[72px] min-h-screen bg-gray-100 font-sans">
+        <div className="max-w-[600px] mx-auto px-4 py-6">
+          <div className="text-xl font-bold text-blue-800 mb-5 text-center">대기실</div>
 
           <ExamineeCard
             seatNumber={examinee.seatNumber}
@@ -194,52 +129,45 @@ export default function WaitingRoomScreen() {
             name={examinee.name}
           />
 
-          <div style={styles.sectionTitle}>시험 영역 일정</div>
-          <table style={styles.table}>
+          <div className="text-base font-semibold text-gray-700 mt-6 mb-3">시험 영역 일정</div>
+          <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.08)]">
             <thead>
               <tr>
-                <th style={styles.th}>영역</th>
-                <th style={styles.th}>문항 수</th>
-                <th style={styles.th}>시험 시간</th>
+                <th className="px-3.5 py-3 bg-blue-50 text-[13px] font-semibold text-blue-800 text-left border-b border-blue-100">영역</th>
+                <th className="px-3.5 py-3 bg-blue-50 text-[13px] font-semibold text-blue-800 text-left border-b border-blue-100">문항 수</th>
+                <th className="px-3.5 py-3 bg-blue-50 text-[13px] font-semibold text-blue-800 text-left border-b border-blue-100">시험 시간</th>
               </tr>
             </thead>
             <tbody>
               {assignedExamSet.sections.map((sec) => (
                 <tr key={sec.section}>
-                  <td style={styles.td}>{SECTION_LABEL[sec.section] || sec.section}</td>
-                  <td style={styles.td}>{sec.questionCount}문항</td>
-                  <td style={styles.td}>{sec.durationMinutes}분</td>
+                  <td className="px-3.5 py-3 text-sm text-gray-700 border-b border-gray-100">{SECTION_LABEL[sec.section] || sec.section}</td>
+                  <td className="px-3.5 py-3 text-sm text-gray-700 border-b border-gray-100">{sec.questionCount}문항</td>
+                  <td className="px-3.5 py-3 text-sm text-gray-700 border-b border-gray-100">{sec.durationMinutes}분</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           {isManualStart ? (
-            <div style={{ marginTop: 24, textAlign: 'center' }}>
-              <div style={{
-                padding: 16, backgroundColor: '#fff', borderRadius: 8,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: 16,
-                fontSize: 14, color: '#616161',
-              }}>
+            <div className="mt-6 text-center">
+              <div className="p-4 bg-white rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.08)] mb-4 text-sm text-gray-500">
                 감독관 수동 시작 모드입니다. 준비가 되면 아래 버튼을 눌러 시험을 시작하세요.
               </div>
-              <button
+              <Button
                 onClick={handleManualStart}
                 disabled={manualStarting}
-                style={{
-                  padding: '14px 48px', borderRadius: 8, border: 'none',
-                  backgroundColor: manualStarting ? '#93C5FD' : '#1565C0',
-                  color: '#fff', fontSize: 17, fontWeight: 700,
-                  cursor: manualStarting ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 2px 8px rgba(21,101,192,0.3)',
-                }}
+                className={cn(
+                  'px-12 py-3.5 rounded-lg text-[17px] font-bold shadow-[0_2px_8px_rgba(21,101,192,0.3)] h-auto',
+                  manualStarting ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-800 hover:bg-blue-900'
+                )}
               >
                 {manualStarting ? '시작하는 중...' : '시험 시작'}
-              </button>
+              </Button>
             </div>
           ) : (
-            <div style={styles.status}>
-              <span style={styles.dot} />
+            <div className="mt-6 p-4 bg-white rounded-lg text-center text-[15px] text-gray-500 shadow-[0_1px_4px_rgba(0,0,0,0.08)]">
+              <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
               {connected ? '서버 연결됨 — 시험 시작을 기다리고 있습니다...' : '서버에 연결 중...'}
             </div>
           )}

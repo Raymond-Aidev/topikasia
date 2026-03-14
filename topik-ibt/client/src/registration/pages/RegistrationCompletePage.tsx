@@ -4,95 +4,8 @@ import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { downloadTicket } from '../api/registrationApi';
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  content: {
-    maxWidth: 560,
-    margin: '0 auto',
-    padding: '60px 24px',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: '48px 40px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-    textAlign: 'center' as const,
-  },
-  checkIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: '50%',
-    backgroundColor: '#E8F5E9',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 24px',
-    fontSize: 36,
-    color: '#4CAF50',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 800 as const,
-    color: '#212121',
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#616161',
-    marginBottom: 32,
-    lineHeight: 1.5,
-  },
-  infoTable: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-    marginBottom: 32,
-    textAlign: 'left' as const,
-  },
-  infoLabel: {
-    padding: '10px 16px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    color: '#757575',
-    width: 120,
-  },
-  infoValue: {
-    padding: '10px 16px',
-    fontSize: 15,
-    color: '#212121',
-    fontWeight: 500 as const,
-  },
-  btnRow: {
-    display: 'flex',
-    gap: 16,
-    justifyContent: 'center',
-  },
-  downloadBtn: {
-    padding: '14px 32px',
-    fontSize: 15,
-    fontWeight: 700 as const,
-    color: '#FFFFFF',
-    backgroundColor: '#4CAF50',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  mypageBtn: {
-    padding: '14px 32px',
-    fontSize: 15,
-    fontWeight: 600 as const,
-    color: '#1565C0',
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #1565C0',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 export default function RegistrationCompletePage() {
   const { isMobile, isTablet } = useResponsive();
@@ -121,58 +34,51 @@ export default function RegistrationCompletePage() {
   };
 
   return (
-    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={{ ...styles.content, maxWidth: isMobile ? '100%' : 560, padding: isMobile ? '32px 16px' : '60px 24px' }}>
-        <div style={{ ...styles.card, padding: isMobile ? '32px 20px' : '48px 40px' }}>
-          <div style={styles.checkIcon}>&#10003;</div>
-          <div style={styles.title}>접수가 완료되었습니다</div>
-          <div style={styles.subtitle}>
+      <div className={cn('mx-auto', isMobile ? 'max-w-full px-4 py-8' : 'max-w-[560px] px-6 py-16')}>
+        <div className={cn('bg-white rounded-2xl shadow-lg text-center', isMobile ? 'px-5 py-8' : 'px-10 py-12')}>
+          <div className="w-[72px] h-[72px] rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6 text-4xl text-green-500">
+            &#10003;
+          </div>
+          <div className="text-[26px] font-extrabold text-gray-900 mb-3">접수가 완료되었습니다</div>
+          <div className="text-[15px] text-gray-600 mb-8 leading-relaxed">
             시험 접수가 승인되었습니다.
             <br />
             수험표를 다운로드하세요.
           </div>
 
-          <table style={styles.infoTable}>
+          <table className="w-full border-collapse mb-8 text-left">
             <tbody>
               <tr>
-                <td style={styles.infoLabel}>접수번호</td>
-                <td style={styles.infoValue}>
+                <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">접수번호</td>
+                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
                   {currentRegistration?.registrationNumber || '-'}
                 </td>
               </tr>
               <tr>
-                <td style={styles.infoLabel}>시험</td>
-                <td style={styles.infoValue}>
+                <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">시험</td>
+                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
                   {selectedSchedule
                     ? `${selectedSchedule.examName} (${selectedSchedule.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'})`
                     : '-'}
                 </td>
               </tr>
               <tr>
-                <td style={styles.infoLabel}>시험일</td>
-                <td style={styles.infoValue}>{selectedSchedule?.examDate || '-'}</td>
+                <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">시험일</td>
+                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">{selectedSchedule?.examDate || '-'}</td>
               </tr>
               <tr>
-                <td style={styles.infoLabel}>시험장</td>
-                <td style={styles.infoValue}>
+                <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">시험장</td>
+                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
                   {currentRegistration?.venue?.name || '-'}
                 </td>
               </tr>
               <tr>
-                <td style={styles.infoLabel}>상태</td>
-                <td style={styles.infoValue}>
-                  <span
-                    style={{
-                      padding: '4px 12px',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: '#fff',
-                      backgroundColor: '#4CAF50',
-                    }}
-                  >
+                <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">상태</td>
+                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
+                  <span className="inline-block px-3 py-1 rounded-xl text-xs font-semibold text-white bg-green-500">
                     승인완료
                   </span>
                 </td>
@@ -180,13 +86,20 @@ export default function RegistrationCompletePage() {
             </tbody>
           </table>
 
-          <div style={styles.btnRow}>
-            <button style={styles.downloadBtn} onClick={handleDownloadTicket}>
+          <div className="flex gap-4 justify-center">
+            <Button
+              className="px-8 py-3.5 text-[15px] font-bold bg-green-500 hover:bg-green-600 text-white rounded-lg"
+              onClick={handleDownloadTicket}
+            >
               수험표 다운로드
-            </button>
-            <button style={styles.mypageBtn} onClick={handleMyPage}>
+            </Button>
+            <Button
+              variant="outline"
+              className="px-8 py-3.5 text-[15px] font-semibold text-[#1565C0] border-[#1565C0] rounded-lg"
+              onClick={handleMyPage}
+            >
               마이페이지
-            </button>
+            </Button>
           </div>
         </div>
       </div>

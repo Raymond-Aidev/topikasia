@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useRegistrationStore } from '../../registration/store/registrationStore';
 import { useResponsive } from '../hooks/useResponsive';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Separator } from '../../components/ui/separator';
 
 const UTILITY_HEIGHT = 40;
 const MAIN_NAV_HEIGHT = 72;
@@ -48,32 +51,21 @@ export default function GlobalNavigationBar() {
   if (compact) {
     return (
       <>
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-          height: MOBILE_NAV_HEIGHT, backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E0E0E0',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 16px', fontFamily: 'sans-serif',
-        }}>
-          <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => handleNav('/')}>
-            <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 36, objectFit: 'contain' as const }} />
+        <div className="fixed top-0 left-0 right-0 z-[1000] flex items-center justify-between border-b border-border bg-white px-4" style={{ height: MOBILE_NAV_HEIGHT }}>
+          <div className="cursor-pointer flex items-center" onClick={() => handleNav('/')}>
+            <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-9 object-contain" />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button
-              style={{
-                padding: '6px 14px', borderRadius: 20, border: 'none',
-                fontSize: 12, fontWeight: 700, backgroundColor: '#1976D2', color: '#fff', cursor: 'pointer',
-              }}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              className="rounded-full bg-accent text-accent-foreground text-xs font-bold"
               onClick={() => handleNav('/registration/schedules')}
             >
               시험접수
-            </button>
+            </Button>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              style={{
-                border: 'none', background: 'none', cursor: 'pointer',
-                fontSize: 24, padding: '4px 8px', color: '#333',
-              }}
+              className="border-none bg-transparent cursor-pointer text-2xl px-2 py-1 text-foreground"
               aria-label="메뉴"
             >
               {menuOpen ? '✕' : '☰'}
@@ -85,93 +77,69 @@ export default function GlobalNavigationBar() {
         {menuOpen && (
           <>
             <div
-              style={{
-                position: 'fixed', top: MOBILE_NAV_HEIGHT, left: 0, right: 0, bottom: 0,
-                backgroundColor: 'rgba(0,0,0,0.3)', zIndex: 999,
-              }}
+              className="fixed left-0 right-0 bottom-0 bg-black/30 z-[999]"
+              style={{ top: MOBILE_NAV_HEIGHT }}
               onClick={() => setMenuOpen(false)}
             />
-            <div style={{
-              position: 'fixed', top: MOBILE_NAV_HEIGHT, left: 0, right: 0,
-              backgroundColor: '#FFFFFF', zIndex: 1000,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              padding: '8px 0', fontFamily: 'sans-serif',
-            }}>
+            <div
+              className="fixed left-0 right-0 bg-white z-[1000] shadow-lg py-2"
+              style={{ top: MOBILE_NAV_HEIGHT }}
+            >
               {MENU_ITEMS.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleNav(item.path)}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    padding: '14px 20px', border: 'none', background: 'none',
-                    fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                    color: location.pathname === item.path ? '#1565C0' : '#333',
-                    backgroundColor: location.pathname === item.path ? '#F0F7FF' : 'transparent',
-                  }}
+                  className={cn(
+                    "block w-full text-left px-5 py-3.5 border-none bg-transparent text-[15px] font-semibold cursor-pointer",
+                    location.pathname === item.path
+                      ? "text-accent bg-accent/10"
+                      : "text-foreground"
+                  )}
                 >
                   {item.label}
                 </button>
               ))}
-              <div style={{ height: 1, backgroundColor: '#E0E0E0', margin: '4px 0' }} />
+              <Separator />
               <button
                 onClick={() => handleNav('/exam/score')}
-                style={{
-                  display: 'block', width: '100%', textAlign: 'left',
-                  padding: '14px 20px', border: 'none', background: 'none',
-                  fontSize: 14, fontWeight: 600, color: '#333', cursor: 'pointer', fontFamily: 'inherit',
-                }}
+                className="block w-full text-left px-5 py-3.5 border-none bg-transparent text-sm font-semibold text-foreground cursor-pointer"
               >
                 성적확인
               </button>
-              <div style={{ height: 1, backgroundColor: '#E0E0E0', margin: '4px 0' }} />
+              <Separator />
               {isLoggedIn && user ? (
                 <>
-                  <div style={{ padding: '10px 20px', fontSize: 13, color: '#616161' }}>
+                  <div className="px-5 py-2.5 text-[13px] text-muted-foreground">
                     <strong>{user.name}</strong>님
                   </div>
                   <button
                     onClick={() => handleNav('/registration/mypage')}
-                    style={{
-                      display: 'block', width: '100%', textAlign: 'left',
-                      padding: '12px 20px', border: 'none', background: 'none',
-                      fontSize: 14, color: '#333', cursor: 'pointer', fontFamily: 'inherit',
-                    }}
+                    className="block w-full text-left px-5 py-3 border-none bg-transparent text-sm text-foreground cursor-pointer"
                   >
                     마이페이지
                   </button>
                   <button
                     onClick={handleLogout}
-                    style={{
-                      display: 'block', width: '100%', textAlign: 'left',
-                      padding: '12px 20px', border: 'none', background: 'none',
-                      fontSize: 14, color: '#C62828', cursor: 'pointer', fontFamily: 'inherit',
-                    }}
+                    className="block w-full text-left px-5 py-3 border-none bg-transparent text-sm text-destructive cursor-pointer"
                   >
                     로그아웃
                   </button>
                 </>
               ) : (
-                <div style={{ display: 'flex', gap: 8, padding: '12px 20px' }}>
-                  <button
+                <div className="flex gap-2 px-5 py-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-accent text-accent"
                     onClick={() => handleNav('/registration/login')}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 6,
-                      border: '1px solid #1565C0', background: '#fff',
-                      color: '#1565C0', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                    }}
                   >
                     로그인
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    className="flex-1 bg-accent text-accent-foreground"
                     onClick={() => handleNav('/registration/signup')}
-                    style={{
-                      flex: 1, padding: '10px 0', borderRadius: 6,
-                      border: 'none', backgroundColor: '#1565C0',
-                      color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                    }}
                   >
                     회원가입
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -183,69 +151,58 @@ export default function GlobalNavigationBar() {
 
   // ── Desktop ──
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, fontFamily: 'sans-serif' }}>
+    <div className="fixed top-0 left-0 right-0 z-[1000]">
       {/* 유틸리티 바 */}
-      <div style={{
-        height: UTILITY_HEIGHT, backgroundColor: '#FAFAFA',
-        borderBottom: '1px solid #E0E0E0',
-        display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-        padding: '0 24px', gap: 16,
-      }}>
+      <div className="flex items-center justify-end gap-4 border-b border-border bg-muted px-6" style={{ height: UTILITY_HEIGHT }}>
         {isLoggedIn && user ? (
           <>
-            <span style={{ fontSize: 13, color: '#333' }}><strong>{user.name}</strong>님</span>
-            <span style={{ color: '#BDBDBD', fontSize: 12 }}>|</span>
-            <button onClick={handleLogout} style={{ fontSize: 13, color: '#616161', cursor: 'pointer', border: 'none', background: 'none', padding: 0, fontFamily: 'inherit' }}>로그아웃</button>
-            <span style={{ color: '#BDBDBD', fontSize: 12 }}>|</span>
-            <button onClick={() => navigate('/registration/mypage')} style={{ fontSize: 13, color: '#616161', cursor: 'pointer', border: 'none', background: 'none', padding: 0, fontFamily: 'inherit' }}>마이페이지</button>
+            <span className="text-[13px] text-foreground"><strong>{user.name}</strong>님</span>
+            <span className="text-muted-foreground text-xs">|</span>
+            <button onClick={handleLogout} className="text-[13px] text-muted-foreground cursor-pointer border-none bg-transparent p-0">로그아웃</button>
+            <span className="text-muted-foreground text-xs">|</span>
+            <button onClick={() => navigate('/registration/mypage')} className="text-[13px] text-muted-foreground cursor-pointer border-none bg-transparent p-0">마이페이지</button>
           </>
         ) : (
           <>
-            <button onClick={() => navigate('/registration/login')} style={{ fontSize: 13, color: '#616161', cursor: 'pointer', border: 'none', background: 'none', padding: 0, fontFamily: 'inherit' }}>로그인</button>
-            <span style={{ color: '#BDBDBD', fontSize: 12 }}>|</span>
-            <button onClick={() => navigate('/registration/signup')} style={{ fontSize: 13, color: '#616161', cursor: 'pointer', border: 'none', background: 'none', padding: 0, fontFamily: 'inherit' }}>회원가입</button>
+            <button onClick={() => navigate('/registration/login')} className="text-[13px] text-muted-foreground cursor-pointer border-none bg-transparent p-0">로그인</button>
+            <span className="text-muted-foreground text-xs">|</span>
+            <button onClick={() => navigate('/registration/signup')} className="text-[13px] text-muted-foreground cursor-pointer border-none bg-transparent p-0">회원가입</button>
           </>
         )}
-        <span style={{ color: '#BDBDBD', fontSize: 12 }}>|</span>
-        <span style={{ fontSize: 13, color: '#616161' }}>🌐 한국어</span>
+        <span className="text-muted-foreground text-xs">|</span>
+        <span className="text-[13px] text-muted-foreground">🌐 한국어</span>
       </div>
 
       {/* 메인 내비게이션 */}
-      <div style={{ height: MAIN_NAV_HEIGHT, backgroundColor: '#FFFFFF', borderBottom: '2px solid #E0E0E0' }}>
-        <div style={{
-          height: MAIN_NAV_HEIGHT, display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', padding: '0 24px',
-          maxWidth: 1200, margin: '0 auto',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
-              <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const }} />
+      <div className="bg-white border-b-2 border-border" style={{ height: MAIN_NAV_HEIGHT }}>
+        <div className="flex items-center justify-between px-6 max-w-[1200px] mx-auto" style={{ height: MAIN_NAV_HEIGHT }}>
+          <div className="flex items-center gap-4">
+            <div className="cursor-pointer flex items-center" onClick={() => navigate('/')}>
+              <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-12 object-contain" />
             </div>
-            <button
-              style={{ padding: '8px 22px', borderRadius: 24, border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', backgroundColor: '#1976D2', color: '#FFFFFF' }}
+            <Button
+              className="rounded-full bg-accent text-accent-foreground font-bold"
               onClick={() => navigate('/registration/schedules')}
             >
               시험접수
-            </button>
-            <button
-              style={{ padding: '8px 22px', borderRadius: 24, border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', backgroundColor: '#333333', color: '#FFFFFF' }}
+            </Button>
+            <Button
+              className="rounded-full bg-primary text-primary-foreground font-bold"
               onClick={() => navigate('/exam/score')}
             >
               성적확인
-            </button>
+            </Button>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+          <div className="flex items-center gap-7">
             {MENU_ITEMS.map((item) => (
               <button
                 key={item.label}
-                style={{
-                  fontSize: 16, fontWeight: 600, cursor: 'pointer',
-                  border: 'none', background: 'none', padding: '4px 0',
-                  fontFamily: 'inherit',
-                  borderBottom: '2px solid',
-                  color: location.pathname === item.path ? '#1565C0' : '#333333',
-                  borderBottomColor: location.pathname === item.path ? '#1565C0' : 'transparent',
-                }}
+                className={cn(
+                  "text-base font-semibold cursor-pointer border-none bg-transparent py-1 border-b-2",
+                  location.pathname === item.path
+                    ? "text-accent border-b-accent"
+                    : "text-foreground border-b-transparent"
+                )}
                 onClick={() => navigate(item.path)}
               >
                 {item.label}

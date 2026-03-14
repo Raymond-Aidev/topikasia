@@ -6,105 +6,11 @@ import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { login } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  card: {
-    width: 400,
-    padding: 40,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-    textAlign: 'center' as const,
-  },
-  logo: {
-    fontSize: 28,
-    fontWeight: 800 as const,
-    color: '#1565C0',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#757575',
-    marginBottom: 32,
-  },
-  fieldGroup: {
-    marginBottom: 16,
-    textAlign: 'left' as const,
-  },
-  label: {
-    display: 'block',
-    fontSize: 13,
-    fontWeight: 600 as const,
-    color: '#424242',
-    marginBottom: 6,
-  },
-  input: {
-    width: '100%',
-    padding: '12px 14px',
-    fontSize: 15,
-    border: '1px solid #BDBDBD',
-    borderRadius: 8,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  },
-  button: {
-    width: '100%',
-    padding: '14px 0',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#fff',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    backgroundColor: '#90CAF9',
-    cursor: 'not-allowed' as const,
-  },
-  error: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #FFCDD2',
-  },
-  success: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#E8F5E9',
-    color: '#2E7D32',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #C8E6C9',
-  },
-  linkRow: {
-    marginTop: 20,
-    fontSize: 14,
-    color: '#757575',
-  },
-  link: {
-    color: '#1565C0',
-    fontWeight: 600 as const,
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    background: 'none',
-    border: 'none',
-    fontSize: 14,
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 export default function RegistrationLoginPage() {
   const { isMobile, isTablet } = useResponsive();
@@ -159,29 +65,36 @@ export default function RegistrationLoginPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif',
-      display: 'flex', flexDirection: 'column',
-      paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT,
-    }}>
+    <div
+      className="min-h-screen bg-gray-100 font-sans flex flex-col"
+      style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}
+    >
       <GlobalNavigationBar />
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '32px 0' : '48px 0' }}>
-      <form style={{ ...styles.card, width: isMobile ? '90%' : 400, maxWidth: 400, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
-        <div style={styles.logo}>
-          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const }} />
+      <div className={cn('flex-1 flex items-center justify-center', isMobile ? 'py-8' : 'py-12')}>
+      <form
+        className={cn(
+          'bg-white rounded-2xl shadow-lg text-center box-border',
+          isMobile ? 'w-[90%] max-w-[400px] p-6' : 'w-[400px] p-10'
+        )}
+        onSubmit={handleSubmit}
+      >
+        <div className="text-[28px] font-extrabold text-[#1565C0] mb-1">
+          <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-12 object-contain" />
         </div>
-        <div style={styles.subtitle}>시험 접수 로그인</div>
+        <div className="text-sm text-gray-500 mb-8">시험 접수 로그인</div>
 
         {verified && (
-          <div style={styles.success}>
-            이메일 인증이 완료되었습니다. 로그인해 주세요.
-          </div>
+          <Alert className="mt-4 bg-green-50 border-green-200 mb-4">
+            <AlertDescription className="text-green-700 text-[13px]">
+              이메일 인증이 완료되었습니다. 로그인해 주세요.
+            </AlertDescription>
+          </Alert>
         )}
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>이메일</label>
-          <input
-            style={styles.input}
+        <div className="mb-4 text-left">
+          <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이메일</Label>
+          <Input
+            className="w-full px-3.5 py-3 text-[15px] rounded-lg"
             type="email"
             placeholder="example@email.com"
             value={email}
@@ -190,11 +103,11 @@ export default function RegistrationLoginPage() {
           />
         </div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>비밀번호</label>
-          <div style={{ position: 'relative' }}>
-            <input
-              style={{ ...styles.input, paddingRight: 44 }}
+        <div className="mb-4 text-left">
+          <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호</Label>
+          <div className="relative">
+            <Input
+              className="w-full px-3.5 py-3 pr-11 text-[15px] rounded-lg"
               type={showPassword ? 'text' : 'password'}
               placeholder="비밀번호 입력"
               value={password}
@@ -203,11 +116,7 @@ export default function RegistrationLoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              style={{
-                position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-                fontSize: 18, color: '#757575', lineHeight: 1,
-              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 text-lg text-gray-500 leading-none"
               tabIndex={-1}
               aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
             >
@@ -216,21 +125,28 @@ export default function RegistrationLoginPage() {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
-          style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
+          className={cn(
+            'w-full py-3.5 text-base font-bold rounded-lg mt-2',
+            loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-[#1565C0] hover:bg-[#1256A8] text-white'
+          )}
           disabled={loading}
         >
           {loading ? '로그인 중...' : '로그인'}
-        </button>
+        </Button>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {error && (
+          <Alert variant="destructive" className="mt-4 bg-red-50 border-red-200">
+            <AlertDescription className="text-red-800 text-[13px]">{error}</AlertDescription>
+          </Alert>
+        )}
 
-        <div style={styles.linkRow}>
+        <div className="mt-5 text-sm text-gray-500">
           계정이 없으신가요?{' '}
           <button
             type="button"
-            style={styles.link}
+            className="text-[#1565C0] font-semibold cursor-pointer underline bg-transparent border-none text-sm"
             onClick={() => navigate('/registration/signup')}
           >
             회원가입

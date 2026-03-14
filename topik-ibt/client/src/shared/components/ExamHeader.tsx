@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { cn } from '../../lib/utils';
 
 interface ExamHeaderProps {
   registrationNumber?: string;
@@ -7,41 +8,6 @@ interface ExamHeaderProps {
   remainingSeconds?: number;
   onTimerExpire?: () => void;
 }
-
-const styles = {
-  header: {
-    position: 'fixed' as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 56,
-    backgroundColor: '#1565C0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 24px',
-    zIndex: 1000,
-    color: '#fff',
-    fontFamily: 'sans-serif',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-  },
-  left: {
-    fontSize: 14,
-    fontWeight: 500 as const,
-  },
-  center: {
-    fontSize: 18,
-    fontWeight: 700 as const,
-    position: 'absolute' as const,
-    left: '50%',
-    transform: 'translateX(-50%)',
-  },
-  right: {
-    fontSize: 16,
-    fontWeight: 600 as const,
-    fontVariantNumeric: 'tabular-nums' as const,
-  },
-};
 
 function formatTime(totalSeconds: number): string {
   const h = Math.floor(totalSeconds / 3600);
@@ -75,14 +41,14 @@ export default function ExamHeader({ registrationNumber, examTitle, timerMode, r
   const timerValue = timerMode === 'countdown' ? formatTime(remainingSeconds) : formatClock(clock);
 
   return (
-    <div style={styles.header}>
-      <div style={styles.left}>{registrationNumber || ''}</div>
-      <div style={styles.center}>
-        <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 32, objectFit: 'contain' as const, filter: 'brightness(0) invert(1)', marginRight: 8, verticalAlign: 'middle' }} />
-        <span style={{ verticalAlign: 'middle' }}>{examTitle || 'IBT'}</span>
+    <div className="fixed top-0 left-0 right-0 h-14 bg-accent flex items-center justify-between px-6 z-[1000] text-accent-foreground shadow-md">
+      <div className="text-sm font-medium">{registrationNumber || ''}</div>
+      <div className="text-lg font-bold absolute left-1/2 -translate-x-1/2">
+        <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-8 object-contain brightness-0 invert mr-2 align-middle inline" />
+        <span className="align-middle">{examTitle || 'IBT'}</span>
       </div>
-      <div style={{ ...styles.right, color: isWarning ? '#FF5252' : '#fff' }}>
-        <span style={{ fontSize: 12, fontWeight: 400, marginRight: 6 }}>{timerLabel}</span>
+      <div className={cn("text-base font-semibold tabular-nums", isWarning && "text-destructive")}>
+        <span className="text-xs font-normal mr-1.5">{timerLabel}</span>
         {timerValue}
       </div>
     </div>

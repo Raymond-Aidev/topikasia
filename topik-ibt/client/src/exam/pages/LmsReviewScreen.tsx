@@ -4,6 +4,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Separator } from '../../components/ui/separator';
 
 interface ReviewQuestion {
   answerId: string;
@@ -45,7 +50,7 @@ export default function LmsReviewScreen() {
       .finally(() => setLoading(false));
   }, [sessionId, navigate]);
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#9ca3af' }}>불러오는 중...</div>;
+  if (loading) return <div className="flex justify-center items-center h-screen text-gray-400">불러오는 중...</div>;
   if (!data) return null;
 
   const filteredQuestions = sectionFilter === 'ALL' ? data.questions : data.questions.filter(q => q.section === sectionFilter);
@@ -77,70 +82,93 @@ export default function LmsReviewScreen() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f4f8', fontFamily: 'sans-serif' }}>
+    <div className="min-h-screen bg-[#f0f4f8] font-sans">
       {/* Header */}
-      <div style={{ backgroundColor: '#1565C0', color: '#fff', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="bg-blue-800 text-white px-6 py-4 flex justify-between items-center">
         <div>
-          <div style={{ fontSize: 16, fontWeight: 700 }}>문제 복습</div>
-          <div style={{ fontSize: 13, opacity: 0.8, marginTop: 2 }}>{data.examSetName}</div>
+          <div className="text-base font-bold">문제 복습</div>
+          <div className="text-[13px] opacity-80 mt-0.5">{data.examSetName}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => navigate(`/lms/analysis/${sessionId}`)} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)', backgroundColor: 'transparent', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/lms/analysis/${sessionId}`)}
+            className="px-3.5 py-1.5 rounded-md border border-white/40 bg-transparent text-white text-[13px] h-auto hover:bg-white/10"
+          >
             분석 보기
-          </button>
-          <button onClick={() => navigate('/lms')} style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.4)', backgroundColor: 'transparent', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/lms')}
+            className="px-3.5 py-1.5 rounded-md border border-white/40 bg-transparent text-white text-[13px] h-auto hover:bg-white/10"
+          >
             목록으로
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px' }}>
+      <div className="max-w-[900px] mx-auto px-5 py-6">
         {/* Stats bar */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-          <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: '12px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: '#6b7280' }}>전체</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#374151' }}>{stats.total}</div>
+        <div className="flex gap-3 mb-5">
+          <div className="flex-1 bg-white rounded-lg px-4 py-3 text-center">
+            <div className="text-[11px] text-gray-500">전체</div>
+            <div className="text-xl font-bold text-gray-700">{stats.total}</div>
           </div>
-          <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: '12px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: '#16a34a' }}>정답</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#16a34a' }}>{stats.correct}</div>
+          <div className="flex-1 bg-white rounded-lg px-4 py-3 text-center">
+            <div className="text-[11px] text-green-600">정답</div>
+            <div className="text-xl font-bold text-green-600">{stats.correct}</div>
           </div>
-          <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: '12px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: '#dc2626' }}>오답</div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#dc2626' }}>{stats.wrong}</div>
+          <div className="flex-1 bg-white rounded-lg px-4 py-3 text-center">
+            <div className="text-[11px] text-red-600">오답</div>
+            <div className="text-xl font-bold text-red-600">{stats.wrong}</div>
           </div>
           {stats.unknown > 0 && (
-            <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: '12px 16px', textAlign: 'center' }}>
-              <div style={{ fontSize: 11, color: '#9ca3af' }}>미채점</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#9ca3af' }}>{stats.unknown}</div>
+            <div className="flex-1 bg-white rounded-lg px-4 py-3 text-center">
+              <div className="text-[11px] text-gray-400">미채점</div>
+              <div className="text-xl font-bold text-gray-400">{stats.unknown}</div>
             </div>
           )}
         </div>
 
         {/* Section filter */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-          <button onClick={() => { setSectionFilter('ALL'); setCurrentIdx(0); }}
-            style={{ padding: '6px 16px', borderRadius: 20, border: 'none', backgroundColor: sectionFilter === 'ALL' ? '#1565C0' : '#e5e7eb', color: sectionFilter === 'ALL' ? '#fff' : '#374151', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
+        <div className="flex gap-2 mb-5">
+          <button
+            onClick={() => { setSectionFilter('ALL'); setCurrentIdx(0); }}
+            className={cn(
+              'px-4 py-1.5 rounded-full border-none text-[13px] cursor-pointer font-semibold',
+              sectionFilter === 'ALL' ? 'bg-blue-800 text-white' : 'bg-gray-200 text-gray-700'
+            )}
+          >
             전체
           </button>
           {sections.map(sec => (
-            <button key={sec} onClick={() => { setSectionFilter(sec); setCurrentIdx(0); }}
-              style={{ padding: '6px 16px', borderRadius: 20, border: 'none', backgroundColor: sectionFilter === sec ? '#1565C0' : '#e5e7eb', color: sectionFilter === sec ? '#fff' : '#374151', fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
+            <button
+              key={sec}
+              onClick={() => { setSectionFilter(sec); setCurrentIdx(0); }}
+              className={cn(
+                'px-4 py-1.5 rounded-full border-none text-[13px] cursor-pointer font-semibold',
+                sectionFilter === sec ? 'bg-blue-800 text-white' : 'bg-gray-200 text-gray-700'
+              )}
+            >
               {SECTION_LABELS[sec] || sec}
             </button>
           ))}
         </div>
 
         {/* Question grid */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 24 }}>
+        <div className="flex flex-wrap gap-1.5 mb-6">
           {filteredQuestions.map((q, idx) => (
-            <button key={q.questionBankId} onClick={() => setCurrentIdx(idx)}
-              style={{
-                width: 36, height: 36, borderRadius: 6, border: idx === currentIdx ? '2px solid #1565C0' : '1px solid #e5e7eb',
-                backgroundColor: q.isCorrect === true ? '#dcfce7' : q.isCorrect === false ? '#fef2f2' : '#f9fafb',
-                color: q.isCorrect === true ? '#16a34a' : q.isCorrect === false ? '#dc2626' : '#6b7280',
-                fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
+            <button
+              key={q.questionBankId}
+              onClick={() => setCurrentIdx(idx)}
+              className={cn(
+                'w-9 h-9 rounded-md flex items-center justify-center text-xs font-semibold cursor-pointer',
+                idx === currentIdx ? 'border-2 border-blue-800' : 'border border-gray-200',
+                q.isCorrect === true ? 'bg-green-100 text-green-600' :
+                q.isCorrect === false ? 'bg-red-50 text-red-600' :
+                'bg-gray-50 text-gray-500'
+              )}
+            >
               {q.questionIndex + 1}
             </button>
           ))}
@@ -148,149 +176,160 @@ export default function LmsReviewScreen() {
 
         {/* Current question detail */}
         {current && (
-          <div style={{ backgroundColor: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div>
-                <span style={{ fontSize: 18, fontWeight: 700, color: '#111827' }}>
-                  문항 {current.questionIndex + 1}
-                </span>
-                <span style={{ fontSize: 13, color: '#6b7280', marginLeft: 12 }}>
-                  {SECTION_LABELS[current.section] || current.section}
-                </span>
-                {current.typeCode && (
-                  <span style={{ fontSize: 12, color: '#9ca3af', marginLeft: 8 }}>({current.typeCode})</span>
+          <Card className="rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.08)] p-6">
+            <CardContent className="p-0">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <span className="text-lg font-bold text-gray-900">
+                    문항 {current.questionIndex + 1}
+                  </span>
+                  <span className="text-[13px] text-gray-500 ml-3">
+                    {SECTION_LABELS[current.section] || current.section}
+                  </span>
+                  {current.typeCode && (
+                    <span className="text-xs text-gray-400 ml-2">({current.typeCode})</span>
+                  )}
+                </div>
+                {current.isCorrect !== null && (
+                  <Badge className={cn(
+                    'px-3 py-1 rounded-full text-[13px] font-bold border-0',
+                    current.isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-50 text-red-600'
+                  )}>
+                    {current.isCorrect ? '정답' : '오답'}
+                  </Badge>
                 )}
               </div>
-              {current.isCorrect !== null && (
-                <span style={{
-                  padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700,
-                  backgroundColor: current.isCorrect ? '#dcfce7' : '#fef2f2',
-                  color: current.isCorrect ? '#16a34a' : '#dc2626',
-                }}>
-                  {current.isCorrect ? '정답' : '오답'}
-                </span>
+
+              {/* 문제 내용 */}
+              {current.instruction && (
+                <div className="text-[15px] leading-[1.7] text-gray-700 mb-3 font-semibold">
+                  {current.instruction}
+                </div>
               )}
-            </div>
+              {current.passageText && (
+                <div className="bg-gray-50 border border-gray-300 rounded-lg px-[18px] py-3.5 mb-4 text-sm leading-[1.8] whitespace-pre-wrap text-gray-800">
+                  {current.passageText}
+                </div>
+              )}
 
-            {/* 문제 내용 */}
-            {current.instruction && (
-              <div style={{ fontSize: 15, lineHeight: 1.7, color: '#374151', marginBottom: 12, fontWeight: 600 }}>
-                {current.instruction}
-              </div>
-            )}
-            {current.passageText && (
-              <div style={{
-                backgroundColor: '#FAFAFA', border: '1px solid #E0E0E0', borderRadius: 8,
-                padding: '14px 18px', marginBottom: 16, fontSize: 14, lineHeight: 1.8,
-                whiteSpace: 'pre-wrap', color: '#333',
-              }}>
-                {current.passageText}
-              </div>
-            )}
+              {/* 선택지 + 정답/오답 표시 */}
+              {current.options && current.options.length > 0 && (
+                <div className="flex flex-col gap-2 mb-5">
+                  {current.options.map(opt => {
+                    const isUserAnswer = current.examineeAnswer?.selectedOptions?.includes(opt.id);
+                    const isCorrectOption = opt.id === current.correctAnswer;
+                    let borderColor = 'border-gray-200';
+                    let bgColor = 'bg-white';
+                    if (isCorrectOption) { borderColor = 'border-green-600'; bgColor = 'bg-green-50'; }
+                    if (isUserAnswer && !isCorrectOption) { borderColor = 'border-red-600'; bgColor = 'bg-red-50'; }
+                    if (isUserAnswer && isCorrectOption) { borderColor = 'border-green-600'; bgColor = 'bg-green-100'; }
 
-            {/* 선택지 + 정답/오답 표시 */}
-            {current.options && current.options.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-                {current.options.map(opt => {
-                  const isUserAnswer = current.examineeAnswer?.selectedOptions?.includes(opt.id);
-                  const isCorrectOption = opt.id === current.correctAnswer;
-                  let borderColor = '#e5e7eb';
-                  let bgColor = '#fff';
-                  let textColor = '#374151';
-                  if (isCorrectOption) { borderColor = '#16a34a'; bgColor = '#f0fdf4'; }
-                  if (isUserAnswer && !isCorrectOption) { borderColor = '#dc2626'; bgColor = '#fef2f2'; }
-                  if (isUserAnswer && isCorrectOption) { borderColor = '#16a34a'; bgColor = '#dcfce7'; }
+                    return (
+                      <div key={opt.id} className={cn(
+                        'flex items-center gap-3 px-3.5 py-2.5 rounded-lg border-2',
+                        borderColor, bgColor
+                      )}>
+                        <span className={cn(
+                          'w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0',
+                          isCorrectOption ? 'bg-green-600 text-white' :
+                          isUserAnswer ? 'bg-red-600 text-white' :
+                          'bg-gray-200 text-gray-500'
+                        )}>
+                          {opt.id}
+                        </span>
+                        <span className="text-sm text-gray-700 leading-normal">{opt.text}</span>
+                        {isUserAnswer && !isCorrectOption && (
+                          <span className="ml-auto text-[11px] text-red-600 font-semibold">내 답</span>
+                        )}
+                        {isCorrectOption && (
+                          <span className="ml-auto text-[11px] text-green-600 font-semibold">정답</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
-                  return (
-                    <div key={opt.id} style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '10px 14px', borderRadius: 8,
-                      border: `2px solid ${borderColor}`, backgroundColor: bgColor,
-                    }}>
-                      <span style={{
-                        width: 28, height: 28, borderRadius: '50%', display: 'flex',
-                        alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700,
-                        backgroundColor: isCorrectOption ? '#16a34a' : (isUserAnswer ? '#dc2626' : '#e5e7eb'),
-                        color: (isCorrectOption || isUserAnswer) ? '#fff' : '#6b7280',
-                        flexShrink: 0,
-                      }}>
-                        {opt.id}
-                      </span>
-                      <span style={{ fontSize: 14, color: textColor, lineHeight: 1.5 }}>{opt.text}</span>
-                      {isUserAnswer && !isCorrectOption && (
-                        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#dc2626', fontWeight: 600 }}>내 답</span>
-                      )}
-                      {isCorrectOption && (
-                        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#16a34a', fontWeight: 600 }}>정답</span>
-                      )}
+              {/* 선택지가 없는 경우 기존 답안 비교 형식 (fallback) */}
+              {(!current.options || current.options.length === 0) && (
+                <div className="flex gap-4 mb-5">
+                  <div className="flex-1 bg-[#f0f4f8] rounded-lg p-4">
+                    <div className="text-xs text-gray-500 mb-2 font-semibold">내 답안</div>
+                    <div className="text-[15px] text-gray-700 break-all">
+                      {current.examineeAnswer != null ? (
+                        typeof current.examineeAnswer === 'object'
+                          ? JSON.stringify(current.examineeAnswer)
+                          : String(current.examineeAnswer)
+                      ) : <span className="text-gray-400">미응답</span>}
                     </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* 선택지가 없는 경우 기존 답안 비교 형식 (fallback) */}
-            {(!current.options || current.options.length === 0) && (
-              <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-                <div style={{ flex: 1, backgroundColor: '#f0f4f8', borderRadius: 8, padding: 16 }}>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, fontWeight: 600 }}>내 답안</div>
-                  <div style={{ fontSize: 15, color: '#374151', wordBreak: 'break-all' }}>
-                    {current.examineeAnswer != null ? (
-                      typeof current.examineeAnswer === 'object'
-                        ? JSON.stringify(current.examineeAnswer)
-                        : String(current.examineeAnswer)
-                    ) : <span style={{ color: '#9ca3af' }}>미응답</span>}
+                  </div>
+                  <div className="flex-1 bg-green-50 rounded-lg p-4">
+                    <div className="text-xs text-green-600 mb-2 font-semibold">정답</div>
+                    <div className="text-[15px] text-gray-700 break-all">
+                      {current.correctAnswer != null ? (
+                        typeof current.correctAnswer === 'object'
+                          ? JSON.stringify(current.correctAnswer)
+                          : String(current.correctAnswer)
+                      ) : <span className="text-gray-400">정답 정보 없음</span>}
+                    </div>
                   </div>
                 </div>
-                <div style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 8, padding: 16 }}>
-                  <div style={{ fontSize: 12, color: '#16a34a', marginBottom: 8, fontWeight: 600 }}>정답</div>
-                  <div style={{ fontSize: 15, color: '#374151', wordBreak: 'break-all' }}>
-                    {current.correctAnswer != null ? (
-                      typeof current.correctAnswer === 'object'
-                        ? JSON.stringify(current.correctAnswer)
-                        : String(current.correctAnswer)
-                    ) : <span style={{ color: '#9ca3af' }}>정답 정보 없음</span>}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Explanation */}
-            <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 8 }}>AI 해설</div>
-              {current.explanation ? (
-                <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                  {current.explanation}
-                </div>
-              ) : (
-                <button
-                  onClick={() => handleExplain(current.questionBankId)}
-                  disabled={explanationLoading === current.questionBankId}
-                  style={{
-                    padding: '10px 20px', borderRadius: 8, border: 'none',
-                    backgroundColor: explanationLoading === current.questionBankId ? '#9ca3af' : '#1565C0',
-                    color: '#fff', fontSize: 14, cursor: 'pointer', fontWeight: 600,
-                  }}>
-                  {explanationLoading === current.questionBankId ? '생성 중...' : '해설 생성하기'}
-                </button>
               )}
-            </div>
 
-            {/* Navigation */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
-              <button onClick={() => setCurrentIdx(Math.max(0, currentIdx - 1))} disabled={currentIdx === 0}
-                style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e5e7eb', backgroundColor: '#fff', color: currentIdx === 0 ? '#d1d5db' : '#374151', fontSize: 14, cursor: 'pointer' }}>
-                이전
-              </button>
-              <span style={{ fontSize: 13, color: '#9ca3af', alignSelf: 'center' }}>
-                {currentIdx + 1} / {filteredQuestions.length}
-              </span>
-              <button onClick={() => setCurrentIdx(Math.min(filteredQuestions.length - 1, currentIdx + 1))} disabled={currentIdx === filteredQuestions.length - 1}
-                style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e5e7eb', backgroundColor: '#fff', color: currentIdx === filteredQuestions.length - 1 ? '#d1d5db' : '#374151', fontSize: 14, cursor: 'pointer' }}>
-                다음
-              </button>
-            </div>
-          </div>
+              {/* Explanation */}
+              <Separator className="mb-4" />
+              <div className="pt-0">
+                <div className="text-sm font-semibold text-gray-900 mb-2">AI 해설</div>
+                {current.explanation ? (
+                  <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {current.explanation}
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => handleExplain(current.questionBankId)}
+                    disabled={explanationLoading === current.questionBankId}
+                    className={cn(
+                      'px-5 py-2.5 rounded-lg text-sm font-semibold h-auto',
+                      explanationLoading === current.questionBankId
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-800 hover:bg-blue-900'
+                    )}
+                  >
+                    {explanationLoading === current.questionBankId ? '생성 중...' : '해설 생성하기'}
+                  </Button>
+                )}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex justify-between mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentIdx(Math.max(0, currentIdx - 1))}
+                  disabled={currentIdx === 0}
+                  className={cn(
+                    'px-5 py-2 rounded-lg border border-gray-200 text-sm h-auto',
+                    currentIdx === 0 ? 'text-gray-300' : 'text-gray-700'
+                  )}
+                >
+                  이전
+                </Button>
+                <span className="text-[13px] text-gray-400 self-center">
+                  {currentIdx + 1} / {filteredQuestions.length}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentIdx(Math.min(filteredQuestions.length - 1, currentIdx + 1))}
+                  disabled={currentIdx === filteredQuestions.length - 1}
+                  className={cn(
+                    'px-5 py-2 rounded-lg border border-gray-200 text-sm h-auto',
+                    currentIdx === filteredQuestions.length - 1 ? 'text-gray-300' : 'text-gray-700'
+                  )}
+                >
+                  다음
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

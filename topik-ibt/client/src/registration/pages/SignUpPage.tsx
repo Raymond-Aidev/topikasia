@@ -6,105 +6,11 @@ import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import LegalModal from '../../shared/components/LegalModal';
 import { signUp } from '../api/registrationApi';
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  card: {
-    width: 440,
-    padding: 40,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 800 as const,
-    color: '#1565C0',
-    textAlign: 'center' as const,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#757575',
-    textAlign: 'center' as const,
-    marginBottom: 32,
-  },
-  fieldGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    display: 'block',
-    fontSize: 13,
-    fontWeight: 600 as const,
-    color: '#424242',
-    marginBottom: 6,
-  },
-  input: {
-    width: '100%',
-    padding: '12px 14px',
-    fontSize: 15,
-    border: '1px solid #BDBDBD',
-    borderRadius: 8,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  },
-  inputError: {
-    borderColor: '#C62828',
-  },
-  fieldError: {
-    fontSize: 12,
-    color: '#C62828',
-    marginTop: 4,
-  },
-  button: {
-    width: '100%',
-    padding: '14px 0',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#fff',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    backgroundColor: '#90CAF9',
-    cursor: 'not-allowed' as const,
-  },
-  error: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #FFCDD2',
-  },
-  linkRow: {
-    marginTop: 20,
-    textAlign: 'center' as const,
-    fontSize: 14,
-    color: '#757575',
-  },
-  link: {
-    color: '#1565C0',
-    fontWeight: 600 as const,
-    cursor: 'pointer',
-    textDecoration: 'underline',
-    background: 'none',
-    border: 'none',
-    fontSize: 14,
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 export default function SignUpPage() {
   const { isMobile, isTablet } = useResponsive();
@@ -162,152 +68,151 @@ export default function SignUpPage() {
     }
   };
 
-  const viewBtnStyle: React.CSSProperties = {
-    fontSize: 12, color: '#1565C0', cursor: 'pointer',
-    background: 'none', border: 'none', padding: 0,
-    textDecoration: 'underline', fontFamily: 'inherit',
-    flexShrink: 0,
-  };
-
   return (
-    <div style={{
-      minHeight: '100vh', backgroundColor: '#F5F5F5', fontFamily: 'sans-serif',
-      display: 'flex', flexDirection: 'column',
-      paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT,
-    }}>
+    <div
+      className="min-h-screen bg-gray-100 font-sans flex flex-col"
+      style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}
+    >
       <GlobalNavigationBar />
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '32px 0' : '48px 0' }}>
-      <form style={{ ...styles.card, width: isMobile ? '90%' : 440, maxWidth: 440, boxSizing: 'border-box' as const, padding: isMobile ? 24 : 40 }} onSubmit={handleSubmit}>
-        <div style={styles.title}>
-          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 36, objectFit: 'contain' as const, marginRight: 8, verticalAlign: 'middle' }} />
-          <span style={{ verticalAlign: 'middle' }}>회원가입</span>
+      <div className={cn('flex-1 flex items-center justify-center', isMobile ? 'py-8' : 'py-12')}>
+      <form
+        className={cn(
+          'bg-white rounded-2xl shadow-lg box-border',
+          isMobile ? 'w-[90%] max-w-[440px] p-6' : 'w-[440px] p-10'
+        )}
+        onSubmit={handleSubmit}
+      >
+        <div className="text-2xl font-extrabold text-[#1565C0] text-center mb-2">
+          <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-9 object-contain mr-2 align-middle inline" />
+          <span className="align-middle">회원가입</span>
         </div>
-        <div style={styles.subtitle}>시험 접수를 위한 계정을 생성합니다</div>
+        <div className="text-sm text-gray-500 text-center mb-8">시험 접수를 위한 계정을 생성합니다</div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>이름</label>
-          <input
-            style={{ ...styles.input, ...(errors.name ? styles.inputError : {}) }}
+        <div className="mb-4">
+          <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이름</Label>
+          <Input
+            className={cn('w-full px-3.5 py-3 text-[15px] rounded-lg', errors.name && 'border-red-800')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="이름 입력"
           />
-          {errors.name && <div style={styles.fieldError}>{errors.name}</div>}
+          {errors.name && <div className="text-xs text-red-800 mt-1">{errors.name}</div>}
         </div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>이메일</label>
-          <input
-            style={{ ...styles.input, ...(errors.email ? styles.inputError : {}) }}
+        <div className="mb-4">
+          <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이메일</Label>
+          <Input
+            className={cn('w-full px-3.5 py-3 text-[15px] rounded-lg', errors.email && 'border-red-800')}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@email.com"
           />
-          {errors.email && <div style={styles.fieldError}>{errors.email}</div>}
+          {errors.email && <div className="text-xs text-red-800 mt-1">{errors.email}</div>}
         </div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>비밀번호</label>
-          <input
-            style={{ ...styles.input, ...(errors.password ? styles.inputError : {}) }}
+        <div className="mb-4">
+          <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호</Label>
+          <Input
+            className={cn('w-full px-3.5 py-3 text-[15px] rounded-lg', errors.password && 'border-red-800')}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="8자 이상, 영문+숫자+특수문자"
           />
-          {errors.password && <div style={styles.fieldError}>{errors.password}</div>}
+          {errors.password && <div className="text-xs text-red-800 mt-1">{errors.password}</div>}
         </div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>비밀번호 확인</label>
-          <input
-            style={{ ...styles.input, ...(errors.passwordConfirm ? styles.inputError : {}) }}
+        <div className="mb-4">
+          <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호 확인</Label>
+          <Input
+            className={cn('w-full px-3.5 py-3 text-[15px] rounded-lg', errors.passwordConfirm && 'border-red-800')}
             type="password"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             placeholder="비밀번호 재입력"
           />
-          {errors.passwordConfirm && <div style={styles.fieldError}>{errors.passwordConfirm}</div>}
+          {errors.passwordConfirm && <div className="text-xs text-red-800 mt-1">{errors.passwordConfirm}</div>}
         </div>
 
         {/* 약관 동의 영역 */}
-        <div style={{
-          border: '1px solid #E0E0E0', borderRadius: 12, padding: 16,
-          marginBottom: 20, backgroundColor: '#FAFAFA',
-        }}>
+        <div className="border border-gray-200 rounded-xl p-4 mb-5 bg-gray-50">
           {/* 전체 동의 */}
-          <label style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            cursor: 'pointer', paddingBottom: 12, marginBottom: 12,
-            borderBottom: '1px solid #E0E0E0',
-            fontSize: 15, fontWeight: 700, color: '#111827',
-          }}>
+          <label className="flex items-center gap-2 cursor-pointer pb-3 mb-3 border-b border-gray-200 text-[15px] font-bold text-gray-900">
             <input
               type="checkbox"
               checked={allAgreed}
               onChange={(e) => handleAllAgree(e.target.checked)}
-              style={{ width: 18, height: 18, accentColor: '#1565C0' }}
+              className="w-[18px] h-[18px] accent-[#1565C0]"
             />
             전체 동의
           </label>
 
           {/* 이용약관 동의 */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <label style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              cursor: 'pointer', fontSize: 13, color: '#424242', flex: 1,
-            }}>
+          <div className="flex items-center justify-between mb-2">
+            <label className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-700 flex-1">
               <input
                 type="checkbox"
                 checked={agreedTerms}
                 onChange={(e) => setAgreedTerms(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: '#1565C0' }}
+                className="w-4 h-4 accent-[#1565C0]"
               />
-              이용약관 동의 <span style={{ color: '#C62828', fontSize: 12 }}>(필수)</span>
+              이용약관 동의 <span className="text-red-800 text-xs">(필수)</span>
             </label>
-            <button type="button" style={viewBtnStyle} onClick={() => setModalType('terms')}>
+            <button
+              type="button"
+              className="text-xs text-[#1565C0] cursor-pointer bg-transparent border-none p-0 underline font-[inherit] shrink-0"
+              onClick={() => setModalType('terms')}
+            >
               약관보기
             </button>
           </div>
-          {errors.agreedTerms && <div style={{ ...styles.fieldError, marginLeft: 24, marginBottom: 8 }}>{errors.agreedTerms}</div>}
+          {errors.agreedTerms && <div className="text-xs text-red-800 ml-6 mb-2">{errors.agreedTerms}</div>}
 
           {/* 개인정보 수집·이용 동의 */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <label style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              cursor: 'pointer', fontSize: 13, color: '#424242', flex: 1,
-            }}>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer text-[13px] text-gray-700 flex-1">
               <input
                 type="checkbox"
                 checked={agreedPrivacy}
                 onChange={(e) => setAgreedPrivacy(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: '#1565C0' }}
+                className="w-4 h-4 accent-[#1565C0]"
               />
-              개인정보 수집·이용 동의 <span style={{ color: '#C62828', fontSize: 12 }}>(필수)</span>
+              개인정보 수집·이용 동의 <span className="text-red-800 text-xs">(필수)</span>
             </label>
-            <button type="button" style={viewBtnStyle} onClick={() => setModalType('privacy')}>
+            <button
+              type="button"
+              className="text-xs text-[#1565C0] cursor-pointer bg-transparent border-none p-0 underline font-[inherit] shrink-0"
+              onClick={() => setModalType('privacy')}
+            >
               약관보기
             </button>
           </div>
-          {errors.agreedPrivacy && <div style={{ ...styles.fieldError, marginLeft: 24, marginTop: 8 }}>{errors.agreedPrivacy}</div>}
+          {errors.agreedPrivacy && <div className="text-xs text-red-800 ml-6 mt-2">{errors.agreedPrivacy}</div>}
         </div>
 
-        <button
+        <Button
           type="submit"
-          style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
+          className={cn(
+            'w-full py-3.5 text-base font-bold rounded-lg mt-2',
+            loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-[#1565C0] hover:bg-[#1256A8] text-white'
+          )}
           disabled={loading}
         >
           {loading ? '처리 중...' : '가입하기'}
-        </button>
+        </Button>
 
-        {serverError && <div style={styles.error}>{serverError}</div>}
+        {serverError && (
+          <Alert variant="destructive" className="mt-4 bg-red-50 border-red-200">
+            <AlertDescription className="text-red-800 text-[13px]">{serverError}</AlertDescription>
+          </Alert>
+        )}
 
-        <div style={styles.linkRow}>
+        <div className="mt-5 text-center text-sm text-gray-500">
           이미 계정이 있으신가요?{' '}
           <button
             type="button"
-            style={styles.link}
+            className="text-[#1565C0] font-semibold cursor-pointer underline bg-transparent border-none text-sm"
             onClick={() => navigate('/registration/login')}
           >
             로그인

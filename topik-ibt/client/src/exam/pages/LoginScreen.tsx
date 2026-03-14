@@ -3,83 +3,11 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
 import { useExamStore } from '../../store/examStore';
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-  },
-  card: {
-    width: 400,
-    padding: 40,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-    textAlign: 'center' as const,
-  },
-  logo: {
-    fontSize: 28,
-    fontWeight: 800 as const,
-    color: '#1565C0',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#757575',
-    marginBottom: 32,
-  },
-  fieldGroup: {
-    marginBottom: 16,
-    textAlign: 'left' as const,
-  },
-  label: {
-    display: 'block',
-    fontSize: 13,
-    fontWeight: 600 as const,
-    color: '#424242',
-    marginBottom: 6,
-  },
-  input: {
-    width: '100%',
-    padding: '12px 14px',
-    fontSize: 15,
-    border: '1px solid #BDBDBD',
-    borderRadius: 8,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-    transition: 'border-color 0.2s',
-  },
-  button: {
-    width: '100%',
-    padding: '14px 0',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#fff',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-    marginTop: 8,
-    transition: 'background-color 0.2s',
-  },
-  buttonDisabled: {
-    backgroundColor: '#90CAF9',
-    cursor: 'not-allowed' as const,
-  },
-  error: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #FFCDD2',
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Card, CardContent } from '../../components/ui/card';
 
 export default function LoginScreen() {
   const navigate = useNavigate();
@@ -134,48 +62,59 @@ export default function LoginScreen() {
   };
 
   return (
-    <div style={styles.container}>
-      <form style={styles.card} onSubmit={handleSubmit}>
-        <div style={styles.logo}>
-          <img src="/logo_topikasia.png" alt="TOPIK Asia" style={{ height: 48, objectFit: 'contain' as const, marginBottom: 8 }} />
-        </div>
-        <div style={styles.subtitle}>한국어능력시험 컴퓨터 기반 평가</div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 font-sans">
+      <Card className="w-[400px] p-10 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-center">
+        <CardContent className="p-0">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-1">
+              <img src="/logo_topikasia.png" alt="TOPIK Asia" className="h-12 object-contain mx-auto mb-2" />
+            </div>
+            <div className="text-sm text-gray-500 mb-8">한국어능력시험 컴퓨터 기반 평가</div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>수험번호</label>
-          <input
-            style={styles.input}
-            type="text"
-            inputMode="numeric"
-            maxLength={9}
-            placeholder="9자리 수험번호 입력"
-            value={registrationNumber}
-            onChange={(e) => setRegistrationNumber(e.target.value.replace(/\D/g, ''))}
-            autoFocus
-          />
-        </div>
+            <div className="mb-4 text-left">
+              <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">수험번호</Label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                maxLength={9}
+                placeholder="9자리 수험번호 입력"
+                value={registrationNumber}
+                onChange={(e) => setRegistrationNumber(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+                className="w-full px-3.5 py-3 text-[15px] border border-gray-400 rounded-lg transition-colors h-auto"
+              />
+            </div>
 
-        <div style={styles.fieldGroup}>
-          <label style={styles.label}>비밀번호</label>
-          <input
-            style={styles.input}
-            type="password"
-            placeholder="비밀번호 입력"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+            <div className="mb-4 text-left">
+              <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호</Label>
+              <Input
+                type="password"
+                placeholder="비밀번호 입력"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3.5 py-3 text-[15px] border border-gray-400 rounded-lg transition-colors h-auto"
+              />
+            </div>
 
-        <button
-          type="submit"
-          style={{ ...styles.button, ...(loading ? styles.buttonDisabled : {}) }}
-          disabled={loading}
-        >
-          {loading ? '로그인 중...' : '로그인'}
-        </button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className={cn(
+                'w-full py-3.5 text-base font-bold rounded-lg mt-2 h-auto',
+                loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-800 hover:bg-blue-900'
+              )}
+            >
+              {loading ? '로그인 중...' : '로그인'}
+            </Button>
 
-        {error && <div style={styles.error}>{error}</div>}
-      </form>
+            {error && (
+              <div className="mt-4 px-3.5 py-2.5 bg-red-50 text-red-800 text-[13px] rounded-lg border border-red-200">
+                {error}
+              </div>
+            )}
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

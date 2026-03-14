@@ -5,6 +5,8 @@ import { useExamStore } from '../../store/examStore';
 import ExamHeader from '../../shared/components/ExamHeader';
 import ExamineeCard from '../../shared/components/ExamineeCard';
 import type { SectionType } from '../../types/exam.types';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const SECTION_LABEL: Record<SectionType, string> = {
   LISTENING: '듣기',
@@ -13,155 +15,6 @@ const SECTION_LABEL: Record<SectionType, string> = {
 };
 
 const SECTION_ORDER: SectionType[] = ['LISTENING', 'WRITING', 'READING'];
-
-const styles = {
-  page: {
-    paddingTop: 72,
-    paddingBottom: 24,
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-  },
-  content: {
-    maxWidth: 600,
-    margin: '0 auto',
-    padding: '0 16px',
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: 700 as const,
-    color: '#1565C0',
-    marginBottom: 20,
-    textAlign: 'center' as const,
-  },
-  summary: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: 24,
-    margin: '20px 0',
-  },
-  summaryItem: {
-    textAlign: 'center' as const,
-    padding: '12px 20px',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-    minWidth: 80,
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: '#757575',
-    marginBottom: 4,
-  },
-  summaryValue: {
-    fontSize: 22,
-    fontWeight: 700 as const,
-    color: '#212121',
-  },
-  answerGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(5, 1fr)',
-    gap: 8,
-    margin: '16px 0 24px',
-  },
-  answerCell: {
-    padding: '10px 0',
-    textAlign: 'center' as const,
-    borderRadius: 6,
-    fontSize: 14,
-    fontWeight: 600 as const,
-    border: '1px solid #E0E0E0',
-  },
-  answered: {
-    backgroundColor: '#fff',
-    color: '#212121',
-  },
-  unanswered: {
-    backgroundColor: '#FFCDD2',
-    color: '#C62828',
-  },
-  buttonRow: {
-    display: 'flex',
-    gap: 12,
-    justifyContent: 'center',
-    marginTop: 24,
-  },
-  btnPrev: {
-    padding: '14px 32px',
-    fontSize: 15,
-    fontWeight: 600 as const,
-    border: '1px solid #1565C0',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    color: '#1565C0',
-    cursor: 'pointer',
-  },
-  btnSubmit: {
-    padding: '14px 32px',
-    fontSize: 15,
-    fontWeight: 700 as const,
-    border: 'none',
-    borderRadius: 8,
-    backgroundColor: '#1565C0',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  // Modal
-  modalOverlay: {
-    position: 'fixed' as const,
-    inset: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 9999,
-  },
-  modal: {
-    width: 400,
-    padding: 32,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-    textAlign: 'center' as const,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 700 as const,
-    color: '#C62828',
-    marginBottom: 12,
-  },
-  modalText: {
-    fontSize: 14,
-    color: '#424242',
-    lineHeight: 1.7,
-    marginBottom: 24,
-  },
-  modalBtnRow: {
-    display: 'flex',
-    gap: 12,
-    justifyContent: 'center',
-  },
-  modalCancel: {
-    padding: '10px 24px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    border: '1px solid #BDBDBD',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    color: '#616161',
-    cursor: 'pointer',
-  },
-  modalConfirm: {
-    padding: '10px 24px',
-    fontSize: 14,
-    fontWeight: 700 as const,
-    border: 'none',
-    borderRadius: 8,
-    backgroundColor: '#C62828',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-};
 
 function isAnswered(value: any): boolean {
   if (!value) return false;
@@ -242,8 +95,8 @@ export default function SubmitReviewScreen() {
         remainingSeconds={sectionRemainingSeconds}
       />
 
-      <div style={styles.page}>
-        <div style={styles.content}>
+      <div className="pt-[72px] pb-6 min-h-screen bg-gray-100 font-sans">
+        <div className="max-w-[600px] mx-auto px-4">
           <ExamineeCard
             seatNumber={examinee?.seatNumber}
             photoUrl={examinee?.photoUrl}
@@ -251,24 +104,24 @@ export default function SubmitReviewScreen() {
             name={examinee?.name}
           />
 
-          <div style={styles.heading}>{SECTION_LABEL[section]} 답안 확인</div>
+          <div className="text-xl font-bold text-blue-800 mb-5 text-center">{SECTION_LABEL[section]} 답안 확인</div>
 
-          <div style={styles.summary}>
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryLabel}>전체</div>
-              <div style={styles.summaryValue}>{totalQuestions}</div>
+          <div className="flex justify-center gap-6 my-5">
+            <div className="text-center px-5 py-3 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[80px]">
+              <div className="text-xs text-gray-500 mb-1">전체</div>
+              <div className="text-[22px] font-bold text-gray-900">{totalQuestions}</div>
             </div>
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryLabel}>응답</div>
-              <div style={{ ...styles.summaryValue, color: '#1565C0' }}>{answeredCount}</div>
+            <div className="text-center px-5 py-3 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[80px]">
+              <div className="text-xs text-gray-500 mb-1">응답</div>
+              <div className="text-[22px] font-bold text-blue-800">{answeredCount}</div>
             </div>
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryLabel}>미응답</div>
-              <div style={{ ...styles.summaryValue, color: '#C62828' }}>{unansweredCount}</div>
+            <div className="text-center px-5 py-3 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[80px]">
+              <div className="text-xs text-gray-500 mb-1">미응답</div>
+              <div className="text-[22px] font-bold text-red-800">{unansweredCount}</div>
             </div>
           </div>
 
-          <div style={styles.answerGrid}>
+          <div className="grid grid-cols-5 gap-2 my-4 mb-6">
             {questionNumbers.map((num) => {
               const qKey = Object.keys(answers).find((_k) => {
                 // Match by question number embedded in key or by index
@@ -280,10 +133,10 @@ export default function SubmitReviewScreen() {
               return (
                 <div
                   key={num}
-                  style={{
-                    ...styles.answerCell,
-                    ...(answered ? styles.answered : styles.unanswered),
-                  }}
+                  className={cn(
+                    'py-2.5 text-center rounded-md text-sm font-semibold border border-gray-300',
+                    answered ? 'bg-white text-gray-900' : 'bg-red-200 text-red-800'
+                  )}
                 >
                   {num}
                 </div>
@@ -291,37 +144,51 @@ export default function SubmitReviewScreen() {
             })}
           </div>
 
-          <div style={styles.buttonRow}>
-            <button style={styles.btnPrev} onClick={handleGoBack}>
+          <div className="flex gap-3 justify-center mt-6">
+            <Button
+              variant="outline"
+              className="px-8 py-3.5 text-[15px] font-semibold border-blue-800 text-blue-800 rounded-lg h-auto"
+              onClick={handleGoBack}
+            >
               이전
-            </button>
-            <button style={styles.btnSubmit} onClick={() => setShowModal(true)}>
+            </Button>
+            <Button
+              className="px-8 py-3.5 text-[15px] font-bold bg-blue-800 hover:bg-blue-900 rounded-lg h-auto"
+              onClick={() => setShowModal(true)}
+            >
               답안 제출
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       {showModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modal}>
-            <div style={styles.modalTitle}>답안을 제출하시겠습니까?</div>
-            <div style={styles.modalText}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="w-[400px] p-8 bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.2)] text-center">
+            <div className="text-lg font-bold text-red-800 mb-3">답안을 제출하시겠습니까?</div>
+            <div className="text-sm text-gray-700 leading-[1.7] mb-6">
               제출 후에는 답안을 수정할 수 없습니다.<br />
               미응답 문항이 {unansweredCount}개 있습니다.<br />
               정말 제출하시겠습니까?
             </div>
-            <div style={styles.modalBtnRow}>
-              <button style={styles.modalCancel} onClick={() => setShowModal(false)}>
+            <div className="flex gap-3 justify-center">
+              <Button
+                variant="outline"
+                className="px-6 py-2.5 text-sm font-semibold border-gray-400 text-gray-500 rounded-lg h-auto"
+                onClick={() => setShowModal(false)}
+              >
                 취소
-              </button>
-              <button
-                style={{ ...styles.modalConfirm, opacity: submitting ? 0.6 : 1 }}
+              </Button>
+              <Button
+                className={cn(
+                  'px-6 py-2.5 text-sm font-bold bg-red-800 hover:bg-red-900 rounded-lg h-auto',
+                  submitting && 'opacity-60'
+                )}
                 onClick={handleSubmit}
                 disabled={submitting}
               >
                 {submitting ? '제출 중...' : '제출'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

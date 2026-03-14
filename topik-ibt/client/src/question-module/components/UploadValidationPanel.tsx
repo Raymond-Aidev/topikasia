@@ -15,37 +15,22 @@ const UploadValidationPanel: React.FC<Props> = ({ errors }) => {
 
   if (errors.length === 0) {
     return (
-      <div
-        style={{
-          padding: 16,
-          background: '#e6f4ea',
-          borderRadius: 8,
-          color: '#137333',
-          fontSize: 14,
-        }}
-      >
+      <div className="p-4 bg-green-50 rounded-lg text-green-800 text-sm">
         모든 검증을 통과했습니다.
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="flex flex-col gap-3">
       {blocking.length > 0 && (
-        <div
-          style={{
-            padding: 16,
-            background: '#fce8e6',
-            borderRadius: 8,
-            border: '1px solid #f5c6cb',
-          }}
-        >
-          <h4 style={{ margin: '0 0 8px', color: '#c5221f', fontSize: 14 }}>
+        <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+          <h4 className="m-0 mb-2 text-red-700 text-sm">
             오류 (업로드 불가)
           </h4>
-          <ul style={{ margin: 0, paddingLeft: 20 }}>
+          <ul className="m-0 pl-5">
             {blocking.map((e, i) => (
-              <li key={i} style={{ color: '#c5221f', fontSize: 13, marginBottom: 4 }}>
+              <li key={i} className="text-red-700 text-[13px] mb-1">
                 {e.message}
               </li>
             ))}
@@ -54,18 +39,11 @@ const UploadValidationPanel: React.FC<Props> = ({ errors }) => {
       )}
 
       {warnings.length > 0 && (
-        <div
-          style={{
-            padding: 16,
-            background: '#fef7e0',
-            borderRadius: 8,
-            border: '1px solid #fdd835',
-          }}
-        >
-          <h4 style={{ margin: '0 0 8px', color: '#e37400', fontSize: 14 }}>경고</h4>
-          <ul style={{ margin: 0, paddingLeft: 20 }}>
+        <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-400">
+          <h4 className="m-0 mb-2 text-amber-600 text-sm">경고</h4>
+          <ul className="m-0 pl-5">
             {warnings.map((e, i) => (
-              <li key={i} style={{ color: '#e37400', fontSize: 13, marginBottom: 4 }}>
+              <li key={i} className="text-amber-600 text-[13px] mb-1">
                 {e.message}
               </li>
             ))}

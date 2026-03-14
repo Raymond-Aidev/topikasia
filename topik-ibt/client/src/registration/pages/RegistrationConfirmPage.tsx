@@ -5,96 +5,9 @@ import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
 import { applyRegistration } from '../api/registrationApi';
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    backgroundColor: '#F5F5F5',
-    fontFamily: 'sans-serif',
-    paddingTop: GNB_HEIGHT,
-  },
-  content: {
-    maxWidth: 720,
-    margin: '0 auto',
-    padding: '40px 24px',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 32,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 700 as const,
-    color: '#212121',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#616161',
-    marginBottom: 28,
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse' as const,
-  },
-  label: {
-    width: 160,
-    padding: '14px 20px',
-    fontSize: 14,
-    fontWeight: 600 as const,
-    color: '#616161',
-    backgroundColor: '#FAFAFA',
-    borderBottom: '1px solid #F0F0F0',
-  },
-  value: {
-    padding: '14px 20px',
-    fontSize: 15,
-    color: '#212121',
-    borderBottom: '1px solid #F0F0F0',
-  },
-  btnRow: {
-    display: 'flex',
-    gap: 16,
-    marginTop: 28,
-    justifyContent: 'center',
-  },
-  editBtn: {
-    padding: '14px 40px',
-    fontSize: 16,
-    fontWeight: 600 as const,
-    color: '#616161',
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #BDBDBD',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  submitBtn: {
-    padding: '14px 40px',
-    fontSize: 16,
-    fontWeight: 700 as const,
-    color: '#FFFFFF',
-    backgroundColor: '#1565C0',
-    border: 'none',
-    borderRadius: 8,
-    cursor: 'pointer',
-  },
-  submitDisabled: {
-    backgroundColor: '#90CAF9',
-    cursor: 'not-allowed' as const,
-  },
-  error: {
-    marginTop: 16,
-    padding: '10px 14px',
-    backgroundColor: '#FFEBEE',
-    color: '#C62828',
-    fontSize: 13,
-    borderRadius: 8,
-    border: '1px solid #FFCDD2',
-    textAlign: 'center' as const,
-  },
-};
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 export default function RegistrationConfirmPage() {
   const { isMobile, isTablet } = useResponsive();
@@ -149,74 +62,74 @@ export default function RegistrationConfirmPage() {
   };
 
   return (
-    <div style={{ ...styles.page, paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+    <div className="min-h-screen bg-gray-100 font-sans" style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
       <GlobalNavigationBar />
 
-      <div style={{ ...styles.content, maxWidth: isMobile ? '100%' : 720, padding: isMobile ? '24px 16px' : '40px 24px' }}>
-        <div style={{ ...styles.card, padding: isMobile ? 20 : 32 }}>
-          <div style={styles.title}>접수 확인</div>
-          <div style={styles.subtitle}>
+      <div className={cn('mx-auto', isMobile ? 'max-w-full px-4 py-6' : 'max-w-[720px] px-6 py-10')}>
+        <div className={cn('bg-white rounded-xl shadow-sm', isMobile ? 'p-5' : 'p-8')}>
+          <div className="text-2xl font-bold text-gray-900 mb-2">접수 확인</div>
+          <div className="text-sm text-gray-600 mb-7">
             아래 내용을 최종 확인한 후 제출 버튼을 눌러주세요.
           </div>
 
-          <table style={styles.table}>
+          <table className="w-full border-collapse">
             <tbody>
               <tr>
-                <td style={styles.label}>시험</td>
-                <td style={styles.value}>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">시험</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
                   {selectedSchedule
                     ? `${selectedSchedule.examName} (${selectedSchedule.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'})`
                     : '-'}
                 </td>
               </tr>
               <tr>
-                <td style={styles.label}>시험일</td>
-                <td style={styles.value}>{selectedSchedule?.examDate || '-'}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">시험일</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{selectedSchedule?.examDate || '-'}</td>
               </tr>
               <tr>
-                <td style={styles.label}>영문 성명</td>
-                <td style={styles.value}>{formData.englishName}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">영문 성명</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.englishName}</td>
               </tr>
               <tr>
-                <td style={styles.label}>생년월일</td>
-                <td style={styles.value}>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">생년월일</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
                   {formData.birthYear}-{String(formData.birthMonth).padStart(2, '0')}-{String(formData.birthDay).padStart(2, '0')}
                 </td>
               </tr>
               <tr>
-                <td style={styles.label}>성별</td>
-                <td style={styles.value}>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">성별</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
                   {formData.gender === 'MALE' ? '남자' : formData.gender === 'FEMALE' ? '여자' : '-'}
                 </td>
               </tr>
               <tr>
-                <td style={styles.label}>시험장</td>
-                <td style={styles.value}>{formData.venueName}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">시험장</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.venueName}</td>
               </tr>
               <tr>
-                <td style={styles.label}>연락처</td>
-                <td style={styles.value}>{formData.phone}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">연락처</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.phone}</td>
               </tr>
               <tr>
-                <td style={styles.label}>주소</td>
-                <td style={styles.value}>{formData.address}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">주소</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.address}</td>
               </tr>
               <tr>
-                <td style={styles.label}>국적</td>
-                <td style={styles.value}>{formData.nationality}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">국적</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.nationality}</td>
               </tr>
               <tr>
-                <td style={styles.label}>한국어 학습기간</td>
-                <td style={styles.value}>{formData.studyPeriod || '-'}</td>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">한국어 학습기간</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">{formData.studyPeriod || '-'}</td>
               </tr>
               <tr>
-                <td style={styles.label}>사진</td>
-                <td style={styles.value}>
+                <td className="w-[160px] px-5 py-3.5 text-sm font-semibold text-gray-600 bg-gray-50 border-b border-gray-100">사진</td>
+                <td className="px-5 py-3.5 text-[15px] text-gray-900 border-b border-gray-100">
                   {formData.photoPreview ? (
                     <img
                       src={formData.photoPreview}
                       alt="증명사진"
-                      style={{ width: 60, height: 80, objectFit: 'cover', borderRadius: 4 }}
+                      className="w-[60px] h-[80px] object-cover rounded"
                     />
                   ) : (
                     '미첨부'
@@ -226,20 +139,31 @@ export default function RegistrationConfirmPage() {
             </tbody>
           </table>
 
-          <div style={styles.btnRow}>
-            <button style={styles.editBtn} onClick={handleEdit}>
+          <div className="flex gap-4 mt-7 justify-center">
+            <Button
+              variant="outline"
+              className="px-10 py-3.5 text-base font-semibold text-gray-600 border-gray-300 rounded-lg"
+              onClick={handleEdit}
+            >
               수정하기
-            </button>
-            <button
-              style={{ ...styles.submitBtn, ...(loading ? styles.submitDisabled : {}) }}
+            </Button>
+            <Button
+              className={cn(
+                'px-10 py-3.5 text-base font-bold rounded-lg',
+                loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-[#1565C0] hover:bg-[#1256A8] text-white'
+              )}
               onClick={handleSubmit}
               disabled={loading}
             >
               {loading ? '제출 중...' : '최종 제출'}
-            </button>
+            </Button>
           </div>
 
-          {error && <div style={styles.error}>{error}</div>}
+          {error && (
+            <Alert variant="destructive" className="mt-4 bg-red-50 border-red-200 text-center">
+              <AlertDescription className="text-red-800 text-[13px]">{error}</AlertDescription>
+            </Alert>
+          )}
         </div>
       </div>
       <Footer />

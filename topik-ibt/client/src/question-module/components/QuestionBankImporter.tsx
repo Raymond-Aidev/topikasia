@@ -33,16 +33,8 @@ const QuestionBankImporter: React.FC<Props> = ({ types, sectionLabel }) => {
   };
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      <h3
-        style={{
-          margin: '0 0 8px',
-          padding: '8px 16px',
-          background: '#f8f9fa',
-          borderRadius: 8,
-          fontSize: 15,
-        }}
-      >
+    <div className="mb-6">
+      <h3 className="m-0 mb-2 px-4 py-2 bg-gray-50 rounded-lg text-[15px]">
         {sectionLabel}
       </h3>
       {types.map((t) => (

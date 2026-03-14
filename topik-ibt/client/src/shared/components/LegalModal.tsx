@@ -3,6 +3,8 @@
  */
 import { useEffect } from 'react';
 import { useResponsive } from '../hooks/useResponsive';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../constants/legalTexts';
 
 interface LegalModalProps {
@@ -36,39 +38,24 @@ export default function LegalModal({ type, onClose }: LegalModalProps) {
 
   return (
     <div
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: isMobile ? 16 : 24,
-      }}
+      className={cn("fixed inset-0 bg-black/50 z-[2000] flex items-center justify-center", isMobile ? "p-4" : "p-6")}
       onClick={onClose}
     >
       <div
-        style={{
-          backgroundColor: '#FFFFFF', borderRadius: 16,
-          width: isMobile ? '100%' : 720, maxWidth: 720,
-          maxHeight: '80vh', display: 'flex', flexDirection: 'column',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-        }}
+        className="bg-white rounded-2xl w-full max-w-[720px] max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 헤더 */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: isMobile ? '16px 20px' : '20px 28px',
-          borderBottom: '1px solid #E0E0E0', flexShrink: 0,
-        }}>
-          <div style={{ fontSize: isMobile ? 18 : 20, fontWeight: 700, color: '#111827' }}>
+        <div className={cn(
+          "flex items-center justify-between border-b border-border shrink-0",
+          isMobile ? "px-5 py-4" : "px-7 py-5"
+        )}>
+          <div className={cn("font-bold text-foreground", isMobile ? "text-lg" : "text-xl")}>
             {TITLES[type]}
           </div>
           <button
             onClick={onClose}
-            style={{
-              border: 'none', background: 'none', cursor: 'pointer',
-              fontSize: 24, color: '#9E9E9E', padding: '4px 8px',
-              lineHeight: 1,
-            }}
+            className="border-none bg-transparent cursor-pointer text-2xl text-muted-foreground px-2 py-1 leading-none hover:text-foreground"
             aria-label="닫기"
           >
             ✕
@@ -76,32 +63,21 @@ export default function LegalModal({ type, onClose }: LegalModalProps) {
         </div>
 
         {/* 본문 */}
-        <div style={{
-          padding: isMobile ? '20px' : '24px 28px',
-          overflowY: 'auto', flex: 1,
-          fontSize: 14, color: '#374151', lineHeight: 1.8,
-          whiteSpace: 'pre-wrap', wordBreak: 'keep-all',
-          fontFamily: 'sans-serif',
-        }}>
+        <div className={cn(
+          "overflow-y-auto flex-1 text-sm text-foreground leading-[1.8] whitespace-pre-wrap break-keep",
+          isMobile ? "p-5" : "px-7 py-6"
+        )}>
           {content}
         </div>
 
         {/* 하단 */}
-        <div style={{
-          padding: isMobile ? '12px 20px' : '16px 28px',
-          borderTop: '1px solid #E0E0E0', flexShrink: 0,
-          textAlign: 'right',
-        }}>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '10px 32px', borderRadius: 8, border: 'none',
-              backgroundColor: '#1565C0', color: '#fff',
-              fontSize: 14, fontWeight: 600, cursor: 'pointer',
-            }}
-          >
+        <div className={cn(
+          "border-t border-border shrink-0 text-right",
+          isMobile ? "px-5 py-3" : "px-7 py-4"
+        )}>
+          <Button onClick={onClose} className="px-8">
             확인
-          </button>
+          </Button>
         </div>
       </div>
     </div>

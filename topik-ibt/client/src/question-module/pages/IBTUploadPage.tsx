@@ -4,6 +4,10 @@ import { getExamSet, uploadExamSet } from '../api/examSetApi';
 import type { ExamSetDetail } from '../api/examSetApi';
 import UploadValidationPanel from '../components/UploadValidationPanel';
 import type { ValidationError } from '../components/UploadValidationPanel';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Progress } from '../../components/ui/progress';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 const SECTION_LABELS: Record<string, string> = {
   LISTENING: '듣기',
@@ -110,64 +114,53 @@ const IBTUploadPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px', textAlign: 'center' }}>
-        <p style={{ color: '#888', marginTop: 60 }}>불러오는 중...</p>
+      <div className="mx-auto max-w-[800px] px-6 py-8 text-center">
+        <p className="mt-16 text-muted-foreground">불러오는 중...</p>
       </div>
     );
   }
 
   if (!examSet) {
     return (
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px', textAlign: 'center' }}>
-        <p style={{ color: '#d93025', marginTop: 60 }}>세트를 찾을 수 없습니다.</p>
-        <button
+      <div className="mx-auto max-w-[800px] px-6 py-8 text-center">
+        <p className="mt-16 text-destructive">세트를 찾을 수 없습니다.</p>
+        <Button
+          variant="outline"
+          className="mt-4"
           onClick={() => navigate('/question-module/sets')}
-          style={{
-            marginTop: 16,
-            padding: '8px 20px',
-            borderRadius: 6,
-            border: '1px solid #ccc',
-            background: '#fff',
-            cursor: 'pointer',
-          }}
         >
           목록으로 돌아가기
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px' }}>
-      <h2 style={{ margin: '0 0 8px', fontSize: 22 }}>IBT 업로드</h2>
-      <p style={{ margin: '0 0 24px', color: '#666', fontSize: 14 }}>
+    <div className="mx-auto max-w-[800px] px-6 py-8">
+      <h2 className="mb-2 text-[22px] font-bold">IBT 업로드</h2>
+      <p className="mb-6 text-sm text-muted-foreground">
         시험 세트를 검증하고 IBT 시스템에 업로드합니다.
       </p>
 
       {/* 세트 요약 */}
-      <div
-        style={{
-          background: '#f8f9fa',
-          padding: 20,
-          borderRadius: 10,
-          marginBottom: 24,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 24, fontSize: 14 }}>
-          <div>
-            <span style={{ color: '#888' }}>세트명: </span>
-            <strong>{examSet.name}</strong>
+      <Card className="mb-6">
+        <CardContent>
+          <div className="flex gap-6 text-sm">
+            <div>
+              <span className="text-muted-foreground">세트명: </span>
+              <strong>{examSet.name}</strong>
+            </div>
+            <div>
+              <span className="text-muted-foreground">시험유형: </span>
+              <strong>{examSet.examType}</strong>
+            </div>
           </div>
-          <div>
-            <span style={{ color: '#888' }}>시험유형: </span>
-            <strong>{examSet.examType}</strong>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* 영역별 상태 */}
-      <div style={{ marginBottom: 24 }}>
-        <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>영역별 검증</h3>
+      <div className="mb-6">
+        <h3 className="mb-3 text-base font-semibold">영역별 검증</h3>
         {['LISTENING', 'WRITING', 'READING'].map((key) => {
           const sec = examSet.sections?.find((s) => s.section === key);
           const count = sec?.questionBankIds.length ?? 0;
@@ -178,115 +171,69 @@ const IBTUploadPage: React.FC = () => {
           return (
             <div
               key={key}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '10px 16px',
-                borderBottom: '1px solid #f0f0f0',
-                fontSize: 14,
-              }}
+              className="flex items-center gap-3 border-b border-border px-4 py-2.5 text-sm"
             >
-              <span style={{ fontSize: 18 }}>{ok ? '\u2705' : '\u274C'}</span>
-              <span style={{ minWidth: 60, fontWeight: 600 }}>{SECTION_LABELS[key]}</span>
-              <span style={{ color: '#555' }}>
+              <span className="text-lg">{ok ? '\u2705' : '\u274C'}</span>
+              <span className="min-w-[60px] font-semibold">{SECTION_LABELS[key]}</span>
+              <span className="text-foreground/80">
                 {count}/{target} 문항
               </span>
-              <span style={{ color: '#888' }}>| {duration}분</span>
+              <span className="text-muted-foreground">| {duration}분</span>
             </div>
           );
         })}
       </div>
 
       {/* 검증 패널 */}
-      <div style={{ marginBottom: 24 }}>
-        <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>검증 결과</h3>
+      <div className="mb-6">
+        <h3 className="mb-3 text-base font-semibold">검증 결과</h3>
         <UploadValidationPanel errors={validationErrors} />
       </div>
 
       {/* 업로드 진행 */}
       {uploading && (
-        <div style={{ marginBottom: 20 }}>
-          <div
-            style={{
-              height: 8,
-              background: '#e0e0e0',
-              borderRadius: 4,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                height: '100%',
-                width: `${progress}%`,
-                background: '#1a73e8',
-                transition: 'width 0.3s',
-                borderRadius: 4,
-              }}
-            />
-          </div>
-          <p style={{ fontSize: 13, color: '#888', marginTop: 6 }}>
+        <div className="mb-5">
+          <Progress value={progress} />
+          <p className="mt-1.5 text-xs text-muted-foreground">
             업로드 중... {progress}%
           </p>
         </div>
       )}
 
       {uploadError && (
-        <p style={{ color: '#d93025', fontSize: 14, marginBottom: 16 }}>{uploadError}</p>
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{uploadError}</AlertDescription>
+        </Alert>
       )}
 
       {uploadSuccess && (
-        <div
-          style={{
-            padding: 16,
-            background: '#e6f4ea',
-            borderRadius: 8,
-            color: '#137333',
-            fontSize: 14,
-            marginBottom: 16,
-          }}
-        >
-          업로드가 완료되었습니다. 시험 세트가 활성화되었습니다.
-        </div>
+        <Alert className="mb-4 border-green-200 bg-green-50 text-green-700">
+          <AlertDescription>
+            업로드가 완료되었습니다. 시험 세트가 활성화되었습니다.
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* 버튼 */}
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-        <button
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
           onClick={() => navigate(`/question-module/compose/${id}`)}
-          style={{
-            padding: '10px 20px',
-            borderRadius: 6,
-            border: '1px solid #ccc',
-            background: '#fff',
-            cursor: 'pointer',
-            fontSize: 14,
-          }}
         >
           세트 편집으로
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleUpload}
           disabled={hasBlockingErrors || uploading || uploadSuccess}
-          style={{
-            padding: '10px 24px',
-            borderRadius: 6,
-            border: 'none',
-            background:
-              hasBlockingErrors || uploading || uploadSuccess ? '#ccc' : '#1a73e8',
-            color: '#fff',
-            cursor:
-              hasBlockingErrors || uploading || uploadSuccess ? 'not-allowed' : 'pointer',
-            fontSize: 15,
-            fontWeight: 600,
-          }}
+          className="text-[15px] font-semibold"
+          size="lg"
         >
           {uploading
             ? '업로드 중...'
             : uploadSuccess
               ? '업로드 완료'
               : 'IBT 업로드 및 활성화 →'}
-        </button>
+        </Button>
       </div>
     </div>
   );

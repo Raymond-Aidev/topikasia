@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Badge } from '../../components/ui/badge';
+import { cn } from '../../lib/utils';
 
 interface ExamSetStatusBadgeProps {
   status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
@@ -6,10 +8,10 @@ interface ExamSetStatusBadgeProps {
   examStartedAt?: string | null;
 }
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
-  DRAFT: { label: 'DRAFT', bg: '#f3f4f6', color: '#374151' },
-  ACTIVE: { label: 'ACTIVE', bg: '#dcfce7', color: '#166534' },
-  ARCHIVED: { label: 'ARCHIVED', bg: '#f3f4f6', color: '#6b7280' },
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  DRAFT: { label: 'DRAFT', className: 'bg-gray-100 text-gray-700 border-transparent' },
+  ACTIVE: { label: 'ACTIVE', className: 'bg-green-100 text-green-800 border-transparent' },
+  ARCHIVED: { label: 'ARCHIVED', className: 'bg-gray-100 text-gray-500 border-transparent' },
 };
 
 const ExamSetStatusBadge: React.FC<ExamSetStatusBadgeProps> = ({
@@ -46,22 +48,15 @@ const ExamSetStatusBadge: React.FC<ExamSetStatusBadgeProps> = ({
   };
 
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-      <span
-        style={{
-          display: 'inline-block',
-          padding: '2px 10px',
-          borderRadius: '12px',
-          fontSize: '12px',
-          fontWeight: 600,
-          backgroundColor: config.bg,
-          color: config.color,
-        }}
+    <span className="inline-flex items-center gap-1.5">
+      <Badge
+        variant="outline"
+        className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold', config.className)}
       >
         {config.label}
-      </span>
+      </Badge>
       {status === 'ACTIVE' && (
-        <span style={{ fontSize: '12px', color: '#6b7280' }}>{getScheduleText()}</span>
+        <span className="text-xs text-gray-500">{getScheduleText()}</span>
       )}
     </span>
   );

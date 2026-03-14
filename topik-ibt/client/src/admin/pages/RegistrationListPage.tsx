@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { adminApi } from '../../api/adminApi';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 
 interface Registration {
   id: string;
@@ -20,18 +27,11 @@ interface Registration {
 
 const PAGE_SIZE = 20;
 
-const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }> = {
-  PENDING: { bg: '#fef3c7', color: '#92400e', label: '대기' },
-  APPROVED: { bg: '#dcfce7', color: '#166534', label: '승인' },
-  REJECTED: { bg: '#fee2e2', color: '#991b1b', label: '반려' },
-  CANCELLED: { bg: '#f3f4f6', color: '#6b7280', label: '취소' },
-};
-
-const thStyle: React.CSSProperties = {
-  padding: '10px 16px', textAlign: 'left', fontSize: '13px', fontWeight: 600, color: '#374151',
-};
-const tdStyle: React.CSSProperties = {
-  padding: '10px 16px', fontSize: '14px',
+const STATUS_MAP: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string; className?: string }> = {
+  PENDING: { variant: 'secondary', label: '대기', className: 'bg-amber-100 text-amber-800' },
+  APPROVED: { variant: 'default', label: '승인', className: 'bg-green-100 text-green-800' },
+  REJECTED: { variant: 'destructive', label: '반려' },
+  CANCELLED: { variant: 'outline', label: '취소' },
 };
 
 const RegistrationListPage: React.FC = () => {
@@ -143,33 +143,31 @@ const RegistrationListPage: React.FC = () => {
     }
   };
 
-  const StatusBadge = ({ status }: { status: string }) => {
-    const s = STATUS_COLORS[status] || { bg: '#f3f4f6', color: '#6b7280', label: status };
-    return <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, backgroundColor: s.bg, color: s.color }}>{s.label}</span>;
+  const StatusBadgeLocal = ({ status }: { status: string }) => {
+    const s = STATUS_MAP[status] || { variant: 'outline' as const, label: status };
+    return <Badge variant={s.variant} className={s.className}>{s.label}</Badge>;
   };
 
   return (
     <AdminLayout>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>접수 관리</h1>
-        <div style={{ fontSize: 14, color: '#6b7280' }}>총 {total}건</div>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-[22px] font-bold m-0">접수 관리</h1>
+        <div className="text-sm text-gray-500">총 {total}건</div>
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
-          <input
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
             type="text" placeholder="이름 또는 이메일 검색" value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 14, width: 240 }}
+            className="w-60"
           />
-          <button type="submit" style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: 14, cursor: 'pointer' }}>
-            검색
-          </button>
+          <Button type="submit" variant="outline">검색</Button>
         </form>
         <select
           value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 14 }}
+          className="h-8 px-3 rounded-lg border border-input bg-transparent text-sm"
         >
           <option value="">전체 상태</option>
           <option value="PENDING">대기</option>
@@ -178,149 +176,151 @@ const RegistrationListPage: React.FC = () => {
           <option value="CANCELLED">취소</option>
         </select>
         {selected.size > 0 && (
-          <button
+          <Button
             onClick={handleBatchApprove} disabled={processing}
-            style={{ padding: '8px 18px', borderRadius: 6, border: 'none', backgroundColor: '#16a34a', color: '#fff', fontSize: 14, fontWeight: 600, cursor: processing ? 'not-allowed' : 'pointer', opacity: processing ? 0.6 : 1 }}
+            className="bg-green-600 hover:bg-green-500 text-white"
           >
             {processing ? '처리 중...' : `선택 일괄 승인 (${selected.size}건)`}
-          </button>
+          </Button>
         )}
       </div>
 
       {error && (
-        <div style={{ padding: '12px 16px', marginBottom: 16, borderRadius: 6, backgroundColor: '#fee2e2', color: '#991b1b', fontSize: 14 }}>{error}</div>
+        <div className="px-4 py-3 mb-4 rounded-md bg-red-100 text-red-800 text-sm">{error}</div>
       )}
 
       {loading ? (
-        <p style={{ color: '#6b7280' }}>로딩 중...</p>
+        <p className="text-gray-500">로딩 중...</p>
       ) : (
         <>
-          <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f9fafb' }}>
-                <th style={{ ...thStyle, width: 40 }}>
-                  <input type="checkbox" onChange={toggleSelectAll}
-                    checked={items.filter((r) => r.status === 'PENDING').length > 0 && items.filter((r) => r.status === 'PENDING').every((r) => selected.has(r.id))}
-                  />
-                </th>
-                <th style={thStyle}>영문이름</th>
-                <th style={thStyle}>이메일</th>
-                <th style={thStyle}>시험</th>
-                <th style={thStyle}>시험장</th>
-                <th style={thStyle}>상태</th>
-                <th style={thStyle}>신청일</th>
-                <th style={thStyle}>처리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr><td colSpan={8} style={{ ...tdStyle, textAlign: 'center', color: '#9ca3af', padding: 40 }}>데이터가 없습니다.</td></tr>
-              ) : (
-                items.map((r) => (
-                  <tr key={r.id} style={{ borderTop: '1px solid #f3f4f6', backgroundColor: selected.has(r.id) ? '#eff6ff' : undefined }}>
-                    <td style={tdStyle}>
-                      {r.status === 'PENDING' && (
-                        <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggleSelect(r.id)} />
-                      )}
-                    </td>
-                    <td style={tdStyle}>
-                      <button onClick={() => { setDetail(r); setRejectNote(''); }} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontWeight: 500, fontSize: 14, padding: 0 }}>
-                        {r.englishName}
-                      </button>
-                    </td>
-                    <td style={{ ...tdStyle, color: '#6b7280', fontSize: 13 }}>{r.userEmail}</td>
-                    <td style={{ ...tdStyle, fontSize: 13 }}>{r.examName}</td>
-                    <td style={{ ...tdStyle, color: '#6b7280', fontSize: 13 }}>{r.venueName}</td>
-                    <td style={tdStyle}><StatusBadge status={r.status} /></td>
-                    <td style={{ ...tdStyle, color: '#6b7280', fontSize: 13 }}>{new Date(r.createdAt).toLocaleDateString('ko')}</td>
-                    <td style={tdStyle}>
-                      {r.status === 'PENDING' && (
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => handleApprove(r.id)} disabled={processing}
-                            style={{ padding: '4px 12px', borderRadius: 4, border: 'none', backgroundColor: '#16a34a', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                            승인
-                          </button>
-                          <button onClick={() => { setDetail(r); setRejectNote(''); }}
-                            style={{ padding: '4px 12px', borderRadius: 4, border: '1px solid #d1d5db', backgroundColor: '#fff', color: '#6b7280', fontSize: 12, cursor: 'pointer' }}>
-                            반려
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="w-10">
+                    <input type="checkbox" onChange={toggleSelectAll}
+                      checked={items.filter((r) => r.status === 'PENDING').length > 0 && items.filter((r) => r.status === 'PENDING').every((r) => selected.has(r.id))}
+                    />
+                  </TableHead>
+                  <TableHead>영문이름</TableHead>
+                  <TableHead>이메일</TableHead>
+                  <TableHead>시험</TableHead>
+                  <TableHead>시험장</TableHead>
+                  <TableHead>상태</TableHead>
+                  <TableHead>신청일</TableHead>
+                  <TableHead>처리</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.length === 0 ? (
+                  <TableRow><TableCell colSpan={8} className="text-center text-gray-400 py-10">데이터가 없습니다.</TableCell></TableRow>
+                ) : (
+                  items.map((r) => (
+                    <TableRow key={r.id} className={cn(selected.has(r.id) && 'bg-blue-50')}>
+                      <TableCell>
+                        {r.status === 'PENDING' && (
+                          <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggleSelect(r.id)} />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <button onClick={() => { setDetail(r); setRejectNote(''); }} className="bg-transparent border-none text-blue-600 cursor-pointer font-medium text-sm p-0">
+                          {r.englishName}
+                        </button>
+                      </TableCell>
+                      <TableCell className="text-gray-500 text-[13px]">{r.userEmail}</TableCell>
+                      <TableCell className="text-[13px]">{r.examName}</TableCell>
+                      <TableCell className="text-gray-500 text-[13px]">{r.venueName}</TableCell>
+                      <TableCell><StatusBadgeLocal status={r.status} /></TableCell>
+                      <TableCell className="text-gray-500 text-[13px]">{new Date(r.createdAt).toLocaleDateString('ko')}</TableCell>
+                      <TableCell>
+                        {r.status === 'PENDING' && (
+                          <div className="flex gap-1.5">
+                            <Button size="xs" onClick={() => handleApprove(r.id)} disabled={processing}
+                              className="bg-green-600 hover:bg-green-500 text-white">
+                              승인
+                            </Button>
+                            <Button size="xs" variant="outline" onClick={() => { setDetail(r); setRejectNote(''); }}>
+                              반려
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
           {totalPages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: 13, cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.5 : 1 }}>
+            <div className="flex justify-center gap-2 mt-5">
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                 이전
-              </button>
-              <span style={{ display: 'flex', alignItems: 'center', fontSize: 13, color: '#6b7280' }}>{page} / {totalPages}</span>
-              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: 13, cursor: page === totalPages ? 'not-allowed' : 'pointer', opacity: page === totalPages ? 0.5 : 1 }}>
+              </Button>
+              <span className="flex items-center text-[13px] text-gray-500">{page} / {totalPages}</span>
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                 다음
-              </button>
+              </Button>
             </div>
           )}
         </>
       )}
 
       {/* Detail / Reject Modal */}
-      {detail && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ width: '100%', maxWidth: 520, padding: 32, backgroundColor: '#fff', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxHeight: '80vh', overflowY: 'auto' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginTop: 0, marginBottom: 20 }}>접수 상세</h2>
+      <Dialog open={!!detail} onOpenChange={(open) => { if (!open) setDetail(null); }}>
+        <DialogContent className="sm:max-w-[520px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>접수 상세</DialogTitle>
+          </DialogHeader>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px 16px', fontSize: 14, marginBottom: 24 }}>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>영문이름</span><span>{detail.englishName}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>회원이름</span><span>{detail.userName}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>이메일</span><span>{detail.userEmail}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>생년월일</span><span>{detail.birthDate ? new Date(detail.birthDate).toLocaleDateString('ko') : '-'}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>성별</span><span>{detail.gender === 'MALE' ? '남성' : '여성'}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>시험</span><span>{detail.examName} ({detail.examType})</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>시험일</span><span>{detail.examDate ? new Date(detail.examDate).toLocaleDateString('ko') : '-'}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>시험장</span><span>{detail.venueName}</span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>상태</span><span><StatusBadge status={detail.status} /></span>
-              <span style={{ color: '#6b7280', fontWeight: 600 }}>신청일</span><span>{new Date(detail.createdAt).toLocaleString('ko')}</span>
-              {detail.rejectionNote && (
-                <><span style={{ color: '#6b7280', fontWeight: 600 }}>반려사유</span><span style={{ color: '#991b1b' }}>{detail.rejectionNote}</span></>
+          {detail && (
+            <>
+              <div className="grid grid-cols-[120px_1fr] gap-x-4 gap-y-2.5 text-sm mb-6">
+                <span className="text-gray-500 font-semibold">영문이름</span><span>{detail.englishName}</span>
+                <span className="text-gray-500 font-semibold">회원이름</span><span>{detail.userName}</span>
+                <span className="text-gray-500 font-semibold">이메일</span><span>{detail.userEmail}</span>
+                <span className="text-gray-500 font-semibold">생년월일</span><span>{detail.birthDate ? new Date(detail.birthDate).toLocaleDateString('ko') : '-'}</span>
+                <span className="text-gray-500 font-semibold">성별</span><span>{detail.gender === 'MALE' ? '남성' : '여성'}</span>
+                <span className="text-gray-500 font-semibold">시험</span><span>{detail.examName} ({detail.examType})</span>
+                <span className="text-gray-500 font-semibold">시험일</span><span>{detail.examDate ? new Date(detail.examDate).toLocaleDateString('ko') : '-'}</span>
+                <span className="text-gray-500 font-semibold">시험장</span><span>{detail.venueName}</span>
+                <span className="text-gray-500 font-semibold">상태</span><span><StatusBadgeLocal status={detail.status} /></span>
+                <span className="text-gray-500 font-semibold">신청일</span><span>{new Date(detail.createdAt).toLocaleString('ko')}</span>
+                {detail.rejectionNote && (
+                  <><span className="text-gray-500 font-semibold">반려사유</span><span className="text-red-800">{detail.rejectionNote}</span></>
+                )}
+              </div>
+
+              {detail.status === 'PENDING' && (
+                <>
+                  <div className="mb-4 space-y-1">
+                    <Label>반려 사유 (반려 시 필수)</Label>
+                    <textarea
+                      value={rejectNote} onChange={(e) => setRejectNote(e.target.value)}
+                      placeholder="반려 사유를 입력하세요"
+                      className="w-full px-3 py-2 rounded-md border border-input text-sm min-h-[80px] resize-y"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleApprove(detail.id)} disabled={processing}
+                      className="flex-1 bg-green-600 hover:bg-green-500 text-white">
+                      {processing ? '처리 중...' : '승인 (계정 생성)'}
+                    </Button>
+                    <Button onClick={() => handleReject(detail.id)} disabled={processing}
+                      variant="outline" className="flex-1 border-red-600 text-red-600">
+                      {processing ? '처리 중...' : '반려'}
+                    </Button>
+                  </div>
+                </>
               )}
-            </div>
 
-            {detail.status === 'PENDING' && (
-              <>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 4, color: '#374151' }}>반려 사유 (반려 시 필수)</label>
-                  <textarea
-                    value={rejectNote} onChange={(e) => setRejectNote(e.target.value)}
-                    placeholder="반려 사유를 입력하세요"
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: 14, minHeight: 80, boxSizing: 'border-box', resize: 'vertical' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => handleApprove(detail.id)} disabled={processing}
-                    style={{ flex: 1, padding: '10px 0', borderRadius: 6, border: 'none', backgroundColor: '#16a34a', color: '#fff', fontSize: 14, fontWeight: 600, cursor: processing ? 'not-allowed' : 'pointer' }}>
-                    {processing ? '처리 중...' : '승인 (계정 생성)'}
-                  </button>
-                  <button onClick={() => handleReject(detail.id)} disabled={processing}
-                    style={{ flex: 1, padding: '10px 0', borderRadius: 6, border: '1px solid #dc2626', backgroundColor: '#fff', color: '#dc2626', fontSize: 14, fontWeight: 600, cursor: processing ? 'not-allowed' : 'pointer' }}>
-                    {processing ? '처리 중...' : '반려'}
-                  </button>
-                </div>
-              </>
-            )}
-
-            <button onClick={() => setDetail(null)}
-              style={{ marginTop: 16, width: '100%', padding: '10px 0', borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: 14, cursor: 'pointer' }}>
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+              <Button variant="outline" className="w-full mt-4" onClick={() => setDetail(null)}>
+                닫기
+              </Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

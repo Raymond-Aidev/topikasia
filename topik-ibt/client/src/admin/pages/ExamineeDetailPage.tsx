@@ -4,6 +4,12 @@ import AdminLayout from '../components/AdminLayout';
 import ExamSetSelector from '../components/ExamSetSelector';
 import StatusBadge from '../components/StatusBadge';
 import { adminApi } from '../../api/adminApi';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Card, CardContent } from '../../components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/table';
 
 interface ExamineeDetail {
   id: string;
@@ -28,52 +34,6 @@ interface ExamSession {
 }
 
 type Tab = 'info' | 'examSet' | 'sessions';
-
-const tabBtn = (active: boolean): React.CSSProperties => ({
-  padding: '10px 20px',
-  fontSize: '14px',
-  fontWeight: active ? 600 : 400,
-  color: active ? '#2563eb' : '#6b7280',
-  backgroundColor: 'transparent',
-  border: 'none',
-  borderBottom: active ? '2px solid #2563eb' : '2px solid transparent',
-  cursor: 'pointer',
-});
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '8px 12px',
-  borderRadius: '6px',
-  border: '1px solid #d1d5db',
-  fontSize: '14px',
-  boxSizing: 'border-box' as const,
-};
-
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  marginBottom: '4px',
-  fontSize: '13px',
-  fontWeight: 600,
-  color: '#374151',
-};
-
-const fieldGroup: React.CSSProperties = { marginBottom: '14px' };
-
-const thStyle: React.CSSProperties = {
-  padding: '10px 14px',
-  textAlign: 'left',
-  fontSize: '13px',
-  fontWeight: 600,
-  color: '#374151',
-  borderBottom: '2px solid #e5e7eb',
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: '10px 14px',
-  fontSize: '13px',
-  color: '#111827',
-  borderBottom: '1px solid #f3f4f6',
-};
 
 const ExamineeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -179,7 +139,7 @@ const ExamineeDetailPage: React.FC = () => {
   if (loading) {
     return (
       <AdminLayout>
-        <div style={{ textAlign: 'center', padding: '60px', color: '#9ca3af' }}>불러오는 중...</div>
+        <div className="text-center py-16 text-gray-400">불러오는 중...</div>
       </AdminLayout>
     );
   }
@@ -187,177 +147,152 @@ const ExamineeDetailPage: React.FC = () => {
   if (!examinee) {
     return (
       <AdminLayout>
-        <div style={{ textAlign: 'center', padding: '60px', color: '#dc2626' }}>{error || '회원을 찾을 수 없습니다.'}</div>
+        <div className="text-center py-16 text-red-600">{error || '회원을 찾을 수 없습니다.'}</div>
       </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
-      <button
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => navigate('/admin/examinees')}
-        style={{ marginBottom: '16px', padding: '6px 14px', borderRadius: '6px', border: '1px solid #d1d5db', backgroundColor: '#fff', fontSize: '13px', cursor: 'pointer' }}
+        className="mb-4"
       >
         &larr; 목록으로
-      </button>
+      </Button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0, fontSize: '22px', color: '#111827' }}>{examinee.name}</h1>
+      <div className="flex items-center gap-3 mb-5">
+        <h1 className="m-0 text-[22px] text-gray-900">{examinee.name}</h1>
         <StatusBadge status={examinee.status} />
         {examinee.photoUrl && (
           <img
             src={examinee.photoUrl}
             alt="사진"
-            style={{ width: '40px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e5e7eb', marginLeft: '8px' }}
+            className="w-10 h-[50px] object-cover rounded border border-gray-200 ml-2"
           />
         )}
       </div>
 
       {message && (
-        <div style={{ padding: '10px 14px', backgroundColor: '#dcfce7', color: '#166534', borderRadius: '6px', marginBottom: '12px', fontSize: '13px' }}>
+        <div className="px-3.5 py-2.5 bg-green-100 text-green-800 rounded-md mb-3 text-[13px]">
           {message}
         </div>
       )}
       {error && (
-        <div style={{ padding: '10px 14px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '12px', fontSize: '13px' }}>
+        <div className="px-3.5 py-2.5 bg-red-100 text-red-800 rounded-md mb-3 text-[13px]">
           {error}
         </div>
       )}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb', marginBottom: '20px' }}>
-        <button style={tabBtn(activeTab === 'info')} onClick={() => { setActiveTab('info'); setMessage(''); setError(''); }}>기본 정보</button>
-        <button style={tabBtn(activeTab === 'examSet')} onClick={() => { setActiveTab('examSet'); setMessage(''); setError(''); }}>시험세트</button>
-        <button style={tabBtn(activeTab === 'sessions')} onClick={() => { setActiveTab('sessions'); setMessage(''); setError(''); }}>응시 내역</button>
-      </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => { setActiveTab(val as Tab); setMessage(''); setError(''); }}
+      >
+        <TabsList variant="line">
+          <TabsTrigger value="info">기본 정보</TabsTrigger>
+          <TabsTrigger value="examSet">시험세트</TabsTrigger>
+          <TabsTrigger value="sessions">응시 내역</TabsTrigger>
+        </TabsList>
 
-      <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-        {activeTab === 'info' && (
-          <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={fieldGroup}>
-                <label style={labelStyle}>아이디</label>
-                <input style={{ ...inputStyle, backgroundColor: '#f9fafb' }} value={examinee.loginId} disabled />
+        <Card className="mt-4">
+          <CardContent>
+            <TabsContent value="info">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>아이디</Label>
+                  <Input value={examinee.loginId} disabled className="bg-gray-50" />
+                </div>
+                <div className="space-y-1">
+                  <Label>수험번호</Label>
+                  <Input value={examinee.registrationNumber} disabled className="bg-gray-50" />
+                </div>
+                <div className="space-y-1">
+                  <Label>성명</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>좌석번호</Label>
+                  <Input value={seatNumber} onChange={(e) => setSeatNumber(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>소속기관</Label>
+                  <Input value={institutionName} onChange={(e) => setInstitutionName(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>시험실</Label>
+                  <Input value={examRoomName} onChange={(e) => setExamRoomName(e.target.value)} />
+                </div>
               </div>
-              <div style={fieldGroup}>
-                <label style={labelStyle}>수험번호</label>
-                <input style={{ ...inputStyle, backgroundColor: '#f9fafb' }} value={examinee.registrationNumber} disabled />
+              <div className="flex gap-2 mt-4">
+                <Button
+                  onClick={handleSaveInfo}
+                  disabled={saving}
+                  className="bg-blue-600 hover:bg-blue-500 text-white"
+                >
+                  {saving ? '저장 중...' : '저장'}
+                </Button>
+                <Button variant="outline" onClick={handleResetPassword}>
+                  비밀번호 재설정
+                </Button>
               </div>
-              <div style={fieldGroup}>
-                <label style={labelStyle}>성명</label>
-                <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} />
+            </TabsContent>
+
+            <TabsContent value="examSet">
+              <div className="mb-4">
+                <Label>현재 시험세트</Label>
+                <div className="text-[15px] font-semibold text-gray-900 mt-1 mb-4">
+                  {examinee.assignedExamSet
+                    ? `[${examinee.assignedExamSet.examSetNumber}] ${examinee.assignedExamSet.name} (${examinee.assignedExamSet.examType})`
+                    : '미배정'}
+                </div>
               </div>
-              <div style={fieldGroup}>
-                <label style={labelStyle}>좌석번호</label>
-                <input style={inputStyle} value={seatNumber} onChange={(e) => setSeatNumber(e.target.value)} />
+              <div className="space-y-1 mb-4">
+                <Label>시험세트 변경</Label>
+                <ExamSetSelector value={selectedExamSetId} onChange={setSelectedExamSetId} />
               </div>
-              <div style={fieldGroup}>
-                <label style={labelStyle}>소속기관</label>
-                <input style={inputStyle} value={institutionName} onChange={(e) => setInstitutionName(e.target.value)} />
-              </div>
-              <div style={fieldGroup}>
-                <label style={labelStyle}>시험실</label>
-                <input style={inputStyle} value={examRoomName} onChange={(e) => setExamRoomName(e.target.value)} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <button
-                onClick={handleSaveInfo}
+              <Button
+                onClick={handleChangeExamSet}
                 disabled={saving}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  backgroundColor: '#2563eb',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                }}
+                className="bg-blue-600 hover:bg-blue-500 text-white"
               >
-                {saving ? '저장 중...' : '저장'}
-              </button>
-              <button
-                onClick={handleResetPassword}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: '6px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: '#fff',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                }}
-              >
-                비밀번호 재설정
-              </button>
-            </div>
-          </>
-        )}
+                {saving ? '변경 중...' : '변경'}
+              </Button>
+            </TabsContent>
 
-        {activeTab === 'examSet' && (
-          <>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={labelStyle}>현재 시험세트</label>
-              <div style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>
-                {examinee.assignedExamSet
-                  ? `[${examinee.assignedExamSet.examSetNumber}] ${examinee.assignedExamSet.name} (${examinee.assignedExamSet.examType})`
-                  : '미배정'}
-              </div>
-            </div>
-            <div style={fieldGroup}>
-              <label style={labelStyle}>시험세트 변경</label>
-              <ExamSetSelector value={selectedExamSetId} onChange={setSelectedExamSetId} />
-            </div>
-            <button
-              onClick={handleChangeExamSet}
-              disabled={saving}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '6px',
-                border: 'none',
-                backgroundColor: '#2563eb',
-                color: '#fff',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: saving ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {saving ? '변경 중...' : '변경'}
-            </button>
-          </>
-        )}
-
-        {activeTab === 'sessions' && (
-          <>
-            {sessions.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px', color: '#9ca3af', fontSize: '14px' }}>
-                응시 내역이 없습니다.
-              </div>
-            ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={thStyle}>시험세트</th>
-                    <th style={thStyle}>시작시간</th>
-                    <th style={thStyle}>종료시간</th>
-                    <th style={thStyle}>상태</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sessions.map((s) => (
-                    <tr key={s.id}>
-                      <td style={tdStyle}>{s.examSetName}</td>
-                      <td style={tdStyle}>{new Date(s.startedAt).toLocaleString('ko-KR')}</td>
-                      <td style={tdStyle}>{s.endedAt ? new Date(s.endedAt).toLocaleString('ko-KR') : '-'}</td>
-                      <td style={tdStyle}><StatusBadge status={s.status} type="session" /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        )}
-      </div>
+            <TabsContent value="sessions">
+              {sessions.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 text-sm">
+                  응시 내역이 없습니다.
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>시험세트</TableHead>
+                      <TableHead>시작시간</TableHead>
+                      <TableHead>종료시간</TableHead>
+                      <TableHead>상태</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell>{s.examSetName}</TableCell>
+                        <TableCell>{new Date(s.startedAt).toLocaleString('ko-KR')}</TableCell>
+                        <TableCell>{s.endedAt ? new Date(s.endedAt).toLocaleString('ko-KR') : '-'}</TableCell>
+                        <TableCell><StatusBadge status={s.status} type="session" /></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </TabsContent>
+          </CardContent>
+        </Card>
+      </Tabs>
     </AdminLayout>
   );
 };

@@ -1,61 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Question } from '../../types/exam.types';
 import type { AnswerValue } from '../../store/examStore';
+import { Input } from '../../components/ui/input';
 
 interface ShortAnswerQuestionProps {
   question: Question;
   answer: AnswerValue | undefined;
   onAnswer: (value: AnswerValue) => void;
 }
-
-const styles = {
-  container: {
-    padding: '0 0 16px 0',
-  },
-  instruction: {
-    fontSize: 16,
-    lineHeight: '1.7',
-    color: '#212121',
-    marginBottom: 16,
-    whiteSpace: 'pre-wrap' as const,
-  },
-  passageBox: {
-    backgroundColor: '#F5F5F5',
-    border: '1px solid #E0E0E0',
-    borderRadius: 8,
-    padding: '20px 24px',
-    marginBottom: 20,
-    fontSize: 15,
-    lineHeight: '1.8',
-    whiteSpace: 'pre-wrap' as const,
-    color: '#333',
-  },
-  fieldGroup: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 16,
-  },
-  fieldRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-  },
-  label: {
-    fontSize: 18,
-    fontWeight: 700 as const,
-    color: '#1565C0',
-    minWidth: 28,
-  },
-  input: {
-    flex: 1,
-    padding: '10px 14px',
-    fontSize: 15,
-    border: '2px solid #E0E0E0',
-    borderRadius: 6,
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  },
-};
 
 const DEBOUNCE_MS = 1000;
 
@@ -94,29 +46,29 @@ export default function ShortAnswerQuestion({
   }, []);
 
   return (
-    <div style={styles.container}>
-      <div style={styles.instruction}>{question.instruction}</div>
+    <div className="pb-4">
+      <div className="mb-4 whitespace-pre-wrap text-base leading-[1.7] text-gray-900">
+        {question.instruction}
+      </div>
 
       {question.passageText && (
-        <div style={styles.passageBox}>{question.passageText}</div>
+        <div className="mb-5 whitespace-pre-wrap rounded-lg border border-gray-300 bg-gray-100 px-6 py-5 text-[15px] leading-[1.8] text-gray-700">
+          {question.passageText}
+        </div>
       )}
 
-      <div style={styles.fieldGroup}>
+      <div className="flex flex-col gap-4">
         {gapLabels.map((label) => (
-          <div key={label} style={styles.fieldRow}>
-            <span style={styles.label}>{label}</span>
-            <input
-              style={styles.input}
+          <div key={label} className="flex items-center gap-3">
+            <span className="min-w-7 text-lg font-bold text-blue-800">
+              {label}
+            </span>
+            <Input
               type="text"
               value={values[label] ?? ''}
               onChange={(e) => handleChange(label, e.target.value)}
               placeholder={`${label} 답을 입력하세요`}
-              onFocus={(e) => {
-                (e.target as HTMLInputElement).style.borderColor = '#1565C0';
-              }}
-              onBlur={(e) => {
-                (e.target as HTMLInputElement).style.borderColor = '#E0E0E0';
-              }}
+              className="flex-1 border-2 border-gray-300 px-3.5 py-2.5 text-[15px] focus-visible:border-blue-800"
             />
           </div>
         ))}

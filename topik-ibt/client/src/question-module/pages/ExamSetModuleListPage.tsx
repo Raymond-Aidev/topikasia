@@ -2,11 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listExamSets, deleteExamSet } from '../api/examSetApi';
 import type { ExamSetListItem } from '../api/examSetApi';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '../../components/ui/table';
 
-const STATUS_BADGE: Record<string, { bg: string; color: string; label: string }> = {
-  DRAFT: { bg: '#e0e0e0', color: '#555', label: '임시저장' },
-  ACTIVE: { bg: '#e6f4ea', color: '#137333', label: '활성' },
-  ARCHIVED: { bg: '#f0f0f0', color: '#888', label: '보관' },
+const STATUS_BADGE: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; label: string }> = {
+  DRAFT: { variant: 'secondary', label: '임시저장' },
+  ACTIVE: { variant: 'default', label: '활성' },
+  ARCHIVED: { variant: 'outline', label: '보관' },
 };
 
 const ExamSetModuleListPage: React.FC = () => {
@@ -38,146 +48,94 @@ const ExamSetModuleListPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2 style={{ margin: 0, fontSize: 22 }}>시험 세트 목록</h2>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
+    <div className="mx-auto max-w-[960px] px-6 py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-[22px] font-bold">시험 세트 목록</h2>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
             onClick={() => navigate('/question-module/import')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: 6,
-              border: '1px solid #1a73e8',
-              background: '#fff',
-              color: '#1a73e8',
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
           >
             문제 불러오기
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => navigate('/question-module/compose')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: 6,
-              border: 'none',
-              background: '#1a73e8',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
           >
             + 새 세트 만들기
-          </button>
+          </Button>
         </div>
       </div>
 
       {loading ? (
-        <p style={{ color: '#888', textAlign: 'center', marginTop: 60 }}>불러오는 중...</p>
+        <p className="mt-16 text-center text-muted-foreground">불러오는 중...</p>
       ) : error ? (
-        <p style={{ color: '#d93025', textAlign: 'center', marginTop: 60 }}>{error}</p>
+        <p className="mt-16 text-center text-destructive">{error}</p>
       ) : sets.length === 0 ? (
-        <div style={{ textAlign: 'center', marginTop: 60, color: '#888' }}>
-          <p style={{ fontSize: 16 }}>아직 생성된 시험 세트가 없습니다.</p>
-          <p style={{ fontSize: 14 }}>위의 버튼을 눌러 새로운 세트를 만들어 보세요.</p>
+        <div className="mt-16 text-center text-muted-foreground">
+          <p className="text-base">아직 생성된 시험 세트가 없습니다.</p>
+          <p className="text-sm">위의 버튼을 눌러 새로운 세트를 만들어 보세요.</p>
         </div>
       ) : (
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: 14,
-          }}
-        >
-          <thead>
-            <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-              <th style={{ textAlign: 'left', padding: '10px 12px' }}>세트명</th>
-              <th style={{ textAlign: 'center', padding: '10px 12px' }}>시험유형</th>
-              <th style={{ textAlign: 'center', padding: '10px 12px' }}>상태</th>
-              <th style={{ textAlign: 'center', padding: '10px 12px' }}>문항수</th>
-              <th style={{ textAlign: 'center', padding: '10px 12px' }}>수정일</th>
-              <th style={{ textAlign: 'center', padding: '10px 12px' }}>관리</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-left">세트명</TableHead>
+              <TableHead className="text-center">시험유형</TableHead>
+              <TableHead className="text-center">상태</TableHead>
+              <TableHead className="text-center">문항수</TableHead>
+              <TableHead className="text-center">수정일</TableHead>
+              <TableHead className="text-center">관리</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {sets.map((s) => {
               const badge = STATUS_BADGE[s.status] ?? STATUS_BADGE.DRAFT;
               return (
-                <tr key={s.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '10px 12px', fontWeight: 500 }}>{s.name}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>{s.examType}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                    <span
-                      style={{
-                        padding: '3px 10px',
-                        borderRadius: 12,
-                        fontSize: 12,
-                        background: badge.bg,
-                        color: badge.color,
-                      }}
-                    >
-                      {badge.label}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                <TableRow key={s.id}>
+                  <TableCell className="font-medium">{s.name}</TableCell>
+                  <TableCell className="text-center">{s.examType}</TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
                     {s.questionCount}
-                  </td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', color: '#888' }}>
+                  </TableCell>
+                  <TableCell className="text-center text-muted-foreground">
                     {new Date(s.updatedAt).toLocaleDateString('ko-KR')}
-                  </td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                    <button
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mr-1"
                       onClick={() => navigate(`/question-module/compose/${s.id}`)}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: 4,
-                        border: '1px solid #ccc',
-                        background: '#fff',
-                        cursor: 'pointer',
-                        fontSize: 12,
-                        marginRight: 4,
-                      }}
                     >
                       편집
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-blue-500 bg-blue-50 text-blue-600 hover:bg-blue-100"
                       onClick={() => navigate(`/question-module/upload/${s.id}`)}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: 4,
-                        border: '1px solid #1a73e8',
-                        background: '#e8f0fe',
-                        color: '#1a73e8',
-                        cursor: 'pointer',
-                        fontSize: 12,
-                      }}
                     >
                       업로드
-                    </button>
+                    </Button>
                     {(s.status === 'DRAFT' || s.status === 'ARCHIVED') && (
-                      <button
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="ml-1"
                         onClick={() => handleDelete(s)}
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: 4,
-                          border: '1px solid #d93025',
-                          background: '#fce8e6',
-                          color: '#d93025',
-                          cursor: 'pointer',
-                          fontSize: 12,
-                          marginLeft: 4,
-                        }}
                       >
                         삭제
-                      </button>
+                      </Button>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
     </div>
   );

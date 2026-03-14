@@ -11,6 +11,8 @@ import { useResponsive } from '../../shared/hooks/useResponsive';
 import { fetchSchedules, fetchMyRegistrations, checkEligibility } from '../api/registrationApi';
 import { useRegistrationStore } from '../store/registrationStore';
 import type { ExamSchedule } from '../types/registration.types';
+import { cn } from '../../lib/utils';
+import { Button } from '../../components/ui/button';
 
 const BANNER_SLIDES: BannerSlide[] = [
   { id: '1', title: 'TOPIK Asia에 오신 것을\n환영합니다', subtitle: '한국어능력시험 최고의 모의시험 플랫폼에서 실전처럼 연습하세요', bgGradient: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 60%, #1A237E 100%)', ctaText: '자세히 보기', ctaLink: '/about' },
@@ -26,10 +28,10 @@ const NOTICES = [
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string }> = {
-  OPEN: { label: '접수중', bg: '#4CAF50' },
-  UPCOMING: { label: '접수전', bg: '#757575' },
-  CLOSED: { label: '마감', bg: '#9E9E9E' },
-  COMPLETED: { label: '종료', bg: '#BDBDBD' },
+  OPEN: { label: '접수중', bg: 'bg-green-500' },
+  UPCOMING: { label: '접수전', bg: 'bg-gray-500' },
+  CLOSED: { label: '마감', bg: 'bg-gray-400' },
+  COMPLETED: { label: '종료', bg: 'bg-gray-300' },
 };
 
 export default function LandingPage() {
@@ -37,7 +39,6 @@ export default function LandingPage() {
   const { isMobile, isTablet } = useResponsive();
   const compact = isMobile || isTablet;
   const topPad = compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT;
-  const px = isMobile ? 16 : 24;
 
   const isLoggedIn = useRegistrationStore((s) => s.isLoggedIn);
   const setSchedules = useRegistrationStore((s) => s.setSchedules);
@@ -93,64 +94,61 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F0F4F8', fontFamily: 'sans-serif', paddingTop: topPad }}>
+    <div className="min-h-screen bg-[#F0F4F8] font-sans" style={{ paddingTop: topPad }}>
       <GlobalNavigationBar />
 
       {/* ── 히어로: 배너 + 일정 ── */}
-      <div style={{
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: isMobile ? 16 : 24,
-        maxWidth: 1200, margin: '0 auto',
-        padding: `${isMobile ? 16 : 28}px ${px}px`,
-      }}>
-        <div style={{ flex: isMobile ? 'none' : '0 0 48%', width: isMobile ? '100%' : undefined }}>
+      <div className={cn(
+        'flex max-w-[1200px] mx-auto',
+        isMobile ? 'flex-col gap-4 p-4' : 'flex-row gap-6 px-6 py-7'
+      )}>
+        <div className={cn(isMobile ? 'w-full' : 'flex-[0_0_48%]')}>
           <BannerCarousel slides={BANNER_SLIDES} height={isMobile ? 220 : 320} onCtaClick={handleBannerCta} />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{ fontSize: isMobile ? 15 : 17, fontWeight: 700, color: '#111827' }}>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-4">
+            <span className={cn('font-bold text-gray-900', isMobile ? 'text-[15px]' : 'text-[17px]')}>
               📅 시험 일정
             </span>
           </div>
-          <div style={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: isMobile ? 12 : 14,
-            overflow: 'hidden',
-          }}>
+          <div className={cn(
+            'flex overflow-hidden',
+            isMobile ? 'flex-col gap-3' : 'flex-row gap-3.5'
+          )}>
             {loading ? (
-              <div style={{ padding: 40, color: '#9E9E9E', fontSize: 14 }}>불러오는 중...</div>
+              <div className="p-10 text-gray-400 text-sm">불러오는 중...</div>
             ) : displaySchedules.length === 0 ? (
-              <div style={{ padding: 40, color: '#9E9E9E', fontSize: 14 }}>등록된 시험 일정이 없습니다</div>
+              <div className="p-10 text-gray-400 text-sm">등록된 시험 일정이 없습니다</div>
             ) : (
               displaySchedules.map((sch) => {
                 const cfg = STATUS_CONFIG[sch.status] || STATUS_CONFIG.UPCOMING;
                 return (
-                  <div key={sch.id} style={{
-                    flex: isMobile ? 'none' : '1 1 0', minWidth: 0,
-                    backgroundColor: '#FFFFFF', borderRadius: 10,
-                    border: '1px solid #E0E0E0', padding: '16px 18px',
-                  }}>
-                    <div style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 12, fontSize: 12, fontWeight: 600, color: '#FFFFFF', backgroundColor: cfg.bg, marginBottom: 10 }}>
+                  <div key={sch.id} className={cn(
+                    'bg-white rounded-[10px] border border-gray-200 px-[18px] py-4',
+                    isMobile ? '' : 'flex-[1_1_0] min-w-0'
+                  )}>
+                    <span className={cn(
+                      'inline-block px-3 py-[3px] rounded-xl text-xs font-semibold text-white mb-2.5',
+                      cfg.bg
+                    )}>
                       {cfg.label}
+                    </span>
+                    <div className="text-[15px] font-bold text-gray-900 mb-3">{sch.examName}</div>
+                    <div className="flex justify-between text-[13px] mb-1">
+                      <span className="text-gray-500">시험일</span>
+                      <span className="text-gray-900 font-medium">{formatDate(sch.examDate)}</span>
                     </div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>{sch.examName}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-                      <span style={{ color: '#6B7280' }}>시험일</span>
-                      <span style={{ color: '#111827', fontWeight: 500 }}>{formatDate(sch.examDate)}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-                      <span style={{ color: '#6B7280' }}>접수기간</span>
-                      <span style={{ color: '#111827', fontWeight: 500 }}>{formatDate(sch.registrationStartDate)} ~ {formatDate(sch.registrationEndDate)}</span>
+                    <div className="flex justify-between text-[13px] mb-1">
+                      <span className="text-gray-500">접수기간</span>
+                      <span className="text-gray-900 font-medium">{formatDate(sch.registrationStartDate)} ~ {formatDate(sch.registrationEndDate)}</span>
                     </div>
                     {sch.status === 'OPEN' && (
-                      <button
-                        style={{ marginTop: 12, width: '100%', padding: '8px 0', backgroundColor: '#1565C0', color: '#FFFFFF', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                      <Button
+                        className="mt-3 w-full py-2 bg-[#1565C0] hover:bg-[#1256A8] text-white text-[13px] font-semibold rounded-md"
                         onClick={() => handleApply(sch)}
                       >
                         접수하기
-                      </button>
+                      </Button>
                     )}
                   </div>
                 );
@@ -161,64 +159,59 @@ export default function LandingPage() {
       </div>
 
       {/* ── 퀵 액세스 ── */}
-      <div style={{
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: 16, maxWidth: 1200, margin: '0 auto',
-        padding: `0 ${px}px 24px`,
-      }}>
-        <div style={{
-          flex: isMobile ? 'none' : 2, backgroundColor: '#FFFFFF', borderRadius: 12,
-          padding: isMobile ? '20px 16px' : '24px 28px', border: '1px solid #E0E0E0',
-          display: 'flex', alignItems: 'center', gap: 0,
-        }}>
-          <div style={{ marginRight: 20 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>회원</div>
+      <div className={cn(
+        'flex max-w-[1200px] mx-auto gap-4 pb-6',
+        isMobile ? 'flex-col px-4' : 'flex-row px-6'
+      )}>
+        <div className={cn(
+          'bg-white rounded-xl border border-gray-200 flex items-center gap-0',
+          isMobile ? 'p-5' : 'flex-[2] px-7 py-6'
+        )}>
+          <div className="mr-5">
+            <div className="text-sm font-bold text-gray-700">회원</div>
           </div>
           {[
             { icon: '📝', label: '접수 바로가기', path: isLoggedIn ? '/registration/schedules' : '/registration/login' },
             { icon: '✅', label: '접수확인\n수험표 출력', path: isLoggedIn ? '/registration/mypage' : '/registration/login' },
             { icon: '📊', label: '성적 확인\n성적증명서', path: '/exam/score' },
           ].map((item, i) => (
-            <div key={item.label} style={{ display: 'contents' }}>
-              {i > 0 && <div style={{ fontSize: 20, color: '#BDBDBD', display: 'flex', alignItems: 'center' }}>›</div>}
+            <div key={item.label} className="contents">
+              {i > 0 && <div className="text-xl text-gray-300 flex items-center">›</div>}
               <div
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px 4px', borderRadius: 8 }}
+                className="flex-1 flex flex-col items-center gap-2 cursor-pointer p-2 rounded-lg"
                 onClick={() => navigate(item.path)}
               >
-                <div style={{ fontSize: isMobile ? 28 : 32 }}>{item.icon}</div>
-                <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 600, color: '#374151', textAlign: 'center', whiteSpace: 'pre-line' }}>{item.label}</div>
+                <div className={cn(isMobile ? 'text-[28px]' : 'text-[32px]')}>{item.icon}</div>
+                <div className={cn('font-semibold text-gray-700 text-center whitespace-pre-line', isMobile ? 'text-xs' : 'text-[13px]')}>{item.label}</div>
               </div>
             </div>
           ))}
         </div>
-        <div style={{
-          flex: isMobile ? 'none' : 1, backgroundColor: '#FFF9C4', borderRadius: 12,
-          padding: isMobile ? '20px 16px' : '24px 28px', border: '1px solid #E0E0E0',
-        }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#374151', marginBottom: 4 }}>비회원</div>
-          <div style={{ fontSize: 12, color: '#1976D2', marginBottom: 12 }}>※ 국외 응시자는 비회원 메뉴 이용</div>
-          <div style={{ display: 'flex', gap: 16 }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px 4px', borderRadius: 8 }} onClick={() => navigate('/login')}>
-              <div style={{ fontSize: isMobile ? 28 : 32 }}>📋</div>
-              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 600, color: '#374151', textAlign: 'center' }}>수험표 출력</div>
+        <div className={cn(
+          'bg-[#FFF9C4] rounded-xl border border-gray-200',
+          isMobile ? 'p-5' : 'flex-1 px-7 py-6'
+        )}>
+          <div className="text-sm font-bold text-gray-700 mb-1">비회원</div>
+          <div className="text-xs text-blue-600 mb-3">※ 국외 응시자는 비회원 메뉴 이용</div>
+          <div className="flex gap-4">
+            <div className="flex-1 flex flex-col items-center gap-2 cursor-pointer p-2 rounded-lg" onClick={() => navigate('/login')}>
+              <div className={cn(isMobile ? 'text-[28px]' : 'text-[32px]')}>📋</div>
+              <div className={cn('font-semibold text-gray-700 text-center', isMobile ? 'text-xs' : 'text-[13px]')}>수험표 출력</div>
             </div>
-            <div style={{ fontSize: 20, color: '#BDBDBD', display: 'flex', alignItems: 'center' }}>›</div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '8px 4px', borderRadius: 8 }} onClick={() => navigate('/exam/score')}>
-              <div style={{ fontSize: isMobile ? 28 : 32 }}>📄</div>
-              <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 600, color: '#374151', textAlign: 'center' }}>성적증명서 출력</div>
+            <div className="text-xl text-gray-300 flex items-center">›</div>
+            <div className="flex-1 flex flex-col items-center gap-2 cursor-pointer p-2 rounded-lg" onClick={() => navigate('/exam/score')}>
+              <div className={cn(isMobile ? 'text-[28px]' : 'text-[32px]')}>📄</div>
+              <div className={cn('font-semibold text-gray-700 text-center', isMobile ? 'text-xs' : 'text-[13px]')}>성적증명서 출력</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── 정보 링크 바 ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-        gap: 0, maxWidth: 1200, margin: '0 auto 24px',
-        padding: `0 ${px}px`,
-      }}>
+      <div className={cn(
+        'grid max-w-[1200px] mx-auto mb-6',
+        isMobile ? 'grid-cols-2 px-4' : 'grid-cols-4 px-6'
+      )}>
         {[
           { label: '응시 규정', path: '/about#rules' },
           { label: '시험 신청 방법', path: '/about#how-to-apply' },
@@ -228,58 +221,52 @@ export default function LandingPage() {
           <div
             key={item.label}
             onClick={() => item.path && navigate(item.path)}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              backgroundColor: '#FFFFFF', border: '1px solid #E0E0E0',
-              padding: isMobile ? '12px 14px' : '16px 20px',
-              cursor: item.path ? 'pointer' : 'default',
-              fontSize: isMobile ? 13 : 15, fontWeight: 600, color: '#374151',
-            }}
+            className={cn(
+              'flex items-center justify-between bg-white border border-gray-200 font-semibold text-gray-700',
+              isMobile ? 'px-3.5 py-3 text-[13px]' : 'px-5 py-4 text-[15px]',
+              item.path ? 'cursor-pointer' : 'cursor-default'
+            )}
           >
-            <span>{item.label}</span><span style={{ color: '#BDBDBD' }}>›</span>
+            <span>{item.label}</span><span className="text-gray-300">›</span>
           </div>
         ))}
       </div>
 
       {/* ── 하단 섹션 ── */}
-      <div style={{
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: 16, maxWidth: 1200, margin: '0 auto',
-        padding: `0 ${px}px 40px`,
-      }}>
-        <div style={{
-          flex: isMobile ? 'none' : '0 0 240px',
-          backgroundColor: '#FFE0E0', borderRadius: 16,
-          padding: '28px 24px', textAlign: 'center', cursor: 'pointer',
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>⚠️</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#C62828' }}>부정행위</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#C62828' }}>조치 기준</div>
+      <div className={cn(
+        'flex max-w-[1200px] mx-auto gap-4 pb-10',
+        isMobile ? 'flex-col px-4' : 'flex-row px-6'
+      )}>
+        <div className={cn(
+          'bg-[#FFE0E0] rounded-2xl px-6 py-7 text-center cursor-pointer',
+          isMobile ? '' : 'flex-[0_0_240px]'
+        )}>
+          <div className="text-5xl mb-3">⚠️</div>
+          <div className="text-base font-bold text-red-800">부정행위</div>
+          <div className="text-base font-bold text-red-800">조치 기준</div>
         </div>
-        <div style={{
-          flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16,
-          padding: isMobile ? '20px 16px' : '24px 28px', border: '1px solid #E0E0E0',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <span style={{ fontSize: 17, fontWeight: 700, color: '#111827' }}>공지사항</span>
-            <button style={{ fontSize: 13, color: '#6B7280', cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit' }}>더보기</button>
+        <div className={cn(
+          'flex-1 bg-white rounded-2xl border border-gray-200',
+          isMobile ? 'p-5' : 'px-7 py-6'
+        )}>
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-[17px] font-bold text-gray-900">공지사항</span>
+            <button className="text-[13px] text-gray-500 cursor-pointer border-none bg-transparent font-[inherit]">더보기</button>
           </div>
           {NOTICES.map((n) => (
-            <div key={n.id} style={{ fontSize: 14, color: '#374151', padding: '8px 0', borderBottom: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between' }}>
+            <div key={n.id} className="text-sm text-gray-700 py-2 border-b border-gray-100 flex justify-between">
               <span>· {n.title}</span>
-              <span style={{ color: '#9E9E9E', fontSize: 12, flexShrink: 0, marginLeft: 8 }}>{n.date}</span>
+              <span className="text-gray-400 text-xs shrink-0 ml-2">{n.date}</span>
             </div>
           ))}
         </div>
-        <div style={{
-          flex: isMobile ? 'none' : '0 0 240px',
-          backgroundColor: '#FFF9C4', borderRadius: 16,
-          padding: '28px 24px', textAlign: 'center', cursor: 'pointer',
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>💬</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#F57F17' }}>TOPIK FAQ</div>
-          <div style={{ fontSize: 13, color: '#9E9E9E', marginTop: 8 }}>자주 묻는 질문</div>
+        <div className={cn(
+          'bg-[#FFF9C4] rounded-2xl px-6 py-7 text-center cursor-pointer',
+          isMobile ? '' : 'flex-[0_0_240px]'
+        )}>
+          <div className="text-5xl mb-3">💬</div>
+          <div className="text-base font-bold text-[#F57F17]">TOPIK FAQ</div>
+          <div className="text-[13px] text-gray-400 mt-2">자주 묻는 질문</div>
         </div>
       </div>
 
