@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import CookieConsent from './shared/components/CookieConsent';
 
@@ -80,6 +80,7 @@ function App() {
           <Route path="/lms/analysis/:sessionId" element={<LmsAnalysisScreen />} />
 
           {/* 어드민 */}
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/dashboard" element={<DashboardPage />} />
           <Route path="/admin/examinees" element={<ExamineeListPage />} />
