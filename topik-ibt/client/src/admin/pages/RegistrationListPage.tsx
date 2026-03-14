@@ -18,13 +18,6 @@ interface Registration {
   rejectionNote?: string;
 }
 
-interface PaginatedResponse {
-  data: Registration[];
-  total: number;
-  page: number;
-  totalPages: number;
-}
-
 const PAGE_SIZE = 20;
 
 const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }> = {
@@ -61,12 +54,13 @@ const RegistrationListPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await adminApi.get<PaginatedResponse>('/admin/registrations', {
+      const res = await adminApi.get('/admin/registrations', {
         params: { page, limit: PAGE_SIZE, search: search || undefined, status: statusFilter || undefined },
       });
-      setItems(res.data.data);
-      setTotal(res.data.total);
-      setTotalPages(res.data.totalPages);
+      const body = (res.data as any)?.data || res.data;
+      setItems(body.registrations || body.data || []);
+      setTotal(body.pagination?.total ?? body.total ?? 0);
+      setTotalPages(body.pagination?.totalPages ?? body.totalPages ?? 1);
     } catch (err: any) {
       setError(err.response?.data?.message || '데이터를 불러오는 데 실패했습니다.');
     } finally {
