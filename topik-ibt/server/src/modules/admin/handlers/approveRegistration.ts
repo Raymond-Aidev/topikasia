@@ -54,7 +54,7 @@ export async function approveRegistrationInTx(
     JOIN "RegistrationUser" u ON r."userId" = u."id"
     LEFT JOIN "ExamSchedule" s ON r."scheduleId" = s."id"
     WHERE r."id" = ${registrationId}
-    FOR UPDATE
+    FOR UPDATE OF r
   ` as any[];
 
   if (registrations.length === 0) {
@@ -130,7 +130,7 @@ export async function approveRegistration(req: Request, res: Response, next: Nex
         registrationId: result.registrationId,
         examineeId: result.examineeId,
         loginId: result.loginId,
-        tempPassword: result.tempPassword,
+        temporaryPassword: result.tempPassword,
       },
     });
   } catch (err) {
