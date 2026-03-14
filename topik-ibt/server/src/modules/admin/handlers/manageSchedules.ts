@@ -15,7 +15,7 @@ export async function listSchedules(req: Request, res: Response, next: NextFunct
     const schedules = await prisma.$queryRaw`
       SELECT "id", "examName", "examRound", "examType", "examDate",
              "registrationStartAt", "registrationEndAt", "venues",
-             "maxCapacity", "currentCount", "status", "createdAt", "updatedAt"
+             "maxCapacity", "currentCount", "status", "examSetId", "createdAt", "updatedAt"
       FROM "ExamSchedule"
       ORDER BY "examDate" DESC
     ` as any[];
@@ -35,7 +35,7 @@ export async function createSchedule(req: Request, res: Response, next: NextFunc
     const {
       examName, examRound, examType, examDate,
       registrationStartAt, registrationEndAt,
-      venues, maxCapacity, status,
+      venues, maxCapacity, status, examSetId,
     } = req.body;
 
     if (!examName || !examType || !examDate) {
@@ -54,7 +54,7 @@ export async function createSchedule(req: Request, res: Response, next: NextFunc
         id, "examName", "examRound", "examType", "examDate",
         "registrationStartAt", "registrationEndAt",
         venues, "maxCapacity", "currentCount", status,
-        "createdAt", "updatedAt"
+        "examSetId", "createdAt", "updatedAt"
       ) VALUES (
         gen_random_uuid()::text,
         ${examName},
@@ -67,6 +67,7 @@ export async function createSchedule(req: Request, res: Response, next: NextFunc
         ${maxCapacity || 9999},
         0,
         ${status || 'OPEN'}::"ScheduleStatus",
+        ${examSetId || null},
         NOW(), NOW()
       )
       RETURNING *
@@ -88,7 +89,7 @@ export async function updateSchedule(req: Request, res: Response, next: NextFunc
     const {
       examName, examRound, examDate,
       registrationStartAt, registrationEndAt,
-      venues, maxCapacity, status,
+      venues, maxCapacity, status, examSetId,
     } = req.body;
 
     // 존재 확인
@@ -113,6 +114,7 @@ export async function updateSchedule(req: Request, res: Response, next: NextFunc
         "venues" = COALESCE(${venuesJson}::jsonb, venues),
         "maxCapacity" = COALESCE(${maxCapacity ?? null}::int, "maxCapacity"),
         "status" = COALESCE(${status ?? null}::"ScheduleStatus", status),
+        "examSetId" = COALESCE(${examSetId ?? null}, "examSetId"),
         "updatedAt" = NOW()
       WHERE id = ${id}
       RETURNING *

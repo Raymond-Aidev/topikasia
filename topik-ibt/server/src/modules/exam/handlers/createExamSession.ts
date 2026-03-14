@@ -66,9 +66,14 @@ export async function createExamSession(req: Request, res: Response, next: NextF
     }
 
     // sectionsJson에서 초기 sectionProgressJson 생성
-    const sections = examSet.sectionsJson as Array<{ sectionName: string; durationSeconds: number }>;
-    const sectionProgress = sections.map((s) => ({
-      sectionName: s.sectionName,
+    // sectionsJson은 Array 형태 또는 Object 형태({ READING: {...}, LISTENING: {...} }) 둘 다 지원
+    const rawSections = examSet.sectionsJson as any;
+    const sectionEntries = Array.isArray(rawSections)
+      ? rawSections.map((s: any) => ({ name: s.sectionName || s.section, duration: s.durationSeconds || (s.durationMinutes ? s.durationMinutes * 60 : 0) }))
+      : Object.entries(rawSections).map(([key, val]: [string, any]) => ({ name: key, duration: val.durationSeconds || (val.durationMinutes ? val.durationMinutes * 60 : 0) }));
+
+    const sectionProgress = sectionEntries.map((s: any) => ({
+      sectionName: s.name,
       status: 'NOT_STARTED' as const,
       startedAt: null,
       completedAt: null,

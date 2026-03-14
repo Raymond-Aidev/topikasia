@@ -44,13 +44,15 @@ export async function approveRegistrationInTx(
   registrationId: string,
   adminId: string,
 ): Promise<{ registrationId: string; examineeId: string; loginId: string; tempPassword: string }> {
-  // 1. 접수 확인
+  // 1. 접수 확인 (ExamSchedule.examSetId 포함)
   const registrations = await tx.$queryRaw`
     SELECT r."id", r."userId", r."status", r."examType", r."englishName",
            r."photoUrl", r."scheduleId",
-           u."email", u."name"
+           u."email", u."name",
+           s."examSetId"
     FROM "Registration" r
     JOIN "RegistrationUser" u ON r."userId" = u."id"
+    LEFT JOIN "ExamSchedule" s ON r."scheduleId" = s."id"
     WHERE r."id" = ${registrationId}
     FOR UPDATE
   ` as any[];
@@ -84,6 +86,15 @@ export async function approveRegistrationInTx(
   ` as any[];
 
   const examineeId = examinees[0].id;
+
+  // 2-1. ExamSchedule에 연결된 ExamSet이 있으면 Examinee에 배정
+  if (registration.examSetId) {
+    await tx.$executeRaw`
+      UPDATE "Examinee"
+      SET "assignedExamSetId" = ${registration.examSetId}, "updatedAt" = NOW()
+      WHERE "id" = ${examineeId}
+    `;
+  }
 
   // 3. Registration 상태 업데이트
   await tx.$executeRaw`

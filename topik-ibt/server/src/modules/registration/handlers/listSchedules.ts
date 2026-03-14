@@ -35,7 +35,7 @@ export async function listSchedules(req: Request, res: Response, next: NextFunct
     const schedules = await prisma.$queryRawUnsafe(
       `SELECT "id", "examName", "examRound", "examType", "examDate",
               "registrationStartAt", "registrationEndAt", "venues",
-              "maxCapacity", "currentCount", "status", "createdAt"
+              "maxCapacity", "currentCount", "status", "examSetId", "createdAt"
        FROM "ExamSchedule"
        WHERE ${whereClause}
        ORDER BY "examDate" ASC`,
@@ -58,7 +58,7 @@ export async function getScheduleDetail(req: Request, res: Response, next: NextF
     const schedules = await prisma.$queryRaw`
       SELECT "id", "examName", "examRound", "examType", "examDate",
              "registrationStartAt", "registrationEndAt", "venues",
-             "maxCapacity", "currentCount", "status", "createdAt"
+             "maxCapacity", "currentCount", "status", "examSetId", "createdAt"
       FROM "ExamSchedule"
       WHERE "id" = ${id}
       LIMIT 1

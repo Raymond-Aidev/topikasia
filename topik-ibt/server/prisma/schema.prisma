@@ -81,6 +81,7 @@ model ExamSet {
   assignedExaminees Examinee[]
   examSessions      ExamSession[]
   scores            Score[]
+  examSchedules     ExamSchedule[]
 }
 
 enum ExamType {
@@ -235,9 +236,11 @@ model ExamSchedule {
   maxCapacity         Int
   currentCount        Int            @default(0)
   status              ScheduleStatus @default(OPEN)
+  examSetId           String?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @default(now())
 
+  examSet       ExamSet?       @relation(fields: [examSetId], references: [id], onDelete: SetNull)
   registrations Registration[]
 }
 
