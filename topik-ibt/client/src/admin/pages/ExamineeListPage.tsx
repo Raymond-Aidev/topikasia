@@ -13,13 +13,6 @@ interface Examinee {
   seatNumber?: string;
 }
 
-interface PaginatedResponse {
-  data: Examinee[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
 const PAGE_SIZE = 20;
 
 const thStyle: React.CSSProperties = {
@@ -58,10 +51,10 @@ const ExamineeListPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await adminApi.get<PaginatedResponse>('/admin/examinees', {
+      const res = await adminApi.get('/admin/examinees', {
         params: { page, limit: PAGE_SIZE, search: search || undefined },
       });
-      const body = res.data?.data || res.data;
+      const body = (res.data as any)?.data || res.data;
       setExaminees(body.examinees || body.data || []);
       setTotal(body.pagination?.total ?? body.total ?? 0);
     } catch (err: any) {

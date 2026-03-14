@@ -43,8 +43,8 @@ const ExamSetListPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await adminApi.get<ExamSet[]>('/admin/exam-sets');
-      const body = res.data?.data || res.data;
+      const res = await adminApi.get('/admin/exam-sets');
+      const body = (res.data as any)?.data || res.data;
       setExamSets(Array.isArray(body) ? body : []);
     } catch (err: any) {
       setError(err.response?.data?.message || '데이터를 불러오는 데 실패했습니다.');
