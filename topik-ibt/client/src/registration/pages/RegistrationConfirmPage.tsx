@@ -119,7 +119,9 @@ export default function RegistrationConfirmPage() {
     try {
       const result = await applyRegistration({
         scheduleId: selectedSchedule.id,
+        examType: selectedSchedule.examType as 'TOPIK_I' | 'TOPIK_II',
         venueId: formData.venueId,
+        venueName: formData.venueName,
         englishName: formData.englishName,
         birthYear: formData.birthYear,
         birthMonth: formData.birthMonth,

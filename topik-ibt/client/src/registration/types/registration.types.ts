@@ -90,7 +90,9 @@ export interface VerifyEmailPayload {
 
 export interface ApplyPayload {
   scheduleId: string;
+  examType: ExamType;
   venueId: string;
+  venueName: string;
   englishName: string;
   birthYear: number;
   birthMonth: number;

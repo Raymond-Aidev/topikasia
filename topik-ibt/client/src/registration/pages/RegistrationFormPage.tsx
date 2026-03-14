@@ -244,6 +244,16 @@ const s = {
     fontSize: 13,
     color: '#C62828',
   },
+  fieldHint: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    marginTop: 4,
+  },
+  fieldError: {
+    fontSize: 12,
+    color: '#C62828',
+    marginTop: 4,
+  },
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -275,6 +285,7 @@ export default function RegistrationFormPage() {
   const [filteredVenues, setFilteredVenues] = useState<ExamVenue[]>([]);
   const [selectedRegion, setSelectedRegion] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load venues from selected schedule
@@ -307,22 +318,30 @@ export default function RegistrationFormPage() {
   // ── Validation per step ────────────────────────────────────────
   const validateStep = (step: number): boolean => {
     setError('');
+    const errors: Record<string, string> = {};
     if (step === 1) {
-      if (!formData.englishName.trim()) { setError('영문 성명을 입력하세요.'); return false; }
-      if (!formData.gender) { setError('성별을 선택하세요.'); return false; }
-      if (!formData.agreedToTerms) { setError('주의사항에 동의해야 합니다.'); return false; }
+      if (!formData.englishName.trim()) errors.englishName = '영문 성명을 입력하세요';
+      if (!formData.gender) errors.gender = '성별을 선택하세요';
+      if (!formData.agreedToTerms) errors.agreedToTerms = '주의사항에 동의해야 합니다';
+      setFieldErrors(errors);
+      if (Object.keys(errors).length > 0) { setError('필수 항목을 확인해주세요.'); return false; }
       return true;
     }
     if (step === 2) {
-      if (!formData.venueId) { setError('시험장을 선택하세요.'); return false; }
+      if (!formData.venueId) errors.venueId = '시험장을 선택하세요';
+      setFieldErrors(errors);
+      if (Object.keys(errors).length > 0) { setError('시험장을 선택하세요.'); return false; }
       return true;
     }
     if (step === 3) {
-      if (!formData.phone.trim()) { setError('연락처를 입력하세요.'); return false; }
-      if (!formData.address.trim()) { setError('주소를 입력하세요.'); return false; }
-      if (!formData.nationality) { setError('국적을 선택하세요.'); return false; }
+      if (!formData.phone.trim()) errors.phone = '연락처를 입력하세요';
+      if (!formData.address.trim()) errors.address = '주소를 입력하세요';
+      if (!formData.nationality) errors.nationality = '국적을 선택하세요';
+      setFieldErrors(errors);
+      if (Object.keys(errors).length > 0) { setError('필수 항목을 확인해주세요.'); return false; }
       return true;
     }
+    setFieldErrors({});
     return true;
   };
 
@@ -367,11 +386,14 @@ export default function RegistrationFormPage() {
             </td>
             <td style={s.formValue}>
               <input
-                style={s.input}
+                style={{ ...s.input, ...(fieldErrors.englishName ? { borderColor: '#C62828' } : {}) }}
                 value={formData.englishName}
-                onChange={(e) => updateFormData({ englishName: e.target.value.toUpperCase() })}
+                onChange={(e) => { updateFormData({ englishName: e.target.value.toUpperCase() }); setFieldErrors(prev => ({ ...prev, englishName: '' })); }}
                 placeholder="영문 성명 입력"
               />
+              <div style={fieldErrors.englishName ? s.fieldError : s.fieldHint}>
+                {fieldErrors.englishName || '여권/신분증에 기재된 영문 성명 (대문자 자동 변환)'}
+              </div>
             </td>
           </tr>
           <tr style={s.formRow}>
@@ -417,18 +439,19 @@ export default function RegistrationFormPage() {
                 <button
                   type="button"
                   style={{ ...s.toggleBtn(formData.gender === 'MALE'), ...s.toggleBtnLeft }}
-                  onClick={() => updateFormData({ gender: 'MALE' })}
+                  onClick={() => { updateFormData({ gender: 'MALE' }); setFieldErrors(prev => ({ ...prev, gender: '' })); }}
                 >
                   남자
                 </button>
                 <button
                   type="button"
                   style={{ ...s.toggleBtn(formData.gender === 'FEMALE'), ...s.toggleBtnRight }}
-                  onClick={() => updateFormData({ gender: 'FEMALE' })}
+                  onClick={() => { updateFormData({ gender: 'FEMALE' }); setFieldErrors(prev => ({ ...prev, gender: '' })); }}
                 >
                   여자
                 </button>
               </div>
+              {fieldErrors.gender && <div style={s.fieldError}>{fieldErrors.gender}</div>}
             </td>
           </tr>
         </tbody>
@@ -446,10 +469,11 @@ export default function RegistrationFormPage() {
         <input
           type="checkbox"
           checked={formData.agreedToTerms}
-          onChange={(e) => updateFormData({ agreedToTerms: e.target.checked })}
+          onChange={(e) => { updateFormData({ agreedToTerms: e.target.checked }); setFieldErrors(prev => ({ ...prev, agreedToTerms: '' })); }}
         />
         <span>위 내용에 동의합니다</span>
       </label>
+      {fieldErrors.agreedToTerms && <div style={s.fieldError}>{fieldErrors.agreedToTerms}</div>}
     </>
   );
 
@@ -512,6 +536,7 @@ export default function RegistrationFormPage() {
           )}
         </tbody>
       </table>
+      {fieldErrors.venueId && <div style={{ ...s.fieldError, marginTop: 12 }}>{fieldErrors.venueId}</div>}
     </>
   );
 
@@ -527,11 +552,14 @@ export default function RegistrationFormPage() {
             </td>
             <td style={s.formValue}>
               <input
-                style={s.input}
+                style={{ ...s.input, ...(fieldErrors.phone ? { borderColor: '#C62828' } : {}) }}
                 value={formData.phone}
-                onChange={(e) => updateFormData({ phone: e.target.value.replace(/[^\d-]/g, '') })}
+                onChange={(e) => { updateFormData({ phone: e.target.value.replace(/[^\d-]/g, '') }); setFieldErrors(prev => ({ ...prev, phone: '' })); }}
                 placeholder="010-1234-5678"
               />
+              <div style={fieldErrors.phone ? s.fieldError : s.fieldHint}>
+                {fieldErrors.phone || '숫자와 하이픈(-)만 입력 가능'}
+              </div>
             </td>
           </tr>
           <tr style={s.formRow}>
@@ -540,11 +568,12 @@ export default function RegistrationFormPage() {
             </td>
             <td style={s.formValue}>
               <input
-                style={s.input}
+                style={{ ...s.input, ...(fieldErrors.address ? { borderColor: '#C62828' } : {}) }}
                 value={formData.address}
-                onChange={(e) => updateFormData({ address: e.target.value })}
+                onChange={(e) => { updateFormData({ address: e.target.value }); setFieldErrors(prev => ({ ...prev, address: '' })); }}
                 placeholder="주소 입력"
               />
+              {fieldErrors.address && <div style={s.fieldError}>{fieldErrors.address}</div>}
             </td>
           </tr>
           <tr style={s.formRow}>
@@ -553,15 +582,16 @@ export default function RegistrationFormPage() {
             </td>
             <td style={s.formValue}>
               <select
-                style={s.select}
+                style={{ ...s.select, ...(fieldErrors.nationality ? { borderColor: '#C62828' } : {}) }}
                 value={formData.nationality}
-                onChange={(e) => updateFormData({ nationality: e.target.value })}
+                onChange={(e) => { updateFormData({ nationality: e.target.value }); setFieldErrors(prev => ({ ...prev, nationality: '' })); }}
               >
                 <option value="">선택</option>
                 {NATIONALITIES.map((n) => (
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
+              {fieldErrors.nationality && <div style={s.fieldError}>{fieldErrors.nationality}</div>}
             </td>
           </tr>
           <tr style={s.formRow}>

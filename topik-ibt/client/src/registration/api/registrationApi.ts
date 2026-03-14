@@ -95,25 +95,22 @@ export async function fetchVenues(scheduleId: string) {
 
 // ── Registration ─────────────────────────────────────
 export async function applyRegistration(payload: ApplyPayload) {
-  const formData = new FormData();
-  formData.append('scheduleId', payload.scheduleId);
-  formData.append('venueId', payload.venueId);
-  formData.append('englishName', payload.englishName);
-  formData.append('birthYear', String(payload.birthYear));
-  formData.append('birthMonth', String(payload.birthMonth));
-  formData.append('birthDay', String(payload.birthDay));
-  formData.append('gender', payload.gender);
-  formData.append('phone', payload.phone);
-  formData.append('address', payload.address);
-  formData.append('nationality', payload.nationality);
-  formData.append('studyPeriod', payload.studyPeriod);
-  if (payload.photoFile) {
-    formData.append('photo', payload.photoFile);
-  }
+  // 서버 스키마에 맞춰 birthDate 문자열로 변환, 필드명 매핑
+  const birthDate = `${payload.birthYear}-${String(payload.birthMonth).padStart(2, '0')}-${String(payload.birthDay).padStart(2, '0')}`;
 
-  const res = await registrationApi.post<Registration>('/registration/apply', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const body = {
+    scheduleId: payload.scheduleId,
+    examType: payload.examType,
+    venueId: payload.venueId,
+    venueName: payload.venueName,
+    englishName: payload.englishName,
+    birthDate,
+    gender: payload.gender,
+    contactPhone: payload.phone || undefined,
+    address: payload.address || undefined,
+  };
+
+  const res = await registrationApi.post<Registration>('/registration/apply', body);
   return res.data;
 }
 
