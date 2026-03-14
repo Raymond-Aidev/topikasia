@@ -56,11 +56,14 @@ app.use('/api/questions', questionRouter);
 app.use('/api/registration', registrationRouter);
 app.use('/api/lms', lmsRouter);
 
-// ─── SPA 폴백 (API 라우트 이후) ──────────────────────────────
+// ─── SPA 폴백 (API 라우트 이후, /api 경로 제외) ──────────────
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, 'public');
   app.use(express.static(clientDist));
-  app.get('{*path}', (_req, res) => {
+  app.get('{*path}', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
     res.sendFile(path.join(clientDist, 'index.html'));
   });
 }

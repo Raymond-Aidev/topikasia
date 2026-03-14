@@ -7,7 +7,6 @@ import Footer from '../../shared/components/Footer';
 import StepIndicator from '../components/StepIndicator';
 import ExamSelectionPanel from '../components/ExamSelectionPanel';
 import { useRegistrationStore } from '../store/registrationStore';
-import { fetchVenues } from '../api/registrationApi';
 import type { ExamVenue } from '../types/registration.types';
 
 // ─── Styles ──────────────────────────────────────────────────────
@@ -278,25 +277,20 @@ export default function RegistrationFormPage() {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load venues when schedule is selected
+  // Load venues from selected schedule
   useEffect(() => {
     if (!selectedSchedule) {
       navigate('/registration/schedules');
       return;
     }
-    // Try to fetch venues from API; fall back to schedule.venues
-    fetchVenues(selectedSchedule.id)
-      .then((data) => {
-        setVenues(data);
-        setFilteredVenues(data);
-      })
-      .catch(() => {
-        // fallback to embedded venues
-        if (selectedSchedule.venues) {
-          setVenues(selectedSchedule.venues);
-          setFilteredVenues(selectedSchedule.venues);
-        }
-      });
+    // venues are already embedded in the schedule data
+    const scheduleVenues = Array.isArray(selectedSchedule.venues)
+      ? selectedSchedule.venues
+      : typeof selectedSchedule.venues === 'string'
+        ? JSON.parse(selectedSchedule.venues)
+        : [];
+    setVenues(scheduleVenues);
+    setFilteredVenues(scheduleVenues);
   }, [selectedSchedule, navigate]);
 
   // Region filter
