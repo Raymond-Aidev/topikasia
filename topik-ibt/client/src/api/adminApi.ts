@@ -19,8 +19,12 @@ adminApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('adminToken');
-      window.location.href = '/admin/login';
+      const url = error.config?.url || '';
+      const isLoginRequest = url.includes('/admin-auth/login');
+      if (!isLoginRequest) {
+        localStorage.removeItem('adminToken');
+        window.location.href = '/admin/login';
+      }
     }
     return Promise.reject(error);
   }
