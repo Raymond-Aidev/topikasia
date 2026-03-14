@@ -1,5 +1,5 @@
 export type ExamType = 'TOPIK_I' | 'TOPIK_II';
-export type RegistrationStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+export type RegistrationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 export type ScheduleStatus = 'UPCOMING' | 'OPEN' | 'CLOSED' | 'COMPLETED';
 export type Gender = 'MALE' | 'FEMALE';
 
