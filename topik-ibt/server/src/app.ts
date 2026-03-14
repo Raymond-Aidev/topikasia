@@ -61,7 +61,8 @@ if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, 'public');
   app.use(express.static(clientDist));
   app.get('{*path}', (req, res, next) => {
-    if (req.path.startsWith('/api')) {
+    // 정적 파일 및 API 요청은 SPA 폴백에서 제외
+    if (req.path.startsWith('/api') || req.path.startsWith('/assets') || req.path.includes('.')) {
       return next();
     }
     res.sendFile(path.join(clientDist, 'index.html'));
