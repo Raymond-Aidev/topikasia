@@ -15,9 +15,11 @@ export async function myRegistrations(req: Request, res: Response, next: NextFun
              r."gender", r."photoUrl", r."venueId", r."venueName",
              r."contactPhone", r."address", r."status", r."examineeId",
              r."rejectionNote", r."approvedAt", r."createdAt",
-             s."examName", s."examRound", s."examDate"
+             s."examName", s."examRound", s."examDate",
+             e."loginId" AS "examineeLoginId"
       FROM "Registration" r
       JOIN "ExamSchedule" s ON r."scheduleId" = s."id"
+      LEFT JOIN "Examinee" e ON r."examineeId" = e."id"
       WHERE r."userId" = ${userId}
       ORDER BY r."createdAt" DESC
     ` as any[];
@@ -33,6 +35,7 @@ export async function myRegistrations(req: Request, res: Response, next: NextFun
         examType: r.examType,
       },
       venue: { id: r.venueId, name: r.venueName },
+      examineeLoginId: r.examineeLoginId || null,
     }));
 
     res.json({

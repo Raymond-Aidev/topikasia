@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared/components/GlobalNavigationBar';
 import { useResponsive } from '../../shared/hooks/useResponsive';
@@ -31,6 +31,7 @@ export default function MyPage() {
 
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showLoginInfo, setShowLoginInfo] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMyRegistrations()
@@ -91,7 +92,8 @@ export default function MyPage() {
               </thead>
               <tbody>
                 {registrations.map((reg) => (
-                  <tr key={reg.id}>
+                  <React.Fragment key={reg.id}>
+                  <tr>
                     <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.registrationNumber}</td>
                     <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                       {reg.examSchedule
@@ -111,16 +113,55 @@ export default function MyPage() {
                     </td>
                     <td className="px-4 py-3.5 text-sm border-b border-gray-100">
                       {reg.status === 'APPROVED' && (
-                        <Button
-                          variant="secondary"
-                          className="px-4 py-1.5 text-xs font-semibold text-[#1565C0] bg-blue-50 hover:bg-blue-100 rounded-md ml-2"
-                          onClick={() => handleDownload(reg)}
-                        >
-                          수험표
-                        </Button>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Button
+                            className="px-4 py-1.5 text-xs font-semibold bg-[#1565C0] hover:bg-[#1256A8] text-white rounded-md"
+                            onClick={() => {
+                              if ((reg as any).examineeLoginId) {
+                                setShowLoginInfo(showLoginInfo === reg.id ? null : reg.id);
+                              } else {
+                                navigate('/login');
+                              }
+                            }}
+                          >
+                            응시하기
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            className="px-4 py-1.5 text-xs font-semibold text-[#1565C0] bg-blue-50 hover:bg-blue-100 rounded-md"
+                            onClick={() => handleDownload(reg)}
+                          >
+                            수험표
+                          </Button>
+                        </div>
+                      )}
+                      {reg.status === 'PENDING' && (
+                        <span className="text-xs text-gray-400">승인 대기중</span>
                       )}
                     </td>
                   </tr>
+                  {showLoginInfo === reg.id && (reg as any).examineeLoginId && (
+                  <tr key={`${reg.id}-info`}>
+                    <td colSpan={7} className="px-4 py-4 bg-blue-50 border-b border-gray-100">
+                      <div className="flex items-center gap-6 text-sm">
+                        <div>
+                          <span className="text-gray-500 font-medium">수험번호 (로그인 ID): </span>
+                          <span className="font-bold text-gray-900">{(reg as any).examineeLoginId}</span>
+                        </div>
+                        <div className="text-gray-400 text-xs">
+                          비밀번호는 승인 시 발급된 임시 비밀번호를 사용하세요
+                        </div>
+                        <Button
+                          className="px-4 py-1.5 text-xs font-bold bg-[#1565C0] hover:bg-[#1256A8] text-white rounded-md ml-auto"
+                          onClick={() => navigate('/login')}
+                        >
+                          시험 로그인 화면으로 이동
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                  )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
