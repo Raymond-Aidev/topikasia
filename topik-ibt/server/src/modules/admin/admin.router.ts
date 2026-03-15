@@ -35,6 +35,8 @@ import { updateQuestionTypes } from './handlers/updateQuestionTypes';
 import { updateExamSetSchedule } from './handlers/updateExamSetSchedule';
 import { listExamineeSessions } from './handlers/listExamineeSessions';
 import { listSchedules, createSchedule, updateSchedule, deleteSchedule } from './handlers/manageSchedules';
+import { listMembers, createMember, bulkImportMembers, deleteMember } from './handlers/manageMembers';
+import { launchExam } from './handlers/launchExam';
 
 const router = Router();
 
@@ -172,6 +174,12 @@ router.patch(
   '/exam-sets/:id/schedule',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   updateExamSetSchedule,
+);
+
+router.post(
+  '/exam-sets/:id/launch',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  launchExam,
 );
 
 // ─── 시험 세션 관리 ───────────────────────────────────────────
@@ -318,6 +326,32 @@ router.delete(
   '/schedules/:id',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   deleteSchedule,
+);
+
+// ─── 회원 관리 (RegistrationUser) ─────────────────────────────
+router.get(
+  '/members',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  listMembers,
+);
+
+router.post(
+  '/members',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  createMember,
+);
+
+router.post(
+  '/members/bulk-import',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  upload.single('file'),
+  bulkImportMembers,
+);
+
+router.delete(
+  '/members/:id',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  deleteMember,
 );
 
 export default router;

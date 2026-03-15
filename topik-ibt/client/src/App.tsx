@@ -33,6 +33,8 @@ const RealtimeMonitorPage = lazy(() => import('./admin/pages/RealtimeMonitorPage
 const LlmSettingsPage = lazy(() => import('./admin/pages/LlmSettingsPage'));
 const QuestionTypeConfigPage = lazy(() => import('./admin/pages/QuestionTypeConfigPage'));
 const ExamScheduleManagePage = lazy(() => import('./admin/pages/ExamScheduleManagePage'));
+const MemberListPage = lazy(() => import('./admin/pages/MemberListPage'));
+const ExamLaunchPage = lazy(() => import('./admin/pages/ExamLaunchPage'));
 
 // ─── 문제 출제 모듈 ───────────────────────────────────────────
 const QuestionBankImportPage = lazy(() => import('./question-module/pages/QuestionBankImportPage'));
@@ -84,9 +86,11 @@ function App() {
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/members" element={<MemberListPage />} />
           <Route path="/admin/examinees" element={<ExamineeListPage />} />
           <Route path="/admin/examinees/:id" element={<ExamineeDetailPage />} />
           <Route path="/admin/exam-sets" element={<ExamSetListPage />} />
+          <Route path="/admin/exam-sets/:id/launch" element={<ExamLaunchPage />} />
           <Route path="/admin/registrations" element={<RegistrationListPage />} />
           <Route path="/admin/exam-sessions" element={<ExamSessionListPage />} />
           <Route path="/admin/scores" element={<ScoreManagementPage />} />

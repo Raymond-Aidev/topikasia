@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import ExamSetStatusBadge from '../components/ExamSetStatusBadge';
 import ExamSetScheduleInput from '../components/ExamSetScheduleInput';
@@ -19,6 +20,7 @@ interface ExamSet {
 }
 
 const ExamSetListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [examSets, setExamSets] = useState<ExamSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,9 +136,15 @@ const ExamSetListPage: React.FC = () => {
                               편집
                             </a>
                             {es.status === 'ACTIVE' && (
-                              <Button variant="outline" size="xs" onClick={() => openScheduleEditor(es)}>
-                                시간 설정
-                              </Button>
+                              <>
+                                <Button variant="outline" size="xs" onClick={() => openScheduleEditor(es)}>
+                                  시간 설정
+                                </Button>
+                                <Button size="xs" onClick={() => navigate(`/admin/exam-sets/${es.id}/launch`)}
+                                  className="bg-green-600 hover:bg-green-500 text-white">
+                                  시험 실행하기
+                                </Button>
+                              </>
                             )}
                           </div>
                         </TableCell>
