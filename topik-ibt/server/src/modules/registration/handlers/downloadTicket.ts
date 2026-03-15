@@ -11,8 +11,8 @@ const FONTS_DIR = path.join(__dirname, '..', '..', '..', '..', 'assets', 'fonts'
 const FONT_FILES: Record<string, string> = {
   NotoSans: 'NotoSans-Regular.ttf',
   NotoSansBold: 'NotoSans-Bold.ttf',
-  NotoSansKR: 'NotoSansKR-Regular.ttf',
-  NotoSansKRBold: 'NotoSansKR-Bold.ttf',
+  NotoSansKR: 'NotoSansKR-Regular.otf',
+  NotoSansKRBold: 'NotoSansKR-Bold.otf',
   NotoSansThai: 'NotoSansThai-Regular.ttf',
   NotoSansKhmer: 'NotoSansKhmer-Regular.ttf',
   NotoSansMyanmar: 'NotoSansMyanmar-Regular.ttf',
