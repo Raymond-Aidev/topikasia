@@ -9,6 +9,25 @@ RUN npm ci
 COPY client/ .
 RUN npm run build
 
+# Download multilingual fonts (Noto Sans family)
+RUN mkdir -p /app/server/assets/fonts && \
+    wget -q -O /app/server/assets/fonts/NotoSans-Regular.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSans/unhinted/ttf/NotoSans-Regular.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSans-Bold.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSans/unhinted/ttf/NotoSans-Bold.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSansKR-Regular.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansKR/unhinted/ttf/NotoSansKR-Regular.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSansKR-Bold.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansKR/unhinted/ttf/NotoSansKR-Bold.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSansThai-Regular.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansThai/unhinted/ttf/NotoSansThai-Regular.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSansKhmer-Regular.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansKhmer/unhinted/ttf/NotoSansKhmer-Regular.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSansMyanmar-Regular.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansMyanmar/unhinted/ttf/NotoSansMyanmar-Regular.ttf" && \
+    wget -q -O /app/server/assets/fonts/NotoSansLao-Regular.ttf \
+      "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansLao/unhinted/ttf/NotoSansLao-Regular.ttf"
+
 # Build server
 WORKDIR /app/server
 COPY server/package*.json ./
@@ -26,6 +45,7 @@ COPY --from=builder /app/server/node_modules ./node_modules
 COPY --from=builder /app/server/prisma ./prisma
 COPY --from=builder /app/server/package*.json ./
 COPY --from=builder /app/server/start.sh ./
+COPY --from=builder /app/server/assets/fonts ./assets/fonts
 COPY --from=builder /app/client/dist ./dist/public
 RUN chmod +x start.sh
 ENV NODE_ENV=production
