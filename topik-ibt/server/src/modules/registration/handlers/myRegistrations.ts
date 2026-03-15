@@ -24,10 +24,10 @@ export async function myRegistrations(req: Request, res: Response, next: NextFun
       ORDER BY r."createdAt" DESC
     ` as any[];
 
-    // 클라이언트 형식에 맞춰 변환
+    // 클라이언트 형식에 맞춰 변환 (Examinee 수험번호 우선 사용)
     const registrations = rows.map((r: any) => ({
       ...r,
-      registrationNumber: r.id.slice(0, 8).toUpperCase(),
+      registrationNumber: r.examineeLoginId || r.id.slice(0, 8).toUpperCase(),
       examSchedule: {
         examName: r.examName,
         examRound: r.examRound,

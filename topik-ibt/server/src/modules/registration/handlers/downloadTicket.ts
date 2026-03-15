@@ -115,14 +115,20 @@ export async function downloadTicket(req: Request, res: Response, next: NextFunc
       throw new AppError(400, '승인된 접수만 수험표를 다운로드할 수 있습니다');
     }
 
-    // 수험번호 조회 (Examinee에서)
+    // 수험번호 조회 (Examinee에서 — 순차 발급 번호 사용)
     let registrationNumber = reg.id.slice(0, 8).toUpperCase();
+    let loginId = '';
     if (reg.examineeId) {
       const examinees = await prisma.$queryRaw`
-        SELECT "registrationNumber" FROM "Examinee" WHERE "id" = ${reg.examineeId} LIMIT 1
+        SELECT "registrationNumber", "loginId" FROM "Examinee" WHERE "id" = ${reg.examineeId} LIMIT 1
       ` as any[];
-      if (examinees.length > 0 && examinees[0].registrationNumber) {
-        registrationNumber = examinees[0].registrationNumber;
+      if (examinees.length > 0) {
+        if (examinees[0].registrationNumber) {
+          registrationNumber = examinees[0].registrationNumber;
+        }
+        if (examinees[0].loginId) {
+          loginId = examinees[0].loginId;
+        }
       }
     }
 
@@ -181,8 +187,10 @@ export async function downloadTicket(req: Request, res: Response, next: NextFunc
     const rowHeight = 32;
     let currentY = startY;
 
+    // 행 수 계산 (loginId 있으면 9행, 없으면 8행)
+    const totalRows = loginId ? 9 : 8;
     // 테이블 배경
-    doc.rect(50, startY - 10, pageWidth, rowHeight * 8 + 20).stroke('#E0E0E0');
+    doc.rect(50, startY - 10, pageWidth, rowHeight * totalRows + 20).stroke('#E0E0E0');
 
     const drawRow = (label: string, value: string, y: number, valueFont?: string) => {
       // 라벨 배경
@@ -193,6 +201,10 @@ export async function downloadTicket(req: Request, res: Response, next: NextFunc
 
     drawRow('Registration No.', registrationNumber, currentY);
     currentY += rowHeight;
+    if (loginId) {
+      drawRow('Examinee No.', loginId, currentY);
+      currentY += rowHeight;
+    }
     drawRow('Exam', reg.examName || '-', currentY, examNameFont.font);
     currentY += rowHeight;
     drawRow('Exam Type', reg.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II', currentY);
