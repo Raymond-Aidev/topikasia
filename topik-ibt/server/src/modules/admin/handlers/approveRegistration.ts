@@ -1,49 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
 import { prisma } from '../../../config/database';
 import { AppError } from '../../../shared/types';
 
-const SALT_ROUNDS = 12;
-
-/**
- * 수험번호 생성: REG + 타임스탬프(6자리) + 랜덤(4자리)
- */
-function generateRegistrationNumber(): string {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = String(Math.floor(1000 + Math.random() * 9000));
-  return `REG${timestamp}${random}`;
-}
-
-/**
- * 로그인 ID 생성: 이메일 앞부분 + 랜덤 4자리
- */
-function generateLoginId(email: string): string {
-  const prefix = email.split('@')[0].slice(0, 10).replace(/[^a-zA-Z0-9]/g, '');
-  const random = String(Math.floor(1000 + Math.random() * 9000));
-  return `${prefix}${random}`;
-}
-
-/**
- * 임시 비밀번호 생성: 8자리 영숫자
- */
-function generateTempPassword(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  let password = '';
-  for (let i = 0; i < 8; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
-}
-
 /**
  * 단일 접수 승인 로직 (트랜잭션 내에서 호출)
- * 접수 승인 → Examinee 레코드 자동 생성
+ * 접수 승인 → Examinee 레코드 자동 생성 (수험번호 = DB 시퀀스 순차 발급)
  */
 export async function approveRegistrationInTx(
   tx: any,
   registrationId: string,
   adminId: string,
-): Promise<{ registrationId: string; examineeId: string; loginId: string; tempPassword: string }> {
+): Promise<{ registrationId: string; examineeId: string; loginId: string }> {
   // 1. 접수 확인 (ExamSchedule.examSetId 포함)
   const registrations = await tx.$queryRaw`
     SELECT r."id", r."userId", r."status", r."examType", r."englishName",
@@ -67,18 +34,20 @@ export async function approveRegistrationInTx(
     throw new AppError(400, `PENDING 상태의 접수만 승인할 수 있습니다 (현재: ${registration.status})`);
   }
 
-  // 2. Examinee 생성
-  const loginId = generateLoginId(registration.email);
-  const registrationNumber = generateRegistrationNumber();
-  const tempPassword = generateTempPassword();
-  const passwordHash = await bcrypt.hash(tempPassword, SALT_ROUNDS);
+  // 2. 수험번호 순차 발급 (DB 시퀀스 — 260001부터, 중복 불가)
+  const seqResult = await tx.$queryRaw`SELECT nextval('examinee_number_seq')::text AS num` as any[];
+  const examineeNumber = seqResult[0].num;
+
+  // loginId = registrationNumber = 순차 수험번호
+  const loginId = examineeNumber;
+  const registrationNumber = examineeNumber;
 
   const examinees = await tx.$queryRaw`
     INSERT INTO "Examinee" (
       "id", "loginId", "passwordHash", "name", "registrationNumber",
       "photoUrl", "status", "loginFailCount", "createdById", "createdAt", "updatedAt"
     ) VALUES (
-      gen_random_uuid()::text, ${loginId}, ${passwordHash}, ${registration.name},
+      gen_random_uuid()::text, ${loginId}, 'NO_PASSWORD', ${registration.name},
       ${registrationNumber}, ${registration.photoUrl || null},
       'ACTIVE'::"ExamineeStatus", 0, ${adminId}, NOW(), NOW()
     )
@@ -107,7 +76,7 @@ export async function approveRegistrationInTx(
     WHERE "id" = ${registrationId}
   `;
 
-  return { registrationId, examineeId, loginId, tempPassword };
+  return { registrationId, examineeId, loginId };
 }
 
 /**
@@ -130,7 +99,6 @@ export async function approveRegistration(req: Request, res: Response, next: Nex
         registrationId: result.registrationId,
         examineeId: result.examineeId,
         loginId: result.loginId,
-        temporaryPassword: result.tempPassword,
       },
     });
   } catch (err) {

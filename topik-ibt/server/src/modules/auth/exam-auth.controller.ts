@@ -4,25 +4,28 @@ import { comparePassword } from '../../shared/utils/password';
 import { signExamineeToken } from '../../shared/utils/jwt';
 import { AppError } from '../../shared/types';
 
-const MAX_LOGIN_FAIL = 5;
-
 /**
  * POST /api/exam-auth/login
- * 응시자 로그인 — ACID T1-01: loginFailCount 원자적 증가
+ * 응시자 로그인
+ * - 신규 수험자 (순차 번호): 수험번호만으로 인증 (비밀번호 없음)
+ * - 기존 수험자: loginId + password 인증 (하위호환)
  */
 export async function examLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { loginId, password } = req.body;
+
+    if (!loginId) {
+      throw new AppError(400, '수험번호를 입력하세요');
+    }
 
     const examinee = await prisma.examinee.findUnique({
       where: { loginId },
     });
 
     if (!examinee) {
-      throw new AppError(401, '아이디 또는 비밀번호가 올바르지 않습니다');
+      throw new AppError(401, '수험번호가 올바르지 않습니다');
     }
 
-    // 잠금 상태 확인
     if (examinee.status === 'LOCKED') {
       throw new AppError(423, '계정이 잠겼습니다. 감독관에게 문의하세요');
     }
@@ -31,30 +34,19 @@ export async function examLogin(req: Request, res: Response, next: NextFunction)
       throw new AppError(403, '비활성화된 계정입니다');
     }
 
-    // 비밀번호 비교
-    const isValid = await comparePassword(password, examinee.passwordHash);
+    // 비밀번호가 없는 수험자 (NO_PASSWORD) → 수험번호만으로 인증
+    const isPasswordless = examinee.passwordHash === 'NO_PASSWORD';
 
-    if (!isValid) {
-      // ACID T1-01: 원자적 increment로 loginFailCount 증가
-      const updated = await prisma.examinee.update({
-        where: { id: examinee.id },
-        data: {
-          loginFailCount: { increment: 1 },
-        },
-        select: { loginFailCount: true, status: true, id: true },
-      });
-
-      // 실패 횟수 초과 시 잠금 (increment 결과 기준으로 판단)
-      if (updated.loginFailCount >= MAX_LOGIN_FAIL) {
-        await prisma.examinee.update({
-          where: { id: updated.id },
-          data: { status: 'LOCKED' },
-        });
-        throw new AppError(423, '로그인 실패 횟수 초과로 계정이 잠겼습니다. 감독관에게 문의하세요');
+    if (!isPasswordless) {
+      // 기존 수험자: 비밀번호 검증 (하위호환)
+      if (!password) {
+        throw new AppError(401, '비밀번호를 입력하세요');
       }
 
-      const remaining = MAX_LOGIN_FAIL - updated.loginFailCount;
-      throw new AppError(401, `아이디 또는 비밀번호가 올바르지 않습니다 (${remaining}회 남음)`);
+      const isValid = await comparePassword(password, examinee.passwordHash);
+      if (!isValid) {
+        throw new AppError(401, '수험번호 또는 비밀번호가 올바르지 않습니다');
+      }
     }
 
     // 로그인 성공 → failCount 리셋

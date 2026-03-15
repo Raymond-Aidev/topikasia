@@ -14,8 +14,7 @@ export default function LoginScreen() {
   const setExaminee = useExamStore((s) => s.setExaminee);
   const setExamPhase = useExamStore((s) => s.setExamPhase);
 
-  const [registrationNumber, setRegistrationNumber] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,21 +22,14 @@ export default function LoginScreen() {
     e.preventDefault();
     setError('');
 
-    if (!/^\d{9}$/.test(registrationNumber)) {
-      setError('수험번호는 9자리 숫자입니다.');
-      return;
-    }
-    if (!password) {
-      setError('비밀번호를 입력하세요.');
+    if (!loginId.trim()) {
+      setError('수험번호를 입력하세요.');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await examApi.post('/exam-auth/login', {
-        registrationNumber,
-        password,
-      });
+      const res = await examApi.post('/exam-auth/login', { loginId });
 
       const { token, examinee } = res.data;
       localStorage.setItem('examToken', token);
@@ -46,13 +38,12 @@ export default function LoginScreen() {
       navigate('/exam/verify');
     } catch (err: any) {
       const status = err?.response?.status;
-      const code = err?.response?.data?.code;
       const message = err?.response?.data?.message;
 
-      if (status === 423 || code === 'ACCOUNT_LOCKED') {
-        setError('로그인 5회 실패로 계정이 잠겼습니다. 감독관에게 문의하세요.');
+      if (status === 423) {
+        setError('계정이 잠겼습니다. 감독관에게 문의하세요.');
       } else if (status === 401) {
-        setError(message || '수험번호 또는 비밀번호가 올바르지 않습니다.');
+        setError(message || '수험번호가 올바르지 않습니다.');
       } else {
         setError('서버 연결에 실패했습니다. 잠시 후 다시 시도하세요.');
       }
@@ -76,23 +67,12 @@ export default function LoginScreen() {
               <Input
                 type="text"
                 inputMode="numeric"
-                maxLength={9}
-                placeholder="9자리 수험번호 입력"
-                value={registrationNumber}
-                onChange={(e) => setRegistrationNumber(e.target.value.replace(/\D/g, ''))}
+                maxLength={6}
+                placeholder="6자리 수험번호 입력"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value.replace(/\D/g, ''))}
                 autoFocus
-                className="w-full px-3.5 py-3 text-[15px] border border-gray-400 rounded-lg transition-colors h-auto"
-              />
-            </div>
-
-            <div className="mb-4 text-left">
-              <Label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호</Label>
-              <Input
-                type="password"
-                placeholder="비밀번호 입력"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-3 text-[15px] border border-gray-400 rounded-lg transition-colors h-auto"
+                className="w-full px-3.5 py-3 text-[15px] text-center tracking-[0.3em] font-mono border border-gray-400 rounded-lg transition-colors h-auto"
               />
             </div>
 
@@ -104,7 +84,7 @@ export default function LoginScreen() {
                 loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-800 hover:bg-blue-900'
               )}
             >
-              {loading ? '로그인 중...' : '로그인'}
+              {loading ? '확인 중...' : '시험 입장'}
             </Button>
 
             {error && (

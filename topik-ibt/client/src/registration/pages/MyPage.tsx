@@ -145,17 +145,17 @@ export default function MyPage() {
                     <td colSpan={7} className="px-4 py-4 bg-blue-50 border-b border-gray-100">
                       <div className="flex items-center gap-6 text-sm">
                         <div>
-                          <span className="text-gray-500 font-medium">수험번호 (로그인 ID): </span>
-                          <span className="font-bold text-gray-900">{(reg as any).examineeLoginId}</span>
+                          <span className="text-gray-500 font-medium">수험번호: </span>
+                          <span className="font-bold text-gray-900 font-mono tracking-wider">{(reg as any).examineeLoginId}</span>
                         </div>
                         <div className="text-gray-400 text-xs">
-                          비밀번호는 승인 시 발급된 임시 비밀번호를 사용하세요
+                          이 수험번호로 시험에 입장하세요
                         </div>
                         <Button
                           className="px-4 py-1.5 text-xs font-bold bg-[#1565C0] hover:bg-[#1256A8] text-white rounded-md ml-auto"
                           onClick={() => navigate('/login')}
                         >
-                          시험 로그인 화면으로 이동
+                          시험 입장
                         </Button>
                       </div>
                     </td>

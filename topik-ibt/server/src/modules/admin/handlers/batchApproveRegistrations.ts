@@ -35,7 +35,6 @@ export async function batchApproveRegistrations(req: Request, res: Response, nex
           registrationId: r.registrationId,
           examineeId: r.examineeId,
           loginId: r.loginId,
-          temporaryPassword: r.tempPassword,
         })),
       },
     });
