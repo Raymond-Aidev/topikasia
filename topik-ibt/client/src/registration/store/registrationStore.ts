@@ -53,12 +53,27 @@ interface RegistrationState {
   reset: () => void;
 }
 
-// 앱 시작 시 localStorage에 토큰이 있으면 로그인 상태로 초기화
-const savedToken = typeof window !== 'undefined' ? localStorage.getItem('registrationToken') : null;
+// 앱 시작 시 localStorage 토큰의 유효성(만료 여부)을 확인하여 로그인 상태 초기화
+function isTokenValid(): boolean {
+  if (typeof window === 'undefined') return false;
+  const token = localStorage.getItem('registrationToken');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('registrationToken');
+      return false;
+    }
+    return true;
+  } catch {
+    localStorage.removeItem('registrationToken');
+    return false;
+  }
+}
 
 export const useRegistrationStore = create<RegistrationState>((set) => ({
   user: null,
-  isLoggedIn: !!savedToken,
+  isLoggedIn: isTokenValid(),
   schedules: [],
   selectedSchedule: null,
   currentStep: 1,
