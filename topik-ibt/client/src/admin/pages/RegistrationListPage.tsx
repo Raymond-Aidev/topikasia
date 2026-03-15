@@ -98,7 +98,7 @@ const RegistrationListPage: React.FC = () => {
     try {
       const res = await adminApi.put(`/admin/registrations/${id}/approve`);
       const data = res.data.data;
-      alert(`승인 완료!\n\n로그인 ID: ${data.loginId}\n임시 비밀번호: ${data.temporaryPassword}\n수험번호: ${data.registrationNumber}`);
+      alert(`승인 완료!\n\n수험번호: ${data.loginId}`);
       fetchData();
       setDetail(null);
     } catch (err: any) {
@@ -124,6 +124,24 @@ const RegistrationListPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (id: string, status: string) => {
+    const warn = status === 'APPROVED'
+      ? '승인된 접수입니다. 연결된 응시자 계정도 함께 삭제됩니다. 삭제하시겠습니까?'
+      : '이 접수를 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.';
+    if (!confirm(warn)) return;
+    setProcessing(true);
+    try {
+      await adminApi.delete(`/admin/registrations/${id}`);
+      alert('삭제 완료');
+      fetchData();
+      setDetail(null);
+    } catch (err: any) {
+      alert(err.response?.data?.message || '삭제에 실패했습니다.');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleBatchApprove = async () => {
     const ids = Array.from(selected);
     if (ids.length === 0) { alert('선택된 접수가 없습니다.'); return; }
@@ -132,8 +150,8 @@ const RegistrationListPage: React.FC = () => {
     try {
       const res = await adminApi.post('/admin/registrations/batch-approve', { registrationIds: ids });
       const approved = res.data.data;
-      const summary = approved.map((a: any) => `${a.englishName}: ${a.loginId} / ${a.temporaryPassword}`).join('\n');
-      alert(`${approved.length}건 일괄 승인 완료!\n\n${summary}`);
+      const summary = (approved.approved || approved).map((a: any) => `수험번호: ${a.loginId}`).join('\n');
+      alert(`${(approved.approved || approved).length}건 일괄 승인 완료!\n\n${summary}`);
       setSelected(new Set());
       fetchData();
     } catch (err: any) {
@@ -233,17 +251,23 @@ const RegistrationListPage: React.FC = () => {
                       <TableCell><StatusBadgeLocal status={r.status} /></TableCell>
                       <TableCell className="text-gray-500 text-[13px]">{new Date(r.createdAt).toLocaleDateString('ko')}</TableCell>
                       <TableCell>
-                        {r.status === 'PENDING' && (
-                          <div className="flex gap-1.5">
-                            <Button size="xs" onClick={() => handleApprove(r.id)} disabled={processing}
-                              className="bg-green-600 hover:bg-green-500 text-white">
-                              승인
-                            </Button>
-                            <Button size="xs" variant="outline" onClick={() => { setDetail(r); setRejectNote(''); }}>
-                              반려
-                            </Button>
-                          </div>
-                        )}
+                        <div className="flex gap-1.5">
+                          {r.status === 'PENDING' && (
+                            <>
+                              <Button size="xs" onClick={() => handleApprove(r.id)} disabled={processing}
+                                className="bg-green-600 hover:bg-green-500 text-white">
+                                승인
+                              </Button>
+                              <Button size="xs" variant="outline" onClick={() => { setDetail(r); setRejectNote(''); }}>
+                                반려
+                              </Button>
+                            </>
+                          )}
+                          <Button size="xs" variant="outline" onClick={() => handleDelete(r.id, r.status)} disabled={processing}
+                            className="border-red-300 text-red-600 hover:bg-red-50">
+                            삭제
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -314,9 +338,15 @@ const RegistrationListPage: React.FC = () => {
                 </>
               )}
 
-              <Button variant="outline" className="w-full mt-4" onClick={() => setDetail(null)}>
-                닫기
-              </Button>
+              <div className="flex gap-2 mt-4">
+                <Button variant="outline" className="flex-1" onClick={() => setDetail(null)}>
+                  닫기
+                </Button>
+                <Button variant="outline" className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                  onClick={() => handleDelete(detail.id, detail.status)} disabled={processing}>
+                  {processing ? '처리 중...' : '삭제'}
+                </Button>
+              </div>
             </>
           )}
         </DialogContent>

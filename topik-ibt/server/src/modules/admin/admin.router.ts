@@ -21,6 +21,7 @@ import { listRegistrations } from './handlers/listRegistrations';
 import { approveRegistration } from './handlers/approveRegistration';
 import { rejectRegistration } from './handlers/rejectRegistration';
 import { batchApproveRegistrations } from './handlers/batchApproveRegistrations';
+import { deleteRegistration } from './handlers/deleteRegistration';
 import { getRealtimeMonitor } from './handlers/getRealtimeMonitor';
 import { bulkImportExaminees } from './handlers/bulkImportExaminees';
 import { runAutoScore } from './handlers/runAutoScore';
@@ -229,6 +230,12 @@ router.put(
   '/registrations/:id/reject',
   requireRole('SUPER_ADMIN', 'ADMIN'),
   rejectRegistration,
+);
+
+router.delete(
+  '/registrations/:id',
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  deleteRegistration,
 );
 
 // ─── 성적 관리 ─────────────────────────────────────────────
