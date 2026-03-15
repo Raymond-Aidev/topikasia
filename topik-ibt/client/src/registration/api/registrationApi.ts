@@ -153,3 +153,8 @@ export async function downloadTicket(id: string) {
   });
   return res.data;
 }
+
+export async function cancelRegistration(id: string) {
+  const res = await registrationApi.delete(`/registration/my/${id}`);
+  return res.data;
+}

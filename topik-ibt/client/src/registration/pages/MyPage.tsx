@@ -4,7 +4,7 @@ import GlobalNavigationBar, { GNB_HEIGHT, GNB_HEIGHT_MOBILE } from '../../shared
 import { useResponsive } from '../../shared/hooks/useResponsive';
 import Footer from '../../shared/components/Footer';
 import { useRegistrationStore } from '../store/registrationStore';
-import { fetchMyRegistrations, downloadTicket } from '../api/registrationApi';
+import { fetchMyRegistrations, downloadTicket, cancelRegistration } from '../api/registrationApi';
 import type { Registration } from '../types/registration.types';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
@@ -54,6 +54,17 @@ export default function MyPage() {
       URL.revokeObjectURL(url);
     } catch {
       alert('수험표 다운로드에 실패했습니다.');
+    }
+  };
+
+  const handleCancel = async (reg: Registration) => {
+    if (!confirm('접수를 취소하시겠습니까? 취소 후 복구할 수 없습니다.')) return;
+    try {
+      await cancelRegistration(reg.id);
+      setRegistrations((prev) => prev.map((r) => r.id === reg.id ? { ...r, status: 'CANCELLED' } : r));
+      alert('접수가 취소되었습니다.');
+    } catch {
+      alert('접수 취소에 실패했습니다.');
     }
   };
 
@@ -136,7 +147,16 @@ export default function MyPage() {
                         </div>
                       )}
                       {reg.status === 'PENDING' && (
-                        <span className="text-xs text-gray-400">승인 대기중</span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs text-gray-400">승인 대기중</span>
+                          <Button
+                            variant="secondary"
+                            className="px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-md"
+                            onClick={() => handleCancel(reg)}
+                          >
+                            취소
+                          </Button>
+                        </div>
                       )}
                     </td>
                   </tr>
