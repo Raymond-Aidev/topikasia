@@ -53,9 +53,12 @@ interface RegistrationState {
   reset: () => void;
 }
 
+// 앱 시작 시 localStorage에 토큰이 있으면 로그인 상태로 초기화
+const savedToken = typeof window !== 'undefined' ? localStorage.getItem('registrationToken') : null;
+
 export const useRegistrationStore = create<RegistrationState>((set) => ({
   user: null,
-  isLoggedIn: false,
+  isLoggedIn: !!savedToken,
   schedules: [],
   selectedSchedule: null,
   currentStep: 1,

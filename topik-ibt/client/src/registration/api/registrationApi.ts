@@ -9,6 +9,7 @@ import type {
   RegistrationUser,
   ExamVenue,
 } from '../types/registration.types';
+import { useRegistrationStore } from '../store/registrationStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -35,7 +36,9 @@ registrationApi.interceptors.response.use(
       const isAuthRequest = authPaths.some((p) => url.includes(p));
       if (!isAuthRequest) {
         localStorage.removeItem('registrationToken');
-        window.location.href = '/registration';
+        useRegistrationStore.getState().setLoggedIn(false);
+        useRegistrationStore.getState().setUser(null);
+        window.location.href = '/registration/login';
       }
     }
     return Promise.reject(error);

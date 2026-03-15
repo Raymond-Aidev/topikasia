@@ -53,6 +53,7 @@ const RegistrationFormPage = lazy(() => import('./registration/pages/Registratio
 const RegistrationConfirmPage = lazy(() => import('./registration/pages/RegistrationConfirmPage'));
 const RegistrationCompletePage = lazy(() => import('./registration/pages/RegistrationCompletePage'));
 const MyPage = lazy(() => import('./registration/pages/MyPage'));
+import RegistrationAuthGuard from './registration/components/RegistrationAuthGuard';
 
 const Loading = () => <div className="flex justify-center items-center h-screen">로딩 중...</div>;
 
@@ -109,10 +110,10 @@ function App() {
           <Route path="/registration/verify-email" element={<EmailVerifyPage />} />
           <Route path="/registration/login" element={<RegistrationLoginPage />} />
           <Route path="/registration/schedules" element={<ExamSchedulePage />} />
-          <Route path="/registration/apply" element={<RegistrationFormPage />} />
-          <Route path="/registration/confirm" element={<RegistrationConfirmPage />} />
-          <Route path="/registration/complete" element={<RegistrationCompletePage />} />
-          <Route path="/registration/mypage" element={<MyPage />} />
+          <Route path="/registration/apply" element={<RegistrationAuthGuard><RegistrationFormPage /></RegistrationAuthGuard>} />
+          <Route path="/registration/confirm" element={<RegistrationAuthGuard><RegistrationConfirmPage /></RegistrationAuthGuard>} />
+          <Route path="/registration/complete" element={<RegistrationAuthGuard><RegistrationCompletePage /></RegistrationAuthGuard>} />
+          <Route path="/registration/mypage" element={<RegistrationAuthGuard><MyPage /></RegistrationAuthGuard>} />
 
           {/* 메인페이지 = 랜딩 (접수 시작점) */}
           <Route path="/" element={<LandingPage />} />

@@ -51,7 +51,11 @@ export default function RegistrationLoginPage() {
       setUser(user);
       setLoggedIn(true);
 
-      if (selectedSchedule) {
+      // 가드에서 리다이렉트된 경우 원래 경로로 복귀
+      const returnTo = (location.state as any)?.from;
+      if (returnTo) {
+        navigate(returnTo);
+      } else if (selectedSchedule) {
         navigate('/registration/apply');
       } else {
         navigate('/registration/schedules');
