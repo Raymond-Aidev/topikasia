@@ -79,8 +79,10 @@ export default function ExamSchedulePage() {
         alert('응시대상이 아닙니다');
         return;
       }
-    } catch {
-      // 조회 실패 시 서버 중복/대상자 체크에 의존
+    } catch (err: any) {
+      // 401 (토큰 만료)은 인터셉터가 처리 → 여기서 navigate 하지 않도록 중단
+      if (err?.response?.status === 401) return;
+      // 기타 오류는 서버 중복/대상자 체크에 의존
     }
     selectSchedule(sch);
     navigate('/registration/apply');

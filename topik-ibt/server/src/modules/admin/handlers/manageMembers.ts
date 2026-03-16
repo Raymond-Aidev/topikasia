@@ -218,16 +218,18 @@ export async function deleteMember(req: Request, res: Response, next: NextFuncti
   try {
     const id = req.params.id as string;
 
-    const registrations = await prisma.registration.findFirst({
-      where: { userId: id },
-      select: { id: true },
+    await prisma.$transaction(async (tx) => {
+      const registrations = await tx.registration.findFirst({
+        where: { userId: id },
+        select: { id: true },
+      });
+
+      if (registrations) {
+        throw new AppError(400, '접수 이력이 있는 회원은 삭제할 수 없습니다');
+      }
+
+      await tx.registrationUser.delete({ where: { id } });
     });
-
-    if (registrations) {
-      throw new AppError(400, '접수 이력이 있는 회원은 삭제할 수 없습니다');
-    }
-
-    await prisma.registrationUser.delete({ where: { id } });
 
     res.json({ success: true, message: '회원이 삭제되었습니다' });
   } catch (err: any) {

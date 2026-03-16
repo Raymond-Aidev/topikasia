@@ -45,25 +45,18 @@ export async function approveRegistrationInTx(
   const examinees = await tx.$queryRaw`
     INSERT INTO "Examinee" (
       "id", "loginId", "passwordHash", "name", "registrationNumber",
-      "photoUrl", "status", "loginFailCount", "createdById", "createdAt", "updatedAt"
+      "photoUrl", "status", "loginFailCount", "assignedExamSetId", "createdById",
+      "createdAt", "updatedAt"
     ) VALUES (
       gen_random_uuid()::text, ${loginId}, 'NO_PASSWORD', ${registration.name},
       ${registrationNumber}, ${registration.photoUrl || null},
-      'ACTIVE'::"ExamineeStatus", 0, ${adminId}, NOW(), NOW()
+      'ACTIVE'::"ExamineeStatus", 0, ${registration.examSetId || null}, ${adminId},
+      NOW(), NOW()
     )
     RETURNING "id"
   ` as any[];
 
   const examineeId = examinees[0].id;
-
-  // 2-1. ExamSchedule에 연결된 ExamSet이 있으면 Examinee에 배정
-  if (registration.examSetId) {
-    await tx.$executeRaw`
-      UPDATE "Examinee"
-      SET "assignedExamSetId" = ${registration.examSetId}, "updatedAt" = NOW()
-      WHERE "id" = ${examineeId}
-    `;
-  }
 
   // 3. Registration 상태 업데이트
   await tx.$executeRaw`
