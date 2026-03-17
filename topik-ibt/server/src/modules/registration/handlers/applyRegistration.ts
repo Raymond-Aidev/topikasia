@@ -20,10 +20,8 @@ const applySchema = z.object({
  * POST /api/registration/apply
  * 접수 신청 (registrationAuth 필요)
  *
- * 변경: 관리자 수동 승인 → 자동 응시자 확인 + 자동 승인
- * 1. 응시자(Examinee) DB에서 이름 매칭 확인
- * 2. 매칭 성공 → APPROVED + examineeId 연결
- * 3. 매칭 실패 → 403 "응시대상이 아닙니다"
+ * 플로우 A (공개 접수): Examinee 매칭 없음 → PENDING 상태 (관리자 수동 승인 대기)
+ * 플로우 B (관리자 발행): Examinee 매칭 있음 → APPROVED 자동 승인 + examineeId 연결
  */
 export async function applyRegistration(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -84,12 +82,10 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
       }
     }
 
-    // 4. 응시 대상이 아니면 거부
-    if (!matchedExamineeId) {
-      throw new AppError(403, '응시대상이 아닙니다');
-    }
+    // ── 트랜잭션: 일정 상태 확인 + 접수 생성 + currentCount 증가 ──
+    // matchedExamineeId가 있으면 자동 승인(APPROVED), 없으면 PENDING(관리자 수동 승인 대기)
+    const registrationStatus = matchedExamineeId ? 'APPROVED' : 'PENDING';
 
-    // ── 트랜잭션: 일정 상태 확인 + 접수 생성(APPROVED) + currentCount 증가 ──
     const result = await prisma.$transaction(async (tx) => {
       // 1. 일정 확인 (FOR UPDATE로 잠금)
       const schedules = await tx.$queryRaw`
@@ -117,7 +113,7 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         throw new AppError(400, '정원이 초과되었습니다');
       }
 
-      // 2. 접수 생성 (자동 승인: APPROVED + examineeId 연결)
+      // 2. 접수 생성
       let registration;
       try {
         registration = await tx.registration.create({
@@ -133,9 +129,9 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
             venueName: body.venueName,
             contactPhone: body.contactPhone || null,
             address: body.address || null,
-            status: 'APPROVED',
+            status: registrationStatus as any,
             examineeId: matchedExamineeId,
-            approvedAt: new Date(),
+            approvedAt: matchedExamineeId ? new Date() : null,
           },
           select: { id: true, status: true, examineeId: true },
         });

@@ -157,10 +157,13 @@ export default function ExamSchedulePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {schedules.map((sch) => {
-                      const venues = sch.venues || [];
-                      const totalSeats = venues.reduce((a, v) => a + (v.capacity || 0), 0);
-                      const remaining = venues.reduce((a, v) => a + (v.remainingSeats || 0), 0);
+                    {schedules.map((sch: any) => {
+                      const s = sch as any;
+                      const maxCap = s.maxCapacity || 0;
+                      const curCount = s.currentCount || 0;
+                      const remaining = maxCap - curCount;
+                      const examRound = s.examRound || s.examNumber || '';
+                      const regEnd = s.registrationEndAt || s.registrationEndDate || '';
                       const formatDate = (d: string) => {
                         try { return new Date(d).toLocaleDateString('ko-KR'); } catch { return d; }
                       };
@@ -174,14 +177,14 @@ export default function ExamSchedulePage() {
                           )}
                           onClick={() => handleRowClick(sch)}
                         >
-                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">제{sch.examNumber}회</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">제{examRound}회</td>
                           <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                             {sch.examType === 'TOPIK_I' ? 'TOPIK I' : 'TOPIK II'}
                           </td>
                           <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{formatDate(sch.examDate)}</td>
-                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{formatDate(sch.registrationEndDate)}</td>
+                          <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{formatDate(regEnd)}</td>
                           <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
-                            {sch.status === 'OPEN' ? (totalSeats > 0 ? `${remaining}/${totalSeats}` : '접수 가능') : '-'}
+                            {sch.status === 'OPEN' ? (maxCap > 0 ? `${remaining}/${maxCap}` : '접수 가능') : '-'}
                           </td>
                           <td className="px-4 py-3.5 text-sm border-b border-gray-100">
                             <span className={cn(

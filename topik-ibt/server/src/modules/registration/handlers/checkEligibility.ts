@@ -4,11 +4,10 @@ import { AppError } from '../../../shared/types';
 
 /**
  * GET /api/registration/check-eligibility?scheduleId=xxx
- * 응시 대상자 여부 확인 (registrationAuth 필요)
+ * 응시 자격 확인 (registrationAuth 필요)
  *
- * 매칭 기준: RegistrationUser.name = Examinee.name
- *           AND Examinee.assignedExamSetId = ExamSchedule.examSetId
- *           AND Examinee.status = 'ACTIVE'
+ * 공개 접수(Flow A): 로그인한 회원이면 eligible=true (PENDING으로 접수, 관리자 승인 대기)
+ * 관리자 발행(Flow B): Examinee 매칭 시 examineeId도 함께 반환
  */
 export async function checkEligibility(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -19,18 +18,7 @@ export async function checkEligibility(req: Request, res: Response, next: NextFu
       throw new AppError(400, 'scheduleId가 필요합니다');
     }
 
-    // 1. RegistrationUser 이름 조회
-    const users = await prisma.$queryRaw`
-      SELECT "name" FROM "RegistrationUser" WHERE "id" = ${userId} LIMIT 1
-    ` as any[];
-
-    if (users.length === 0) {
-      throw new AppError(404, '사용자를 찾을 수 없습니다');
-    }
-
-    const userName = users[0].name;
-
-    // 2. ExamSchedule의 examSetId 조회
+    // 1. 일정 존재 확인
     const schedules = await prisma.$queryRaw`
       SELECT "examSetId" FROM "ExamSchedule" WHERE "id" = ${scheduleId} LIMIT 1
     ` as any[];
@@ -39,30 +27,36 @@ export async function checkEligibility(req: Request, res: Response, next: NextFu
       throw new AppError(404, '시험 일정을 찾을 수 없습니다');
     }
 
+    // 2. Examinee 매칭 시도 (있으면 자동 승인용)
+    let examineeId: string | undefined;
     const examSetId = schedules[0].examSetId;
 
-    if (!examSetId) {
-      // ExamSchedule에 ExamSet이 연결되지 않은 경우
-      res.json({ success: true, data: { eligible: false } });
-      return;
+    if (examSetId) {
+      const users = await prisma.$queryRaw`
+        SELECT "name" FROM "RegistrationUser" WHERE "id" = ${userId} LIMIT 1
+      ` as any[];
+
+      if (users.length > 0) {
+        const examinees = await prisma.$queryRaw`
+          SELECT "id" FROM "Examinee"
+          WHERE "name" = ${users[0].name}
+            AND "assignedExamSetId" = ${examSetId}
+            AND "status" = 'ACTIVE'::"ExamineeStatus"
+          LIMIT 1
+        ` as any[];
+
+        if (examinees.length > 0) {
+          examineeId = examinees[0].id;
+        }
+      }
     }
 
-    // 3. 매칭되는 Examinee 찾기
-    const examinees = await prisma.$queryRaw`
-      SELECT "id" FROM "Examinee"
-      WHERE "name" = ${userName}
-        AND "assignedExamSetId" = ${examSetId}
-        AND "status" = 'ACTIVE'::"ExamineeStatus"
-      LIMIT 1
-    ` as any[];
-
-    const eligible = examinees.length > 0;
-
+    // 공개 접수: 로그인된 회원이면 항상 eligible (PENDING으로 접수 가능)
     res.json({
       success: true,
       data: {
-        eligible,
-        examineeId: eligible ? examinees[0].id : undefined,
+        eligible: true,
+        examineeId,
       },
     });
   } catch (err) {
