@@ -7,11 +7,19 @@ import { downloadTicket } from '../api/registrationApi';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/button';
 
+function formatDate(raw?: string): string {
+  if (!raw) return '-';
+  return raw.split('T')[0];
+}
+
 export default function RegistrationCompletePage() {
   const { isMobile, isTablet } = useResponsive();
   const compact = isMobile || isTablet;
   const navigate = useNavigate();
-  const { currentRegistration, selectedSchedule, resetForm } = useRegistrationStore();
+  const { currentRegistration, selectedSchedule, formData, resetForm } = useRegistrationStore();
+
+  const isApproved = currentRegistration?.status === 'APPROVED';
+  const registrationNumber = (currentRegistration as any)?.registrationNumber;
 
   const handleDownloadTicket = async () => {
     if (!currentRegistration) return;
@@ -44,19 +52,30 @@ export default function RegistrationCompletePage() {
           </div>
           <div className="text-[26px] font-extrabold text-gray-900 mb-3">접수가 완료되었습니다</div>
           <div className="text-[15px] text-gray-600 mb-8 leading-relaxed">
-            시험 접수가 승인되었습니다.
-            <br />
-            수험표를 다운로드하세요.
+            {isApproved ? (
+              <>시험 접수가 승인되었습니다.<br />수험표를 다운로드하세요.</>
+            ) : (
+              <>접수가 접수되었습니다.<br />관리자 승인 후 수험번호가 발급됩니다.</>
+            )}
           </div>
 
           <table className="w-full border-collapse mb-8 text-left">
             <tbody>
-              <tr>
-                <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">접수번호</td>
-                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
-                  {currentRegistration?.registrationNumber || '-'}
-                </td>
-              </tr>
+              {isApproved && registrationNumber ? (
+                <tr>
+                  <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">수험번호</td>
+                  <td className="px-4 py-2.5 text-[15px] text-gray-900 font-bold font-mono tracking-wider">
+                    {registrationNumber}
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">접수상태</td>
+                  <td className="px-4 py-2.5 text-[15px] text-orange-600 font-medium">
+                    승인 대기중 (수험번호는 승인 후 발급)
+                  </td>
+                </tr>
+              )}
               <tr>
                 <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">시험</td>
                 <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
@@ -67,19 +86,24 @@ export default function RegistrationCompletePage() {
               </tr>
               <tr>
                 <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">시험일</td>
-                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">{selectedSchedule?.examDate || '-'}</td>
+                <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
+                  {formatDate(selectedSchedule?.examDate)}
+                </td>
               </tr>
               <tr>
                 <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">시험장</td>
                 <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
-                  {currentRegistration?.venue?.name || '-'}
+                  {formData.venueName || currentRegistration?.venue?.name || '-'}
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-2.5 text-sm font-semibold text-gray-500 w-[120px]">상태</td>
                 <td className="px-4 py-2.5 text-[15px] text-gray-900 font-medium">
-                  <span className="inline-block px-3 py-1 rounded-xl text-xs font-semibold text-white bg-green-500">
-                    승인완료
+                  <span className={cn(
+                    'inline-block px-3 py-1 rounded-xl text-xs font-semibold text-white',
+                    isApproved ? 'bg-green-500' : 'bg-orange-500'
+                  )}>
+                    {isApproved ? '승인완료' : '승인대기'}
                   </span>
                 </td>
               </tr>
@@ -87,12 +111,18 @@ export default function RegistrationCompletePage() {
           </table>
 
           <div className="flex gap-4 justify-center">
-            <Button
-              className="px-8 py-3.5 text-[15px] font-bold bg-green-500 hover:bg-green-600 text-white rounded-lg"
-              onClick={handleDownloadTicket}
-            >
-              수험표 다운로드
-            </Button>
+            {isApproved ? (
+              <Button
+                className="px-8 py-3.5 text-[15px] font-bold bg-green-500 hover:bg-green-600 text-white rounded-lg"
+                onClick={handleDownloadTicket}
+              >
+                수험표 다운로드
+              </Button>
+            ) : (
+              <div className="text-sm text-gray-400 py-3">
+                수험표는 승인 후 마이페이지에서 다운로드할 수 있습니다.
+              </div>
+            )}
             <Button
               variant="outline"
               className="px-8 py-3.5 text-[15px] font-semibold text-[#1565C0] border-[#1565C0] rounded-lg"

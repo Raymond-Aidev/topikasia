@@ -149,7 +149,18 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         WHERE "id" = ${body.scheduleId}
       `;
 
-      return registration;
+      // Flow B: APPROVED 시 수험번호(loginId) 조회
+      let registrationNumber: string | null = null;
+      if (registration.examineeId) {
+        const examineeRows = await tx.$queryRaw`
+          SELECT "loginId" FROM "Examinee" WHERE "id" = ${registration.examineeId} LIMIT 1
+        ` as any[];
+        if (examineeRows.length > 0) {
+          registrationNumber = examineeRows[0].loginId;
+        }
+      }
+
+      return { ...registration, registrationNumber };
     });
 
     res.status(201).json({
@@ -158,6 +169,7 @@ export async function applyRegistration(req: Request, res: Response, next: NextF
         registrationId: result.id,
         status: result.status,
         examineeId: result.examineeId,
+        registrationNumber: result.registrationNumber,
       },
     });
   } catch (err: any) {

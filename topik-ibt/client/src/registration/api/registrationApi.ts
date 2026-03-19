@@ -123,13 +123,14 @@ export async function applyRegistration(payload: ApplyPayload) {
 
   const res = await registrationApi.post('/registration/apply', body);
   const result = res.data;
-  // 서버 응답: { success, data: { registrationId, status, examineeId } }
+  // 서버 응답: { success, data: { registrationId, status, examineeId, registrationNumber } }
   const data = result?.data || result;
   return {
     id: data.registrationId || data.id,
     registrationId: data.registrationId || data.id,
     status: data.status,
     examineeId: data.examineeId,
+    registrationNumber: data.registrationNumber || null,
   } as any;
 }
 

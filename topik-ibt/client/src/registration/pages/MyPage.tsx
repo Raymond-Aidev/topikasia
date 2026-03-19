@@ -92,7 +92,7 @@ export default function MyPage() {
             <table className={cn('w-full border-collapse', isMobile && 'min-w-[700px]')}>
               <thead>
                 <tr>
-                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">접수번호</th>
+                  <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">수험번호</th>
                   <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험</th>
                   <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험일</th>
                   <th className="px-4 py-3.5 bg-gray-100 font-semibold text-[13px] text-gray-600 text-left border-b border-gray-200">시험장</th>
@@ -105,13 +105,17 @@ export default function MyPage() {
                 {registrations.map((reg) => (
                   <React.Fragment key={reg.id}>
                   <tr>
-                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.registrationNumber}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100 font-mono">
+                      {(reg as any).examineeLoginId || reg.registrationNumber || '-'}
+                    </td>
                     <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
                       {reg.examSchedule
                         ? `${reg.examSchedule.examName}`
                         : '-'}
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.examSchedule?.examDate || '-'}</td>
+                    <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">
+                      {reg.examSchedule?.examDate ? reg.examSchedule.examDate.split('T')[0] : '-'}
+                    </td>
                     <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.venue?.name || '-'}</td>
                     <td className="px-4 py-3.5 text-sm text-gray-900 border-b border-gray-100">{reg.englishName}</td>
                     <td className="px-4 py-3.5 text-sm border-b border-gray-100">
