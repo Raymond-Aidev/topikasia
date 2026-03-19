@@ -34,15 +34,25 @@ export async function getAssignedSet(req: Request, res: Response, next: NextFunc
       throw new AppError(403, '아직 시험을 시작할 수 없습니다. 시험세트가 활성화되지 않았습니다');
     }
 
+    // sectionsJson → sections 배열 변환 (클라이언트 AssignedExamSet 인터페이스 호환)
+    const sectionsJson = examSet.sectionsJson as Record<string, any> || {};
+    const sections = Object.entries(sectionsJson).map(([key, val]) => ({
+      section: val.section || key,
+      questionCount: val.questionCount || (val.questions?.length ?? 0),
+      durationMinutes: val.durationMinutes || 0,
+    }));
+    const totalDurationMinutes = sections.reduce((sum, s) => sum + s.durationMinutes, 0);
+
     res.json({
       success: true,
       data: {
-        id: examSet.id,
+        examSetId: examSet.id,
         examSetNumber: examSet.examSetNumber,
         name: examSet.name,
         examType: examSet.examType,
         description: examSet.description,
-        sectionsJson: examSet.sectionsJson,
+        sections,
+        totalDurationMinutes,
         scheduledStartAt: examSet.scheduledStartAt,
       },
     });

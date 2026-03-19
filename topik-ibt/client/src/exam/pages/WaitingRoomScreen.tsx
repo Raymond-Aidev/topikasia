@@ -42,7 +42,8 @@ export default function WaitingRoomScreen() {
       const res = await examApi.post('/exam/sessions', {
         examSetId: assignedExamSet?.examSetId,
       });
-      setSession(res.data.sessionId);
+      const sessionData = res.data?.data || res.data;
+      setSession(sessionData.id || sessionData.sessionId);
       setCurrentSection('LISTENING');
       setExamPhase('IN_PROGRESS');
       setCountdownSeconds(null);
@@ -76,7 +77,8 @@ export default function WaitingRoomScreen() {
         const res = await examApi.post('/exam/sessions', {
           examSetId: assignedExamSet?.examSetId,
         });
-        setSession(res.data.sessionId);
+        const wsSessionData = res.data?.data || res.data;
+        setSession(wsSessionData.id || wsSessionData.sessionId);
         setCurrentSection('LISTENING');
         setExamPhase('IN_PROGRESS');
         setCountdownSeconds(null);

@@ -28,8 +28,9 @@ export default function ExamSetSelectScreen() {
       try {
         const res = await examApi.get('/exam/assigned-set');
         if (!cancelled) {
-          if (res.data) {
-            setExamSet(res.data);
+          const setData = res.data?.data || res.data;
+        if (setData) {
+            setExamSet(setData);
           } else {
             setNoSet(true);
           }

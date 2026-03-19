@@ -31,7 +31,7 @@ export default function LoginScreen() {
     try {
       const res = await examApi.post('/exam-auth/login', { loginId });
 
-      const { token, examinee } = res.data;
+      const { token, examinee } = res.data?.data || res.data;
       localStorage.setItem('examToken', token);
       setExaminee(examinee);
       setExamPhase('VERIFY');
