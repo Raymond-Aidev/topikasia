@@ -36,6 +36,7 @@ registrationApi.interceptors.response.use(
       const isAuthRequest = authPaths.some((p) => url.includes(p));
       if (!isAuthRequest) {
         localStorage.removeItem('registrationToken');
+        localStorage.removeItem('registrationUser');
         useRegistrationStore.getState().setLoggedIn(false);
         useRegistrationStore.getState().setUser(null);
         window.location.href = '/registration/login';

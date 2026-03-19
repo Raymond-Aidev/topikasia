@@ -62,17 +62,31 @@ function isTokenValid(): boolean {
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp && payload.exp * 1000 < Date.now()) {
       localStorage.removeItem('registrationToken');
+      localStorage.removeItem('registrationUser');
       return false;
     }
     return true;
   } catch {
     localStorage.removeItem('registrationToken');
+    localStorage.removeItem('registrationUser');
     return false;
   }
 }
 
+function loadPersistedUser(): RegistrationUser | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('registrationUser');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    localStorage.removeItem('registrationUser');
+    return null;
+  }
+}
+
 export const useRegistrationStore = create<RegistrationState>((set) => ({
-  user: null,
+  user: isTokenValid() ? loadPersistedUser() : null,
   isLoggedIn: isTokenValid(),
   schedules: [],
   selectedSchedule: null,
@@ -81,7 +95,14 @@ export const useRegistrationStore = create<RegistrationState>((set) => ({
   myRegistrations: [],
   currentRegistration: null,
 
-  setUser: (u) => set({ user: u }),
+  setUser: (u) => {
+    if (u) {
+      localStorage.setItem('registrationUser', JSON.stringify(u));
+    } else {
+      localStorage.removeItem('registrationUser');
+    }
+    set({ user: u });
+  },
   setLoggedIn: (v) => set({ isLoggedIn: v }),
   setSchedules: (s) => set({ schedules: s }),
   selectSchedule: (s) => set({ selectedSchedule: s }),
@@ -91,7 +112,8 @@ export const useRegistrationStore = create<RegistrationState>((set) => ({
   setMyRegistrations: (r) => set({ myRegistrations: r }),
   setCurrentRegistration: (r) => set({ currentRegistration: r }),
   resetForm: () => set({ currentStep: 1, formData: { ...initialFormData } }),
-  reset: () =>
+  reset: () => {
+    localStorage.removeItem('registrationUser');
     set({
       user: null,
       isLoggedIn: false,
@@ -101,5 +123,6 @@ export const useRegistrationStore = create<RegistrationState>((set) => ({
       formData: { ...initialFormData },
       myRegistrations: [],
       currentRegistration: null,
-    }),
+    });
+  },
 }));
