@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { examApi } from '../../api/examApi';
 import { useExamStore } from '../../store/examStore';
 import ExamHeader from '../../shared/components/ExamHeader';
@@ -41,8 +41,26 @@ export default function SubmitReviewScreen() {
   const setExamPhase = useExamStore((s) => s.setExamPhase);
   const setAnswers = useExamStore((s) => s.setAnswers);
 
+  const [searchParams] = useSearchParams();
+  const isTimerExpired = searchParams.get('expired') === '1';
+  const autoSubmitTriggered = useRef(false);
+
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // 타이머 만료로 진입한 경우 5초 카운트다운 후 자동 제출
+  const [autoCountdown, setAutoCountdown] = useState(isTimerExpired ? 5 : 0);
+
+  useEffect(() => {
+    if (!isTimerExpired || autoSubmitTriggered.current) return;
+    if (autoCountdown <= 0) {
+      autoSubmitTriggered.current = true;
+      handleSubmit();
+      return;
+    }
+    const t = setTimeout(() => setAutoCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [isTimerExpired, autoCountdown]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sectionInfo = assignedExamSet?.sections.find((s) => s.section === section);
   const totalQuestions = sectionInfo?.questionCount || 0;
@@ -111,6 +129,13 @@ export default function SubmitReviewScreen() {
           />
 
           <div className="text-xl font-bold text-blue-800 mb-5 text-center">{SECTION_LABEL[section]} 답안 확인</div>
+
+          {isTimerExpired && autoCountdown > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4 text-center">
+              <div className="text-sm font-bold text-red-800">시험 시간이 종료되었습니다</div>
+              <div className="text-xs text-red-600 mt-1">{autoCountdown}초 후 자동 제출됩니다</div>
+            </div>
+          )}
 
           <div className="flex justify-center gap-6 my-5">
             <div className="text-center px-5 py-3 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.08)] min-w-[80px]">

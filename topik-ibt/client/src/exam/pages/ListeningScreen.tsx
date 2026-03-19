@@ -124,7 +124,7 @@ export default function ListeningScreen() {
       if (current <= 1) {
         // Auto-submit on timer expiry
         if (timerRef.current) clearInterval(timerRef.current);
-        navigate('/exam/submit/listening');
+        navigate('/exam/submit/listening?expired=1');
         return;
       }
       setSectionRemainingSeconds(current - 1);

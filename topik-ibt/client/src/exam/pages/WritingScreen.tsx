@@ -76,7 +76,7 @@ export default function WritingScreen() {
       const current = useExamStore.getState().sectionRemainingSeconds;
       if (current <= 1) {
         if (timerRef.current) clearInterval(timerRef.current);
-        navigate('/exam/submit/writing');
+        navigate('/exam/submit/writing?expired=1');
         return;
       }
       setSectionRemainingSeconds(current - 1);

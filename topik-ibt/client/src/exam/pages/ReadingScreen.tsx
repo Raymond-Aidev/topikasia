@@ -70,7 +70,7 @@ export default function ReadingScreen() {
       const current = useExamStore.getState().sectionRemainingSeconds;
       if (current <= 1) {
         if (timerRef.current) clearInterval(timerRef.current);
-        navigate('/exam/submit/reading');
+        navigate('/exam/submit/reading?expired=1');
         return;
       }
       setSectionRemainingSeconds(current - 1);
