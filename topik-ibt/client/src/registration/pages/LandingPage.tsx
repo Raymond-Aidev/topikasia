@@ -141,7 +141,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex justify-between text-[13px] mb-1">
                       <span className="text-gray-500">접수기간</span>
-                      <span className="text-gray-900 font-medium">{formatDate(sch.registrationStartDate)} ~ {formatDate(sch.registrationEndDate)}</span>
+                      <span className="text-gray-900 font-medium">{formatDate(sch.registrationStartAt)} ~ {formatDate(sch.registrationEndAt)}</span>
                     </div>
                     {sch.status === 'OPEN' && (
                       <Button

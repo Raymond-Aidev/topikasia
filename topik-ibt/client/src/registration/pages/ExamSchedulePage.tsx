@@ -164,7 +164,7 @@ export default function ExamSchedulePage() {
                       const curCount = s.currentCount || 0;
                       const remaining = maxCap - curCount;
                       const examRound = s.examRound || s.examNumber || '';
-                      const regEnd = s.registrationEndAt || s.registrationEndDate || '';
+                      const regEnd = s.registrationEndAt || '';
                       const formatDate = (d: string) => {
                         try { return new Date(d).toLocaleDateString('ko-KR'); } catch { return d; }
                       };

@@ -18,8 +18,8 @@ export interface ExamSchedule {
   examName: string;
   examType: ExamType;
   examDate: string;
-  registrationStartDate: string;
-  registrationEndDate: string;
+  registrationStartAt: string;
+  registrationEndAt: string;
   venues: ExamVenue[];
   status: ScheduleStatus;
 }
