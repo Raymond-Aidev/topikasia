@@ -56,6 +56,8 @@ const RegistrationConfirmPage = lazy(() => import('./registration/pages/Registra
 const RegistrationCompletePage = lazy(() => import('./registration/pages/RegistrationCompletePage'));
 const MyPage = lazy(() => import('./registration/pages/MyPage'));
 import RegistrationAuthGuard from './registration/components/RegistrationAuthGuard';
+const ExamSessionGuard = lazy(() => import('./exam/components/ExamSessionGuard'));
+const AdminAuthGuard = lazy(() => import('./admin/components/AdminAuthGuard'));
 
 const Loading = () => <div className="flex justify-center items-center h-screen">로딩 중...</div>;
 
@@ -66,14 +68,14 @@ function App() {
         <Routes>
           {/* 응시자 */}
           <Route path="/login" element={<LoginScreen />} />
-          <Route path="/exam/verify" element={<ExamineeVerifyScreen />} />
-          <Route path="/exam/select-set" element={<ExamSetSelectScreen />} />
-          <Route path="/exam/waiting" element={<WaitingRoomScreen />} />
-          <Route path="/exam/section-waiting" element={<SectionWaitingScreen />} />
-          <Route path="/exam/listening" element={<ListeningScreen />} />
-          <Route path="/exam/writing" element={<WritingScreen />} />
-          <Route path="/exam/reading" element={<ReadingScreen />} />
-          <Route path="/exam/submit/:section" element={<SubmitReviewScreen />} />
+          <Route path="/exam/verify" element={<ExamSessionGuard><ExamineeVerifyScreen /></ExamSessionGuard>} />
+          <Route path="/exam/select-set" element={<ExamSessionGuard><ExamSetSelectScreen /></ExamSessionGuard>} />
+          <Route path="/exam/waiting" element={<ExamSessionGuard><WaitingRoomScreen /></ExamSessionGuard>} />
+          <Route path="/exam/section-waiting" element={<ExamSessionGuard><SectionWaitingScreen /></ExamSessionGuard>} />
+          <Route path="/exam/listening" element={<ExamSessionGuard><ListeningScreen /></ExamSessionGuard>} />
+          <Route path="/exam/writing" element={<ExamSessionGuard><WritingScreen /></ExamSessionGuard>} />
+          <Route path="/exam/reading" element={<ExamSessionGuard><ReadingScreen /></ExamSessionGuard>} />
+          <Route path="/exam/submit/:section" element={<ExamSessionGuard><SubmitReviewScreen /></ExamSessionGuard>} />
           <Route path="/exam/end" element={<ExamEndScreen />} />
           <Route path="/exam-blocked" element={<ExamBlockedScreen />} />
           <Route path="/exam/score" element={<ScoreReportScreen />} />
@@ -85,19 +87,19 @@ function App() {
           {/* 어드민 */}
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/dashboard" element={<DashboardPage />} />
-          <Route path="/admin/members" element={<MemberListPage />} />
-          <Route path="/admin/examinees" element={<ExamineeListPage />} />
-          <Route path="/admin/examinees/:id" element={<ExamineeDetailPage />} />
-          <Route path="/admin/exam-sets" element={<ExamSetListPage />} />
-          <Route path="/admin/exam-sets/:id/launch" element={<ExamLaunchPage />} />
-          <Route path="/admin/registrations" element={<RegistrationListPage />} />
-          <Route path="/admin/exam-sessions" element={<ExamSessionListPage />} />
-          <Route path="/admin/scores" element={<ScoreManagementPage />} />
-          <Route path="/admin/monitor" element={<RealtimeMonitorPage />} />
-          <Route path="/admin/llm-settings" element={<LlmSettingsPage />} />
-          <Route path="/admin/question-types" element={<QuestionTypeConfigPage />} />
-          <Route path="/admin/schedules" element={<ExamScheduleManagePage />} />
+          <Route path="/admin/dashboard" element={<AdminAuthGuard><DashboardPage /></AdminAuthGuard>} />
+          <Route path="/admin/members" element={<AdminAuthGuard><MemberListPage /></AdminAuthGuard>} />
+          <Route path="/admin/examinees" element={<AdminAuthGuard><ExamineeListPage /></AdminAuthGuard>} />
+          <Route path="/admin/examinees/:id" element={<AdminAuthGuard><ExamineeDetailPage /></AdminAuthGuard>} />
+          <Route path="/admin/exam-sets" element={<AdminAuthGuard><ExamSetListPage /></AdminAuthGuard>} />
+          <Route path="/admin/exam-sets/:id/launch" element={<AdminAuthGuard><ExamLaunchPage /></AdminAuthGuard>} />
+          <Route path="/admin/registrations" element={<AdminAuthGuard><RegistrationListPage /></AdminAuthGuard>} />
+          <Route path="/admin/exam-sessions" element={<AdminAuthGuard><ExamSessionListPage /></AdminAuthGuard>} />
+          <Route path="/admin/scores" element={<AdminAuthGuard><ScoreManagementPage /></AdminAuthGuard>} />
+          <Route path="/admin/monitor" element={<AdminAuthGuard><RealtimeMonitorPage /></AdminAuthGuard>} />
+          <Route path="/admin/llm-settings" element={<AdminAuthGuard><LlmSettingsPage /></AdminAuthGuard>} />
+          <Route path="/admin/question-types" element={<AdminAuthGuard><QuestionTypeConfigPage /></AdminAuthGuard>} />
+          <Route path="/admin/schedules" element={<AdminAuthGuard><ExamScheduleManagePage /></AdminAuthGuard>} />
 
           {/* 문제 출제 모듈 */}
           <Route path="/question-module/import" element={<QuestionBankImportPage />} />

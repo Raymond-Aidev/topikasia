@@ -34,6 +34,7 @@ export default function GlobalNavigationBar() {
 
   const handleLogout = () => {
     localStorage.removeItem('registrationToken');
+    localStorage.removeItem('registrationUser');
     setLoggedIn(false);
     setUser(null);
     navigate('/');

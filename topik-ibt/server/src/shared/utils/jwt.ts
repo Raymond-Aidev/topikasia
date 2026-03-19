@@ -13,7 +13,11 @@ export function signExamineeToken(payload: Omit<ExamineeTokenPayload, 'role'>): 
 }
 
 export function verifyExamineeToken(token: string): ExamineeTokenPayload {
-  return jwt.verify(token, env.JWT_SECRET) as ExamineeTokenPayload;
+  const payload = jwt.verify(token, env.JWT_SECRET) as ExamineeTokenPayload;
+  if (payload.role !== 'examinee') {
+    throw new Error('Invalid token type');
+  }
+  return payload;
 }
 
 // ─── 어드민 토큰 ────────────────────────────────────────────

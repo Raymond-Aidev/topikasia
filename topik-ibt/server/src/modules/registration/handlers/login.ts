@@ -10,12 +10,30 @@ const loginSchema = z.object({
   password: z.string().min(1, '비밀번호를 입력해주세요'),
 });
 
+// 로그인 시도 횟수 제한 (IP 기반, 메모리)
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_ATTEMPTS = 10;
+const WINDOW_MS = 15 * 60 * 1000; // 15분
+
 /**
  * POST /api/registration/login
  * 접수자 로그인
  */
 export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    // Rate limiting
+    const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    const attempt = loginAttempts.get(clientIp);
+    if (attempt && now < attempt.resetAt) {
+      if (attempt.count >= MAX_ATTEMPTS) {
+        throw new AppError(429, '로그인 시도 횟수를 초과했습니다. 15분 후 다시 시도해주세요.');
+      }
+      attempt.count++;
+    } else {
+      loginAttempts.set(clientIp, { count: 1, resetAt: now + WINDOW_MS });
+    }
+
     const body = loginSchema.parse(req.body);
 
     const users = await prisma.$queryRaw`
@@ -41,6 +59,9 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     if (!user.isVerified) {
       throw new AppError(403, '이메일 인증이 완료되지 않았습니다. 인증코드를 확인해주세요.');
     }
+
+    // 성공 시 Rate Limit 카운트 리셋
+    loginAttempts.delete(clientIp);
 
     const token = signRegistrationToken({
       sub: user.id,
