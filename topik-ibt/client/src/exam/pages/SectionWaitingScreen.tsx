@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { examApi } from '../../api/examApi';
 import { useExamStore } from '../../store/examStore';
 import ExamHeader from '../../shared/components/ExamHeader';
 import type { SectionType } from '../../types/exam.types';
@@ -30,12 +31,20 @@ export default function SectionWaitingScreen() {
   const section = currentSection || 'LISTENING';
   const sectionInfo = assignedExamSet?.sections.find((s) => s.section === section);
 
+  const sessionId = useExamStore((s) => s.sessionId);
+
   useEffect(() => {
     setCountdown(5);
     const id = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(id);
+          // 서버에 섹션 시작 알림 (타이밍 기록)
+          if (sessionId) {
+            examApi.post(`/exam/sessions/${sessionId}/section-start`, {
+              sectionName: section,
+            }).catch(() => {});
+          }
           const now = new Date().toISOString();
           setSectionStartedAt(now);
           if (sectionInfo) {

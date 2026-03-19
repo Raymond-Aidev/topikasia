@@ -80,6 +80,12 @@ export default function SubmitReviewScreen() {
       setCurrentSection(nextSection);
       navigate('/exam/section-waiting', { replace: true });
     } else {
+      // 마지막 섹션 제출 → 시험 완료 (자동 채점 트리거)
+      try {
+        await examApi.post(`/exam/sessions/${sessionId}/complete`);
+      } catch {
+        // 실패해도 종료 화면으로 진행
+      }
       setExamPhase('DONE');
       navigate('/exam/end', { replace: true });
     }
