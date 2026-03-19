@@ -70,7 +70,8 @@ export default function ExamSchedulePage() {
         (r) => r.scheduleId === sch.id && r.status !== 'CANCELLED'
       );
       if (existing) {
-        alert('이미 접수한 신청입니다');
+        const goMyPage = confirm('이미 접수한 시험입니다.\n마이페이지에서 접수 내역을 확인하시겠습니까?');
+        if (goMyPage) navigate('/registration/mypage');
         return;
       }
       // 응시 대상자 체크
