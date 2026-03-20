@@ -41,6 +41,7 @@ export default function LandingPage() {
   const topPad = compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT;
 
   const isLoggedIn = useRegistrationStore((s) => s.isLoggedIn);
+  const user = useRegistrationStore((s) => s.user);
   const setSchedules = useRegistrationStore((s) => s.setSchedules);
   const selectSchedule = useRegistrationStore((s) => s.selectSchedule);
 
@@ -65,7 +66,7 @@ export default function LandingPage() {
       } catch { /* invalid token */ }
     }
 
-    if (!isLoggedIn || !tokenValid) {
+    if (!isLoggedIn || !user || !tokenValid) {
       selectSchedule(schedule);
       navigate('/registration/login', { state: { from: '/registration/schedules' } });
       return;

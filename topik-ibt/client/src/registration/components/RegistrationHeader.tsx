@@ -38,6 +38,7 @@ export default function RegistrationHeader({ showTimer = false, showUserMenu = t
 
   const handleLogout = () => {
     localStorage.removeItem('registrationToken');
+    localStorage.removeItem('registrationUser');
     setUser(null);
     setLoggedIn(false);
     navigate('/registration');

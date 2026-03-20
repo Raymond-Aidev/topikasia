@@ -85,9 +85,17 @@ function loadPersistedUser(): RegistrationUser | null {
   }
 }
 
+// 토큰과 유저 데이터 모두 유효해야 로그인 상태로 판단
+const _tokenOk = isTokenValid();
+const _user = _tokenOk ? loadPersistedUser() : null;
+// 토큰은 있는데 유저 데이터 없으면 토큰도 정리
+if (_tokenOk && !_user) {
+  localStorage.removeItem('registrationToken');
+}
+
 export const useRegistrationStore = create<RegistrationState>((set) => ({
-  user: isTokenValid() ? loadPersistedUser() : null,
-  isLoggedIn: isTokenValid(),
+  user: _user,
+  isLoggedIn: _tokenOk && !!_user,
   schedules: [],
   selectedSchedule: null,
   currentStep: 1,
@@ -113,6 +121,7 @@ export const useRegistrationStore = create<RegistrationState>((set) => ({
   setCurrentRegistration: (r) => set({ currentRegistration: r }),
   resetForm: () => set({ currentStep: 1, formData: { ...initialFormData } }),
   reset: () => {
+    localStorage.removeItem('registrationToken');
     localStorage.removeItem('registrationUser');
     set({
       user: null,

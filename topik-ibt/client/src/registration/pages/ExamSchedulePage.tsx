@@ -38,6 +38,7 @@ export default function ExamSchedulePage() {
   const navigate = useNavigate();
   const selectSchedule = useRegistrationStore((s) => s.selectSchedule);
   const isLoggedIn = useRegistrationStore((s) => s.isLoggedIn);
+  const user = useRegistrationStore((s) => s.user);
 
   const [schedules, setSchedules] = useState<ExamSchedule[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -69,7 +70,7 @@ export default function ExamSchedulePage() {
       } catch { /* invalid token */ }
     }
 
-    if (!isLoggedIn || !tokenValid) {
+    if (!isLoggedIn || !user || !tokenValid) {
       selectSchedule(sch);
       navigate('/registration/login', { state: { from: '/registration/schedules' } });
       return;
