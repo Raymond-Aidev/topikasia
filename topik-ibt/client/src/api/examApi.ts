@@ -20,8 +20,9 @@ examApi.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const url = error.config?.url || '';
-      const isLmsRequest = url.includes('/lms');
-      if (!isLmsRequest) {
+      // LMS, 성적 페이지는 컴포넌트에서 직접 처리
+      const skipRedirect = url.includes('/lms') || url.includes('/exam/score');
+      if (!skipRedirect) {
         localStorage.removeItem('examToken');
         window.location.href = '/login';
       }

@@ -57,7 +57,9 @@ export default function LmsMainScreen() {
   const [history, setHistory] = useState<ExamHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const hasToken = !!(localStorage.getItem('examToken') || localStorage.getItem('registrationToken'));
+  const [hasToken, setHasToken] = useState(
+    !!(localStorage.getItem('examToken') || localStorage.getItem('registrationToken'))
+  );
 
   useEffect(() => {
     if (!hasToken) {
@@ -66,7 +68,14 @@ export default function LmsMainScreen() {
     }
     examApi.get('/lms/history')
       .then(res => setHistory(res.data.data || []))
-      .catch(() => {})
+      .catch((err) => {
+        // 401 = 토큰 만료/무효 → 비로그인 안내로 전환
+        if (err.response?.status === 401) {
+          localStorage.removeItem('examToken');
+          localStorage.removeItem('registrationToken');
+          setHasToken(false);
+        }
+      })
       .finally(() => setLoading(false));
   }, [hasToken]);
 

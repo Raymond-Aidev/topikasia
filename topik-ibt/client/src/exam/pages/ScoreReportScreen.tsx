@@ -46,15 +46,27 @@ export default function ScoreReportScreen() {
   const [scores, setScores] = useState<ScoreData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [needLogin, setNeedLogin] = useState(false);
 
   useEffect(() => {
+    const hasToken = !!(localStorage.getItem('examToken') || localStorage.getItem('registrationToken'));
+    if (!hasToken) {
+      setNeedLogin(true);
+      setLoading(false);
+      return;
+    }
     examApi.get('/exam/score')
       .then(res => {
         const data = res.data.data;
         setScores(Array.isArray(data) ? data : data ? [data] : []);
       })
       .catch(err => {
-        if (err.response?.status === 401) return;
+        if (err.response?.status === 401) {
+          localStorage.removeItem('examToken');
+          localStorage.removeItem('registrationToken');
+          setNeedLogin(true);
+          return;
+        }
         setError(err.response?.data?.message || '성적을 불러올 수 없습니다');
       })
       .finally(() => setLoading(false));
@@ -76,6 +88,39 @@ export default function ScoreReportScreen() {
     );
   }
 
+  if (needLogin) {
+    return (
+      <div className="min-h-screen bg-gray-50"
+        style={{ paddingTop: compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT }}>
+        <GlobalNavigationBar />
+        <div className="flex flex-col items-center justify-center"
+          style={{ minHeight: `calc(100vh - ${compact ? GNB_HEIGHT_MOBILE : GNB_HEIGHT}px)` }}>
+          <div className="text-5xl mb-4 opacity-40">🔒</div>
+          <div className="text-lg font-bold text-gray-700 mb-2">로그인 후 조회 가능</div>
+          <div className="text-sm text-gray-400 mb-7 leading-relaxed">
+            성적을 확인하려면 로그인이 필요합니다
+          </div>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/registration/login')}
+              className="px-9 py-3 rounded-lg border-2 border-blue-800 text-blue-800 text-[15px] font-semibold h-auto"
+            >
+              로그인
+            </Button>
+            <Button
+              onClick={() => navigate('/registration/signup')}
+              className="px-9 py-3 rounded-lg bg-blue-800 hover:bg-blue-900 text-[15px] font-semibold h-auto"
+            >
+              회원가입
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (error || scores.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50"
@@ -86,7 +131,7 @@ export default function ScoreReportScreen() {
           <div className="text-5xl mb-4">-</div>
           <div className="text-lg text-gray-500 mb-6">{error || '공개된 성적이 없습니다'}</div>
           <Button
-            onClick={() => navigate('/registration')}
+            onClick={() => navigate('/lms')}
             className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-[15px] font-semibold h-auto"
           >
             돌아가기
@@ -206,7 +251,7 @@ export default function ScoreReportScreen() {
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/lms')}
           className="px-8 py-3 rounded-lg border-gray-300 text-gray-700 text-[15px] font-semibold h-auto"
         >
           돌아가기
