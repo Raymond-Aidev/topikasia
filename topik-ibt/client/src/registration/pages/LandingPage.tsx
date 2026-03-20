@@ -55,9 +55,19 @@ export default function LandingPage() {
   }, [setSchedules]);
 
   const handleApply = async (schedule: ExamSchedule) => {
-    if (!isLoggedIn) {
+    // 로그인 상태 + 토큰 유효성 실시간 확인
+    const token = localStorage.getItem('registrationToken');
+    let tokenValid = false;
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        tokenValid = !(payload.exp && payload.exp * 1000 < Date.now());
+      } catch { /* invalid token */ }
+    }
+
+    if (!isLoggedIn || !tokenValid) {
       selectSchedule(schedule);
-      navigate('/registration/login');
+      navigate('/registration/login', { state: { from: '/registration/schedules' } });
       return;
     }
     try {
